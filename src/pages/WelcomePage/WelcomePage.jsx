@@ -3,7 +3,7 @@ import welcomeImage from "../../assets/welcome-study.png";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 
-function WelcomePage({ onSignin, onSignup }) {
+function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -57,7 +57,7 @@ function WelcomePage({ onSignin, onSignup }) {
           Search, save, and review software engineering concepts as study cards.
         </p>
 
-        {activeForm === null && (
+        {!isLoggedIn && activeForm === null && (
           <div className="app__auth-options">
             <button
               type="button"

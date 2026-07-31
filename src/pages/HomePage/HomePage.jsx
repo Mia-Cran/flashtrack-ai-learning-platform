@@ -21,7 +21,8 @@ function HomePage({ onSaveTopic }) {
     setError("");
 
     try {
-      const encodedQuery = encodeURIComponent(searchQuery.trim());
+      const cleanedQuery = searchQuery.trim().replace(/[.,!?]+$/, "");
+      const encodedQuery = encodeURIComponent(cleanedQuery);
       const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodedQuery}`;
       const response = await fetch(url);
 
@@ -30,7 +31,7 @@ function HomePage({ onSaveTopic }) {
       }
 
       const data = await response.json();
-      const normalizedQuery = searchQuery.trim().toLowerCase();
+      const normalizedQuery = cleanedQuery.toLowerCase();
       const studyInfo = simpleDefinitions[normalizedQuery] || null;
 
       setTopicResult({

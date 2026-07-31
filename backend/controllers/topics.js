@@ -102,8 +102,9 @@ const createTopic = (req, res) => {
     category,
     difficulty,
   } = req.body;
-
-  const normalizedTerm = term.trim().toLowerCase();
+   
+  const cleanedTerm = term.trim();
+  const normalizedTerm = cleanedTerm.toLowerCase();
 
   return Topic.findOne({
     normalizedTerm,
@@ -117,7 +118,7 @@ const createTopic = (req, res) => {
       }
 
       return Topic.create({
-        term,
+        term: cleanedTerm,
         normalizedTerm,
         simpleDefinition,
         beginnerDefinition,

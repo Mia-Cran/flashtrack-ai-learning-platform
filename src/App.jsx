@@ -176,7 +176,10 @@ function App() {
         <Route
           path="/"
           element={
-            <WelcomePage onSignin={handleSignin} onSignup={handleSignup} />
+            <WelcomePage 
+              onSignin={handleSignin} 
+              onSignup={handleSignup} 
+              isLoggedIn={isLoggedIn} />
           }
         />
         <Route
