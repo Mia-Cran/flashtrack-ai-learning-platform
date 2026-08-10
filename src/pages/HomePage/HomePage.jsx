@@ -23,7 +23,7 @@ function HomePage({ onSaveTopic }) {
     try {
       const cleanedQuery = searchQuery.trim().replace(/[.,!?]+$/, "");
       const token = localStorage.getItem("jwt");
-      const response = await fetch("http://localhost:3001/study/generate", {
+      const response = await fetch("https://software-engineering-study-tracker.onrender.com/study/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
