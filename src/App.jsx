@@ -111,7 +111,7 @@ function App() {
       relatedTopics: topic.relatedTopics,
     };
 
-    return fetch("http://localhost:3001/topics", {
+    return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
