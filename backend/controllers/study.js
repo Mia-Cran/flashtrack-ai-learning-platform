@@ -1,18 +1,18 @@
 const openai = require("../utils/openai");
 
 const generateStudyGuide = async (req, res) => {
-   const { term } = req.body;
+  const { term } = req.body;
 
-   if (!term) {
+  if (!term) {
     return res.status(400).send({
-        message: "A study term is required",
+      message: "A study term is required",
     });
-   }
+  }
 
-   try {
-     const response = await openai.responses.create({
-       model: "gpt-5.5",
-       instructions: `
+  try {
+    const response = await openai.responses.create({
+      model: "gpt-5.5",
+      instructions: `
     You are FlashTrack, a patient software engineering instructor.
 
     Your job is to help students build confidence while learning software engineering.
@@ -40,12 +40,58 @@ const generateStudyGuide = async (req, res) => {
     - A difficulty level: Beginner, Intermediate, or Advanced
     - Three related topics
           `,
-          input: `Create a study guide for: ${term}`,
-        });
-     } catch (err) {
-       console.error(err);
+      input: `Create a study guide for: ${term}`,
+      text: {
+        format: {
+          type: "json_schema",
+          name: "study_guide",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              simpleDefinition: { type: "string" },
+              beginnerExplanation: { type: "string" },
+              technicalDefinition: { type: "string" },
+              analogy: { type: "string" },
+              codeExample: { type: "string" },
+              commonMistake: { type: "string" },
+              category: { type: "string" },
+              difficulty: { type: "string" },
+              relatedTopics: {
+                type: "array",
+                items: { type: "string" },
+              },
+            },
+            required: [
+              "title",
+              "simpleDefinition",
+              "beginnerExplanation",
+              "technicalDefinition",
+              "analogy",
+              "codeExample",
+              "commonMistake",
+              "category",
+              "difficulty",
+              "relatedTopics",
+            ],
+            additionalProperties: false,
+          },
+        },
+      },
+    });
+    return res.status(200).send({
+      studyGuide: JSON.parse(response.output_text),
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).send({
+      message: "Failed to generate study guide",
+    });
   }
-};     
-  
-           
- 
+};
+
+module.exports = {
+  generateStudyGuide,
+};

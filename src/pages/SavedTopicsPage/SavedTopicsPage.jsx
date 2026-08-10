@@ -18,12 +18,7 @@ function SavedTopicsPage({ savedTopics, onDeleteTopic }) {
               topic={{
                 ...topic,
                 title: topic.term,
-                description: "",
-                extract: "",
-                studyInfo: {
-                  simpleDefinition: topic.simpleDefinition,
-                  example: topic.beginnerDefinition,
-                },
+                beginnerExplanation: topic.beginnerDefinition,
               }}
               onDeleteTopic={onDeleteTopic}
             />

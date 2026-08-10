@@ -22,22 +22,25 @@ function HomePage({ onSaveTopic }) {
 
     try {
       const cleanedQuery = searchQuery.trim().replace(/[.,!?]+$/, "");
-      const encodedQuery = encodeURIComponent(cleanedQuery);
-      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodedQuery}`;
-      const response = await fetch(url);
+      const token = localStorage.getItem("jwt");
+      const response = await fetch("http://localhost:3001/study/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          term: cleanedQuery,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Topic not found.");
       }
 
       const data = await response.json();
-      const normalizedQuery = cleanedQuery.toLowerCase();
-      const studyInfo = simpleDefinitions[normalizedQuery] || null;
 
-      setTopicResult({
-        ...data,
-        studyInfo,
-      });
+      setTopicResult(data.studyGuide);
     } catch (err) {
       console.log(err);
       setTopicResult(null);

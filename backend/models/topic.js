@@ -21,6 +21,22 @@ const topicSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  analogy: {
+    type: String,
+    required: true,
+  },
+  codeExample: {
+    type: String,
+    required: true,
+  },
+  commonMistake: {
+    type: String,
+    required: true,
+  },
+  relatedTopics: {
+    type: [String],
+    required: true,
+  },
   category: {
     type: String,
     required: true,

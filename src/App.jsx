@@ -100,14 +100,18 @@ function App() {
 
     const backendTopic = {
       term: topic.title,
-      simpleDefinition: topic.extract,
-      beginnerDefinition: topic.extract,
-      technicalDefinition: topic.extract,
-      category: "General",
-      difficulty: "beginner",
+      simpleDefinition: topic.simpleDefinition,
+      beginnerDefinition: topic.beginnerExplanation,
+      technicalDefinition: topic.technicalDefinition,
+      category: topic.category,
+      difficulty: topic.difficulty,
+      analogy: topic.analogy,
+      codeExample: topic.codeExample,
+      commonMistake: topic.commonMistake,
+      relatedTopics: topic.relatedTopics,
     };
 
-    return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
+    return fetch("http://localhost:3001/topics", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

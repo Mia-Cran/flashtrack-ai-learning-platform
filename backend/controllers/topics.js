@@ -3,7 +3,6 @@ const Topic = require("../models/topic");
 const getTopics = (req, res) => {
   Topic.find({ owner: req.user._id })
     .then((topics) => {
-      res.send(topics);
     })
     .catch((err) => {
       console.error(err);
@@ -99,6 +98,10 @@ const createTopic = (req, res) => {
     simpleDefinition,
     beginnerDefinition,
     technicalDefinition,
+    analogy,
+    codeExample,
+    commonMistake,
+    relatedTopics,
     category,
     difficulty,
   } = req.body;
@@ -125,6 +128,10 @@ const createTopic = (req, res) => {
         technicalDefinition,
         category,
         difficulty,
+        analogy,
+        codeExample,
+        commonMistake,
+        relatedTopics,
         owner: req.user._id,
       }).then((topic) => {
         return res.status(201).send(topic);
