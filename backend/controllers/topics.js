@@ -3,6 +3,7 @@ const Topic = require("../models/topic");
 const getTopics = (req, res) => {
   Topic.find({ owner: req.user._id })
     .then((topics) => {
+      res.send(topics);
     })
     .catch((err) => {
       console.error(err);
