@@ -1,40 +1,311 @@
-.study-card__simple-info {
-  margin: 16px 0;
-  padding: 16px;
-  border: 1px solid #ddd;
+.study-card {
+  --tan: #f7f3ec;
+  --white: #ffffff;
+  --border: #e4dcc8;
+  --text: #1c1b19;
+  --text-muted: #5b574d;
+  --green-bg: #eaf3de;
+  --green-accent: #3b6d11;
+  --pink-accent: #993556;
+  --pink-bg: #f7e3ea;
+  --pink-border: #e9c3d1;
+  --divider: #ece6d8;
+  --focus-ring: #1c1b19;
+
+  background: var(--tan);
   border-radius: 12px;
+  padding: 20px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-.study-card__subtitle {
-  margin: 0 0 6px;
-  font-size: 18px;
+.study-card__inner {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.study-card__title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+/* Badges */
+
+.study-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: -8px;
+}
+
+.study-card__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+.study-card__pill--difficulty {
+  background: var(--green-bg);
+  color: var(--green-accent);
+  border-color: #d5e6c2;
+}
+
+.study-card__pill--category {
+  background: var(--pink-bg);
+  color: var(--pink-accent);
+  border-color: var(--pink-border);
+}
+
+/* Simple definition */
+
+.study-card__simple {
+  background: var(--green-bg);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.study-card__simple-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--green-accent);
+}
+
+.study-card__simple-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--green-accent);
 }
 
 .study-card__simple-definition {
-  margin: 0 0 12px;
-  line-height: 1.5;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
 }
 
-.study-card__example {
-  margin: 0;
-  line-height: 1.5;
+/* Accordion */
+
+.study-card__accordion {
+  border-top: 1px solid var(--divider);
 }
-.study-card__save-button {
-  margin-top: 16px;
-  padding: 8px 16px;
+
+.study-card__accordion-item {
+  border-bottom: 1px solid var(--divider);
+}
+
+.study-card__accordion-heading {
+  margin: 0;
+}
+
+.study-card__accordion-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+}
+
+.study-card__accordion-button:hover {
+  color: var(--pink-accent);
+}
+
+.study-card__accordion-button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.study-card__accordion-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.study-card__section-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: var(--pink-accent);
+}
+
+.study-card__chevron {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--pink-accent);
+  transition: transform 0.2s ease;
+}
+
+.study-card__chevron--open {
+  transform: rotate(180deg);
+}
+
+.study-card__accordion-panel {
+  padding: 0 4px 18px 36px;
+}
+
+.study-card__accordion-panel p {
+  margin: 0;
   font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.study-card__code {
+  margin: 0;
+  padding: 14px 16px;
+  background: #f4f1e8;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.study-card__code code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Related topics */
+
+.study-card__related-label {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.study-card__related-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Actions */
+
+.study-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.study-card__save-button,
+.study-card__delete-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
   cursor: pointer;
 }
+
+.study-card__save-button {
+  background: var(--green-accent);
+  border: 1px solid var(--green-accent);
+  color: var(--white);
+}
+
+.study-card__save-button:hover:not(:disabled) {
+  background: #2f5a0d;
+  border-color: #2f5a0d;
+}
+
+.study-card__save-button:disabled {
+  background: #a9c294;
+  border-color: #a9c294;
+  cursor: not-allowed;
+}
+
+.study-card__delete-button {
+  background: var(--white);
+  border: 1px solid var(--pink-accent);
+  color: var(--pink-accent);
+}
+
+.study-card__delete-button:hover {
+  background: var(--pink-bg);
+}
+
+.study-card__save-button:focus-visible,
+.study-card__delete-button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Utility */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media screen and (max-width: 600px) {
-    .study-card {
-        padding: 16px;
-    }
-    .study-card__title {
-        font-size: 24px;
-    }
-    .study-card__simple-info {
-        padding: 14px;
-    }
+  .study-card {
+    padding: 14px;
+  }
+
+  .study-card__inner {
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .study-card__title {
+    font-size: 22px;
+  }
+
+  .study-card__simple {
+    padding: 14px 16px;
+  }
+
+  .study-card__accordion-panel {
+    padding-left: 4px;
+  }
 }
