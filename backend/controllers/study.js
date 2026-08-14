@@ -1,5 +1,21 @@
 const openai = require("../utils/openai");
 
+const BLOCKED_MODERATION_CATEGORIES = [
+  "hate",
+  "hate/threatening",
+  "harassment",
+  "harassment/threatening",
+  "self-harm",
+  "self-harm/intent",
+  "self-harm/instructions",
+  "sexual",
+  "sexual/minors",
+  "violence",
+  "violence/graphic",
+  "illicit",
+  "illicit/violent",
+];
+
 const generateStudyGuide = async (req, res) => {
   const { term } = req.body;
 
@@ -10,6 +26,20 @@ const generateStudyGuide = async (req, res) => {
   }
 
   try {
+    const moderation = await openai.moderations.create({ input: term });
+    const { categories } = moderation.results[0];
+
+    const isBlocked = BLOCKED_MODERATION_CATEGORIES.some(
+      (category) => categories[category] === true,
+    );
+
+    if (isBlocked) {
+      return res.status(400).send({
+        message:
+          "This search couldn't be processed. Please try a different topic.",
+      });
+    }
+
     const response = await openai.responses.create({
       model: "gpt-5.5",
       instructions: `

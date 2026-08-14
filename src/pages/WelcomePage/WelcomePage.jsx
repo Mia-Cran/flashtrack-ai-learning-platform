@@ -10,9 +10,13 @@ function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
   const navigate = useNavigate();
   const [activeForm, setActiveForm] = useState(null);
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [signinError, setSigninError] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
+    setIsSigningIn(true);
+    setSigninError("");
 
     onSignin(email, password)
       .then(() => {
@@ -20,6 +24,10 @@ function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
       })
       .catch((err) => {
         console.error(err);
+        setSigninError("Incorrect email or password. Please try again.");
+      })
+      .finally(() => {
+        setIsSigningIn(false);
       });
   }
 
@@ -94,7 +102,23 @@ function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
               required
             />
 
-            <button type="submit">Sign In</button>
+            <button
+              type="submit"
+              className="app__submit-button"
+              disabled={isSigningIn}
+              aria-busy={isSigningIn}
+            >
+              {isSigningIn && (
+                <span className="app__spinner" aria-hidden="true" />
+              )}
+              {isSigningIn ? "Signing In..." : "Sign In"}
+            </button>
+
+            {signinError && (
+              <p className="app__form-error" role="alert">
+                {signinError}
+              </p>
+            )}
           </form>
         )}
         {activeForm === "signup" && (

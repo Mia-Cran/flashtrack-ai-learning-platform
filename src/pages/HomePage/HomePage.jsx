@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./HomePage.css";
 import StudyCard from "../../components/StudyCard/StudyCard";
-import simpleDefinitions from "../../utils/simpleDefinitions";
 
 function HomePage({ onSaveTopic }) {
   const [searchQuery, setSearchQuery] = useState("");
