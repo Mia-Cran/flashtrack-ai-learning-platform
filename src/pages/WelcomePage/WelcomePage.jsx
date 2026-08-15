@@ -57,12 +57,12 @@ function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
 
       <div className="app__text">
         <h1 className="app__title">
-          Welcome to <br />
-          Your Software Engineering Study Tracker
+          Welcome to FlashTrack: <br />
+          Your AI Learning Platform
         </h1>
 
         <p className="app__description">
-          Search, save, and review software engineering concepts as study cards.
+          Search, save, and review any topic you want to learn as study cards.
         </p>
 
         {!isLoggedIn && activeForm === null && (
