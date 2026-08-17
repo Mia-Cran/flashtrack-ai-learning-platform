@@ -166,6 +166,19 @@ function WelcomePage({
             )}
 
             {!isLoggedIn && (
+              <p className="welcome__signup-prompt">
+                Don&rsquo;t have an account?{" "}
+                <button
+                  type="button"
+                  className="welcome__inline-link"
+                  onClick={() => setActiveForm("signup")}
+                >
+                  Create one
+                </button>
+              </p>
+            )}
+
+            {!isLoggedIn && (
               <button
                 type="button"
                 className="app__auth-link welcome__signin-link"
