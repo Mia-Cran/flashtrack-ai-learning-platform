@@ -4,6 +4,12 @@ import "./AboutPage.css";
 function AboutPage() {
   return (
     <section className="about">
+      <div className="about__image-circle">
+        <img className="about__image"
+         src={mariaPhoto}
+         alt="Maria smiling" />
+      </div>
+
       <h1 className="about__title">
         About <span className="about__brand">FlashTrack</span>
       </h1>
@@ -39,12 +45,6 @@ function AboutPage() {
           subjects and needs — building toward a platform that actually
           adapts to you, not the other way around.
         </p>
-      </div>
-
-      <div className="about__image-circle">
-        <img className="about__image"
-         src={mariaPhoto}
-         alt="Maria smiling" />
       </div>
     </section>
   );
