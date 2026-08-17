@@ -1,5 +1,9 @@
-import { Link, useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import "./Header.css";
+
+function navLinkClassName({ isActive }) {
+  return isActive ? "header__link header__link--active" : "header__link";
+}
 
 function Header({ isLoggedIn, onSignout }) {
   const navigate = useNavigate();
@@ -10,35 +14,42 @@ function Header({ isLoggedIn, onSignout }) {
   }
 
   return (
-  <header className="header">
-    <nav className="header__nav">
-      <Link className="header__link" to="/">
-        Welcome
-      </Link>
+    <header className="header">
+      <nav className="header__nav">
+        <span className="header__brand">FlashTrack</span>
 
-      {isLoggedIn && (
-        <>
-          <Link className="header__link" to="/home">
-            Home
-          </Link>
+        <div className="header__links">
+          <NavLink className={navLinkClassName} to="/" end>
+            Welcome
+          </NavLink>
 
-          <Link className="header__link" to="/saved">
-            Saved Topics
-          </Link>
+          {isLoggedIn && (
+            <>
+              <NavLink className={navLinkClassName} to="/home" end>
+                Home
+              </NavLink>
 
-          <Link className="header__link" to="/about">
-            About
-          </Link>
+              <NavLink className={navLinkClassName} to="/saved" end>
+                Saved Topics
+              </NavLink>
 
-          <button type="button" onClick={handleSignoutClick}>
-            Sign Out
-          </button>
-        </>
-      )}
-    </nav>
-  </header>
-);
+              <NavLink className={navLinkClassName} to="/about" end>
+                About
+              </NavLink>
+
+              <button
+                type="button"
+                className="header__signout"
+                onClick={handleSignoutClick}
+              >
+                Sign Out
+              </button>
+            </>
+          )}
+        </div>
+      </nav>
+    </header>
+  );
 }
- 
 
 export default Header;

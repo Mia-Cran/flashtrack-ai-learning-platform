@@ -2,6 +2,24 @@ import { useState } from "react";
 import "./HomePage.css";
 import StudyCard from "../../components/StudyCard/StudyCard";
 
+const exampleTopics = [
+  {
+    title: "React",
+    simpleDefinition:
+      "React is a JavaScript library for building interactive user interfaces out of reusable components.",
+  },
+  {
+    title: "Photosynthesis",
+    simpleDefinition:
+      "Photosynthesis is the process plants use to turn sunlight, water, and carbon dioxide into energy and oxygen.",
+  },
+  {
+    title: "The French Revolution",
+    simpleDefinition:
+      "The French Revolution was a period of major political upheaval in France that overthrew the monarchy and reshaped the country.",
+  },
+];
+
 function HomePage({ onSaveTopic }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [topicResult, setTopicResult] = useState(null);
@@ -53,13 +71,13 @@ function HomePage({ onSaveTopic }) {
     <section className="home">
       <h1 className="home__title">Search Topics</h1>
       <p className="home__description">
-        Search for software engineering concepts and turn them into study cards.
+        Search for any topic you want to learn and turn it into a study card.
       </p>
       <form className="home__form" onSubmit={handleSearchSubmit}>
         <input
           className="home__input"
           type="text"
-          placeholder='Try "JavaScript", "React", or "API"'
+          placeholder='Try "React", "Photosynthesis", or "The French Revolution"'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -74,6 +92,34 @@ function HomePage({ onSaveTopic }) {
 
       {topicResult && (
         <StudyCard topic={topicResult} onSaveTopic={onSaveTopic} />
+      )}
+
+      {!topicResult && (
+        <section className="home__examples" aria-label="Example topics">
+          <p className="home__examples-label">
+            See what a study card looks like — try one:
+          </p>
+          <div className="home__examples-grid">
+            {exampleTopics.map((topic) => (
+              <button
+                key={topic.title}
+                type="button"
+                className="home__example-card"
+                onClick={() => setSearchQuery(topic.title)}
+              >
+                <span className="home__example-title">{topic.title}</span>
+                <span className="home__example-simple">
+                  <span className="home__example-simple-label">
+                    Simple Definition
+                  </span>
+                  <span className="home__example-simple-text">
+                    {topic.simpleDefinition}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
       )}
     </section>
   );

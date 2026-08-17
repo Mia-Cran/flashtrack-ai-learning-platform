@@ -56,10 +56,8 @@ function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
       />
 
       <div className="app__text">
-        <h1 className="app__title">
-          Welcome to FlashTrack: <br />
-          Your AI Learning Platform
-        </h1>
+        <h1 className="app__title">FlashTrack</h1>
+        <p className="app__tagline">powered by Adapt AI</p>
 
         <p className="app__description">
           Search, save, and review any topic you want to learn as study cards.
