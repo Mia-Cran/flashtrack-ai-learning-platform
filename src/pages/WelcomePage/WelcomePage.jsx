@@ -1,9 +1,49 @@
 import "./WelcomePage.css";
-import welcomeImage from "../../assets/welcome-study.png";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import {
+  IconArrowRight,
+  IconBulb,
+  IconConfetti,
+  IconFlame,
+} from "@tabler/icons-react";
 
-function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+function getSavedAt(topicId) {
+  if (typeof topicId !== "string" || topicId.length < 8) {
+    return null;
+  }
+
+  const seconds = parseInt(topicId.substring(0, 8), 16);
+  return Number.isNaN(seconds) ? null : seconds * 1000;
+}
+
+function countSavedThisWeek(savedTopics) {
+  const now = Date.now();
+
+  return savedTopics.filter((topic) => {
+    const savedAt = getSavedAt(topic._id);
+    return savedAt !== null && now - savedAt <= ONE_WEEK_MS;
+  }).length;
+}
+
+function getStreakText(count) {
+  if (count === 0) {
+    return "No topics saved this week yet — let's fix that.";
+  }
+
+  const label = count === 1 ? "topic" : "topics";
+  return `${count} ${label} saved this week — nice streak`;
+}
+
+function WelcomePage({
+  onSignin,
+  onSignup,
+  isLoggedIn,
+  userName,
+  savedTopics = [],
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -47,42 +87,95 @@ function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
       });
   }
 
+  function handlePrimaryCta() {
+    if (isLoggedIn) {
+      navigate("/home");
+      return;
+    }
+
+    setActiveForm("signup");
+  }
+
+  const isReturning = isLoggedIn && savedTopics.length > 0;
+  const savedThisWeek = isReturning ? countSavedThisWeek(savedTopics) : 0;
+
   return (
     <section className="app__intro">
-      <img
-        className="app__image"
-        src={welcomeImage}
-        alt="Open book with coding screen"
-      />
+      <div className="welcome__card">
+        {activeForm === null ? (
+          <>
+            <div
+              className={`welcome__icon-wrap welcome__icon-wrap--${
+                isReturning ? "pink" : "green"
+              }`}
+            >
+              {isReturning ? (
+                <IconConfetti
+                  size={36}
+                  stroke={1.75}
+                  className="welcome__icon welcome__icon--pink"
+                  aria-hidden="true"
+                />
+              ) : (
+                <IconBulb
+                  size={36}
+                  stroke={1.75}
+                  className="welcome__icon welcome__icon--green"
+                  aria-hidden="true"
+                />
+              )}
+            </div>
 
-      <div className="app__text">
-        <h1 className="app__title">FlashTrack</h1>
-        <p className="app__tagline">powered by Adapt AI</p>
+            <h1 className="welcome__heading">
+              {isReturning
+                ? `Welcome back, ${userName}!`
+                : "Welcome to FlashTrack!"}
+            </h1>
 
-        <p className="app__description">
-          Search, save, and review any topic you want to learn as study cards.
-        </p>
+            <p className="welcome__subtext">
+              {isReturning
+                ? "Great to see you again. Ready to keep the momentum going?"
+                : "Let's find something worth learning today. Search any topic and watch a full study card come to life in seconds."}
+            </p>
 
-        {!isLoggedIn && activeForm === null && (
-          <div className="app__auth-options">
+            {isReturning && (
+              <span className="welcome__streak-badge">
+                <IconFlame size={16} stroke={2} aria-hidden="true" />
+                {getStreakText(savedThisWeek)}
+              </span>
+            )}
+
             <button
               type="button"
-              className="app__auth-link"
-              onClick={() => setActiveForm("signin")}
+              className="welcome__cta"
+              onClick={handlePrimaryCta}
             >
-              Sign In
+              {isReturning ? "Continue learning" : "Start exploring"}
+              <IconArrowRight size={18} stroke={2} aria-hidden="true" />
             </button>
 
-            <button
-              type="button"
-              className="app__auth-link"
-              onClick={() => setActiveForm("signup")}
-            >
-              Create Account
-            </button>
-          </div>
-        )}
-        {activeForm === "signin" && (
+            {!isReturning && (
+              <div className="welcome__badges">
+                <span className="welcome__badge welcome__badge--pink">
+                  Any topic
+                </span>
+                <span className="welcome__badge welcome__badge--green">
+                  AI-powered
+                </span>
+              </div>
+            )}
+
+            {!isLoggedIn && (
+              <button
+                type="button"
+                className="app__auth-link welcome__signin-link"
+                onClick={() => setActiveForm("signin")}
+              >
+                Already have an account? Sign in
+              </button>
+            )}
+          </>
+        ) : activeForm === "signin" ? (
           <form onSubmit={handleSubmit}>
             <input
               type="email"
@@ -118,8 +211,7 @@ function WelcomePage({ onSignin, onSignup, isLoggedIn }) {
               </p>
             )}
           </form>
-        )}
-        {activeForm === "signup" && (
+        ) : (
           <form onSubmit={handleSignup}>
             <input
               type="text"

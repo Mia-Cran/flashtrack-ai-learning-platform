@@ -32,28 +32,6 @@ body {
   
  
 }
-.app__title {
-  margin: 0px 0 4px 0;
-  font-size: 40px;
-  line-height: 1.2;
-
- }
-
-.app__tagline {
-  margin: 0 0 16px;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #993556;
-}
-
-.app__description {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.5;
-  
-  
-}
 button,
 input {
   font-family: inherit;

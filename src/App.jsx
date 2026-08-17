@@ -12,6 +12,9 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     Boolean(localStorage.getItem("jwt")),
   );
+  const [userName, setUserName] = useState(
+    localStorage.getItem("name") || "",
+  );
 
   function loadTopics(token) {
     return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
@@ -61,7 +64,9 @@ function App() {
       })
       .then((data) => {
         localStorage.setItem("jwt", data.token);
+        localStorage.setItem("name", data.name || "");
         setIsLoggedIn(true);
+        setUserName(data.name || "");
 
         return loadTopics(data.token).then(() => {
           return data.token;
@@ -91,8 +96,10 @@ function App() {
 
   function handleSignout() {
     localStorage.removeItem("jwt");
+    localStorage.removeItem("name");
     setSavedTopics([]);
     setIsLoggedIn(false);
+    setUserName("");
   }
 
   function handleSaveTopic(topic) {
@@ -180,10 +187,13 @@ function App() {
         <Route
           path="/"
           element={
-            <WelcomePage 
-              onSignin={handleSignin} 
-              onSignup={handleSignup} 
-              isLoggedIn={isLoggedIn} />
+            <WelcomePage
+              onSignin={handleSignin}
+              onSignup={handleSignup}
+              isLoggedIn={isLoggedIn}
+              userName={userName}
+              savedTopics={savedTopics}
+            />
           }
         />
         <Route
