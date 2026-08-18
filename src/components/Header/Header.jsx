@@ -23,16 +23,18 @@ function Header({ isLoggedIn, onSignout }) {
             Welcome
           </NavLink>
 
+          {isLoggedIn && (
+            <NavLink className={navLinkClassName} to="/home" end>
+              Home
+            </NavLink>
+          )}
+
           <NavLink className={navLinkClassName} to="/search" end>
             Search
           </NavLink>
 
           {isLoggedIn && (
             <>
-              <NavLink className={navLinkClassName} to="/home" end>
-                Home
-              </NavLink>
-
               <NavLink className={navLinkClassName} to="/saved" end>
                 Saved Topics
               </NavLink>
