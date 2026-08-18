@@ -178,36 +178,6 @@
   border-radius: 4px;
 }
 
-.app__spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  vertical-align: -2px;
-  border: 2px solid rgba(47, 47, 58, 0.25);
-  border-top-color: #2f2f3a;
-  border-radius: 50%;
-  animation: app__spin 0.7s linear infinite;
-}
-
-@keyframes app__spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.app__submit-button[disabled] {
-  cursor: not-allowed;
-  opacity: 0.8;
-}
-
-.app__form-error {
-  margin: 8px 0 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #b3261e;
-}
-
 @media screen and (max-width: 600px) {
   .welcome__card {
     padding: 36px 24px;

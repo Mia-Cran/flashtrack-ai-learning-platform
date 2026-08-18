@@ -198,7 +198,14 @@ function App() {
         />
         <Route
           path="/home"
-          element={<HomePage onSaveTopic={handleSaveTopic} />}
+          element={
+            <HomePage
+              onSaveTopic={handleSaveTopic}
+              isLoggedIn={isLoggedIn}
+              onSignup={handleSignup}
+              onSignin={handleSignin}
+            />
+          }
         />
         <Route
           path="/saved"

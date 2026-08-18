@@ -7,6 +7,8 @@ import {
   IconConfetti,
   IconFlame,
 } from "@tabler/icons-react";
+import SigninForm from "../../components/AuthForms/SigninForm";
+import SignupForm from "../../components/AuthForms/SignupForm";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -44,48 +46,8 @@ function WelcomePage({
   userName,
   savedTopics = [],
 }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const navigate = useNavigate();
   const [activeForm, setActiveForm] = useState(null);
-  const [isSigningUp, setIsSigningUp] = useState(false);
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [signinError, setSigninError] = useState("");
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    setIsSigningIn(true);
-    setSigninError("");
-
-    onSignin(email, password)
-      .then(() => {
-        navigate("/home");
-      })
-      .catch((err) => {
-        console.error(err);
-        setSigninError("Incorrect email or password. Please try again.");
-      })
-      .finally(() => {
-        setIsSigningIn(false);
-      });
-  }
-
-  function handleSignup(event) {
-    event.preventDefault();
-    setIsSigningUp(true);
-
-    onSignup(name, email, password)
-      .then(() => {
-        navigate("/home");
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(() => {
-        setIsSigningUp(false);
-      });
-  }
 
   function handlePrimaryCta() {
     if (isLoggedIn) {
@@ -189,71 +151,15 @@ function WelcomePage({
             )}
           </>
         ) : activeForm === "signin" ? (
-          <form onSubmit={handleSubmit}>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email"
-              required
-            />
-
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Password"
-              required
-            />
-
-            <button
-              type="submit"
-              className="app__submit-button"
-              disabled={isSigningIn}
-              aria-busy={isSigningIn}
-            >
-              {isSigningIn && (
-                <span className="app__spinner" aria-hidden="true" />
-              )}
-              {isSigningIn ? "Signing In..." : "Sign In"}
-            </button>
-
-            {signinError && (
-              <p className="app__form-error" role="alert">
-                {signinError}
-              </p>
-            )}
-          </form>
+          <SigninForm
+            onSignin={onSignin}
+            onSuccess={() => navigate("/home")}
+          />
         ) : (
-          <form onSubmit={handleSignup}>
-            <input
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Name"
-              required
-            />
-
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email"
-              required
-            />
-
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Password"
-              required
-            />
-
-            <button type="submit" disabled={isSigningUp}>
-              {isSigningUp ? "Creating account..." : "Create Account"}
-            </button>
-          </form>
+          <SignupForm
+            onSignup={onSignup}
+            onSuccess={() => navigate("/home")}
+          />
         )}
       </div>
     </section>

@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const { generateStudyGuide } = require("../controllers/study");
-const auth = require("../middleware/auth");
+const generateLimiter = require("../middleware/rateLimit");
 
-router.post("/generate", auth, generateStudyGuide);
+router.post("/generate", generateLimiter, generateStudyGuide);
 
 module.exports = router;

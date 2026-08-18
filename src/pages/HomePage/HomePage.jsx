@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./HomePage.css";
 import StudyCard from "../../components/StudyCard/StudyCard";
+import AuthPromptModal from "../../components/AuthPromptModal/AuthPromptModal";
 
 const exampleTopics = [
   {
@@ -20,11 +21,13 @@ const exampleTopics = [
   },
 ];
 
-function HomePage({ onSaveTopic }) {
+function HomePage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [topicResult, setTopicResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [autoSaved, setAutoSaved] = useState(false);
 
   async function handleSearchSubmit(e) {
     e.preventDefault();
@@ -36,16 +39,21 @@ function HomePage({ onSaveTopic }) {
     }
     setIsLoading(true);
     setError("");
+    setShowAuthModal(false);
+    setAutoSaved(false);
 
     try {
       const cleanedQuery = searchQuery.trim().replace(/[.,!?]+$/, "");
       const token = localStorage.getItem("jwt");
+      const headers = { "Content-Type": "application/json" };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch("https://software-engineering-study-tracker.onrender.com/study/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({
           term: cleanedQuery,
         }),
@@ -64,6 +72,26 @@ function HomePage({ onSaveTopic }) {
       setError("Something went wrong. Please try another search.");
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  function handleSaveTopic(topic) {
+    if (!isLoggedIn) {
+      setShowAuthModal(true);
+      return Promise.reject(new Error("Sign in required to save"));
+    }
+
+    return onSaveTopic(topic);
+  }
+
+  async function handleAuthSuccess() {
+    try {
+      await onSaveTopic(topicResult);
+      setAutoSaved(true);
+    } catch (err) {
+      console.error("Failed to save topic after signup:", err);
+    } finally {
+      setShowAuthModal(false);
     }
   }
 
@@ -91,7 +119,20 @@ function HomePage({ onSaveTopic }) {
       {error && <p className="home__error">{error}</p>}
 
       {topicResult && (
-        <StudyCard topic={topicResult} onSaveTopic={onSaveTopic} />
+        <StudyCard
+          topic={topicResult}
+          onSaveTopic={handleSaveTopic}
+          isSavedExternally={autoSaved}
+        />
+      )}
+
+      {showAuthModal && (
+        <AuthPromptModal
+          onSignup={onSignup}
+          onSignin={onSignin}
+          onSuccess={handleAuthSuccess}
+          onClose={() => setShowAuthModal(false)}
+        />
       )}
 
       {!topicResult && (

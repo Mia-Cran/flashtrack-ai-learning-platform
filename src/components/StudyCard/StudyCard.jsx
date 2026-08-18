@@ -108,11 +108,18 @@ function AccordionSection({ id, icon, label, isOpen, onToggle, children }) {
   );
 }
 
-function StudyCard({ topic, onSaveTopic, onDeleteTopic }) {
+function StudyCard({
+  topic,
+  onSaveTopic,
+  onDeleteTopic,
+  isSavedExternally = false,
+}) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const baseId = useId();
+
+  const effectivelySaved = isSaved || isSavedExternally;
 
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -246,9 +253,13 @@ function StudyCard({ topic, onSaveTopic, onDeleteTopic }) {
                 className="study-card__save-button"
                 type="button"
                 onClick={handleSaveTopic}
-                disabled={isSaving || isSaved}
+                disabled={isSaving || effectivelySaved}
               >
-                {isSaving ? "Saving..." : isSaved ? "Saved ✓" : "Save Topic"}
+                {isSaving
+                  ? "Saving..."
+                  : effectivelySaved
+                    ? "Saved ✓"
+                    : "Save Topic"}
               </button>
             )}
 
