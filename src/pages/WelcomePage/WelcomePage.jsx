@@ -50,12 +50,7 @@ function WelcomePage({
   const [activeForm, setActiveForm] = useState(null);
 
   function handlePrimaryCta() {
-    if (isLoggedIn) {
-      navigate("/home");
-      return;
-    }
-
-    setActiveForm("signup");
+    navigate("/home");
   }
 
   const isReturning = isLoggedIn && savedTopics.length > 0;
