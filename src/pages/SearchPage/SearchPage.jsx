@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./HomePage.css";
+import "./SearchPage.css";
 import StudyCard from "../../components/StudyCard/StudyCard";
 import AuthPromptModal from "../../components/AuthPromptModal/AuthPromptModal";
 
@@ -21,7 +21,7 @@ const exampleTopics = [
   },
 ];
 
-function HomePage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
+function SearchPage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [topicResult, setTopicResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -166,4 +166,4 @@ function HomePage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
   );
 }
 
-export default HomePage;
+export default SearchPage;

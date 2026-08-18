@@ -1,7 +1,8 @@
 import "./App.css";
 import { Routes, Route } from "react-router";
 import WelcomePage from "./pages/WelcomePage/WelcomePage";
-import HomePage from "./pages/HomePage/HomePage";
+import DashboardPage from "./pages/DashboardPage/DashboardPage";
+import SearchPage from "./pages/SearchPage/SearchPage";
 import SavedTopicsPage from "./pages/SavedTopicsPage/SavedTopicsPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import Header from "./components/Header/Header";
@@ -199,7 +200,17 @@ function App() {
         <Route
           path="/home"
           element={
-            <HomePage
+            <DashboardPage
+              isLoggedIn={isLoggedIn}
+              userName={userName}
+              savedTopics={savedTopics}
+            />
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <SearchPage
               onSaveTopic={handleSaveTopic}
               isLoggedIn={isLoggedIn}
               onSignup={handleSignup}

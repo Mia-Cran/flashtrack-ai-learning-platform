@@ -9,17 +9,9 @@ import {
 } from "@tabler/icons-react";
 import SigninForm from "../../components/AuthForms/SigninForm";
 import SignupForm from "../../components/AuthForms/SignupForm";
+import { getSavedAt } from "../../utils/topicTimestamps";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-function getSavedAt(topicId) {
-  if (typeof topicId !== "string" || topicId.length < 8) {
-    return null;
-  }
-
-  const seconds = parseInt(topicId.substring(0, 8), 16);
-  return Number.isNaN(seconds) ? null : seconds * 1000;
-}
 
 function countSavedThisWeek(savedTopics) {
   const now = Date.now();
@@ -50,7 +42,7 @@ function WelcomePage({
   const [activeForm, setActiveForm] = useState(null);
 
   function handlePrimaryCta() {
-    navigate("/home");
+    navigate(isLoggedIn ? "/home" : "/search");
   }
 
   const isReturning = isLoggedIn && savedTopics.length > 0;
