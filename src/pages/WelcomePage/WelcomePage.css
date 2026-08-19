@@ -134,9 +134,10 @@
 }
 
 .welcome__inline-link {
+  display: inline-block;
   border: none;
   background: none;
-  padding: 0;
+  padding: 12px 2px;
   font: inherit;
   font-weight: 600;
   color: #993556;
@@ -155,13 +156,14 @@
 }
 
 .welcome__signin-link {
-  margin-top: 20px;
+  margin-top: 8px;
 }
 
 .app__auth-link {
+  display: inline-block;
   border: none;
   background: none;
-  padding: 0;
+  padding: 12px 4px;
   color: #2f2f3a;
   font: inherit;
   text-decoration: underline;

@@ -65,7 +65,7 @@ function SearchPage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
 
       const data = await response.json();
 
-      setTopicResult(data.studyGuide);
+      setTopicResult({ ...data.studyGuide, searchTerm: cleanedQuery });
     } catch (err) {
       console.log(err);
       setTopicResult(null);

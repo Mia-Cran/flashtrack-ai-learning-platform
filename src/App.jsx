@@ -108,6 +108,7 @@ function App() {
 
     const backendTopic = {
       term: topic.title,
+      searchTerm: topic.searchTerm,
       simpleDefinition: topic.simpleDefinition,
       beginnerDefinition: topic.beginnerExplanation,
       technicalDefinition: topic.technicalDefinition,

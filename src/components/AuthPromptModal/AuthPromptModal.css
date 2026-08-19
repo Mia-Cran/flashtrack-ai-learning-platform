@@ -23,10 +23,10 @@
 
 .auth-modal__close {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,7 +51,7 @@
 
 .auth-modal__heading {
   margin: 0 0 8px;
-  padding-right: 24px;
+  padding-right: 36px;
   font-size: 22px;
   line-height: 1.3;
   color: #1c1b19;
@@ -66,10 +66,10 @@
 
 .auth-modal__toggle {
   display: block;
-  margin: 16px auto 0;
+  margin: 4px auto 0;
   border: none;
   background: none;
-  padding: 0;
+  padding: 12px;
   font: inherit;
   font-size: 14px;
   color: #993556;
