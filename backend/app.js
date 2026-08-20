@@ -4,6 +4,7 @@ const topicRoutes = require("./routes/topics");
 const userRoutes = require("./routes/users");
 const studyRoutes = require("./routes/study");
 const quoteRoutes = require("./routes/quote");
+const subjectRoutes = require("./routes/subject");
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.get("/", (req, res) => {
 app.use("/topics", topicRoutes);
 app.use("/study", studyRoutes);
 app.use("/quote", quoteRoutes);
+app.use("/subjects", subjectRoutes);
 
 module.exports = app;
