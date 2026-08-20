@@ -45,6 +45,11 @@ const topicSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  subject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+    required: false,
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

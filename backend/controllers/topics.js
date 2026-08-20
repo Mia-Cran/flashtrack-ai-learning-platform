@@ -2,6 +2,7 @@ const Topic = require("../models/topic");
 
 const getTopics = (req, res) => {
   Topic.find({ owner: req.user._id })
+    .populate("subject")
     .then((topics) => {
       res.send(topics);
     })
@@ -18,6 +19,7 @@ const getTopicById = (req, res) => {
     _id: id,
     owner: req.user._id,
   })
+    .populate("subject")
     .then((topic) => {
       if (!topic) {
         return res.status(404).send({ message: "Topic not found" });
@@ -75,6 +77,7 @@ const updateTopic = (req, res) => {
       runValidators: true,
     },
   )
+    .populate("subject")
     .then((topic) => {
       if (!topic) {
         return res.status(404).send({ message: "Topic not found" });
@@ -106,6 +109,7 @@ const createTopic = (req, res) => {
     relatedTopics,
     category,
     difficulty,
+    subject,
   } = req.body;
 
   const cleanedTerm = term.trim();
@@ -134,7 +138,10 @@ const createTopic = (req, res) => {
         codeExample,
         commonMistake,
         relatedTopics,
+        subject,
         owner: req.user._id,
+      }).then((topic) => {
+        return topic.populate("subject");
       }).then((topic) => {
         return res.status(201).send(topic);
       });

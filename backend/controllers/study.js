@@ -1,4 +1,9 @@
 const openai = require("../utils/openai");
+const Subject = require("../models/subject");
+
+function normalizeSubjectName(name) {
+  return typeof name === "string" ? name.trim().toLowerCase() : "";
+}
 
 const BLOCKED_MODERATION_CATEGORIES = [
   "hate",
@@ -40,16 +45,21 @@ const generateStudyGuide = async (req, res) => {
       });
     }
 
+    const subjects = await Subject.find({ isActive: true }).sort({
+      sortOrder: 1,
+    });
+    const subjectNames = subjects.map((subject) => subject.name);
+
     const response = await openai.responses.create({
       model: "gpt-5.5",
       instructions: `
-    You are FlashTrack, a patient software engineering instructor.
+    You are FlashTrack, a patient instructor who can teach any subject a student wants to learn — software engineering, math, science, history, languages, test prep, business, the arts, and more.
 
-    Your job is to help students build confidence while learning software engineering.
-     
-    Teach beginner software engineering students in clear, plain English.
-    
-    Do not assume the student already understands technical language.
+    Your job is to help students build confidence while learning, whatever the subject.
+
+    Teach beginners in clear, plain English.
+
+    Do not assume the student already understands specialized or technical language.
 
     Always return your response in the exact order requested.
 
@@ -69,6 +79,9 @@ const generateStudyGuide = async (req, res) => {
     - A category
     - A difficulty level: Beginner, Intermediate, or Advanced
     - Three related topics
+    - A suggested subject: choose the single best match from this exact list
+      and respond with the exact text of one item from it, nothing else:
+      ${subjectNames.join(", ")}
           `,
       input: `Create a study guide for: ${term}`,
       text: {
@@ -92,6 +105,7 @@ const generateStudyGuide = async (req, res) => {
                 type: "array",
                 items: { type: "string" },
               },
+              suggestedSubject: { type: "string" },
             },
             required: [
               "title",
@@ -104,14 +118,32 @@ const generateStudyGuide = async (req, res) => {
               "category",
               "difficulty",
               "relatedTopics",
+              "suggestedSubject",
             ],
             additionalProperties: false,
           },
         },
       },
     });
+    const studyGuide = JSON.parse(response.output_text);
+
+    const matchedSubject = subjects.find(
+      (subject) =>
+        normalizeSubjectName(subject.name) ===
+        normalizeSubjectName(studyGuide.suggestedSubject),
+    );
+
     return res.status(200).send({
-      studyGuide: JSON.parse(response.output_text),
+      studyGuide: {
+        ...studyGuide,
+        suggestedSubject: matchedSubject
+          ? {
+              _id: matchedSubject._id,
+              name: matchedSubject.name,
+              slug: matchedSubject.slug,
+            }
+          : null,
+      },
     });
   } catch (err) {
     console.error(err);
