@@ -27,6 +27,59 @@
   gap: 20px;
 }
 
+.saved__topic-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.saved__uncategorized {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.saved__uncategorized-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: #ece6d8;
+  color: #5b574d;
+  border: 1px solid #ddd3ba;
+}
+
+.saved__assign-link {
+  border: none;
+  background: none;
+  padding: 10px 4px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #993556;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.saved__assign-link:hover {
+  opacity: 0.7;
+}
+
+.saved__assign-link:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.saved__assign-link:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 @media screen and (max-width: 600px) {
   .saved {
     padding-top: 40px;

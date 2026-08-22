@@ -112,6 +112,7 @@ function StudyCard({
   topic,
   onSaveTopic,
   onDeleteTopic,
+  onRelatedTopicClick,
   isSavedExternally = false,
 }) {
   const [isSaved, setIsSaved] = useState(false);
@@ -182,8 +183,14 @@ function StudyCard({
       <div className="study-card__inner">
         <h2 className="study-card__title">{topic.title}</h2>
 
-        {(topic.difficulty || topic.category) && (
+        {(topic.subject?.name || topic.difficulty || topic.category) && (
           <div className="study-card__badges">
+            {topic.subject?.name && (
+              <span className="study-card__pill study-card__pill--category">
+                <span className="sr-only">Subject: </span>
+                {topic.subject.name}
+              </span>
+            )}
             {topic.difficulty && (
               <span className="study-card__pill study-card__pill--difficulty">
                 <span className="sr-only">Difficulty: </span>
@@ -235,13 +242,25 @@ function StudyCard({
           <div className="study-card__related">
             <h3 className="study-card__related-label">Related Topics</h3>
             <ul className="study-card__related-list">
-              {relatedTopics.map((relatedTopic) => (
-                <li key={relatedTopic}>
-                  <span className="study-card__pill study-card__pill--category">
-                    {relatedTopic}
-                  </span>
-                </li>
-              ))}
+              {relatedTopics.map((relatedTopic) =>
+                onRelatedTopicClick ? (
+                  <li key={relatedTopic}>
+                    <button
+                      type="button"
+                      className="study-card__pill study-card__pill--category study-card__pill--clickable"
+                      onClick={() => onRelatedTopicClick(relatedTopic)}
+                    >
+                      {relatedTopic}
+                    </button>
+                  </li>
+                ) : (
+                  <li key={relatedTopic}>
+                    <span className="study-card__pill study-card__pill--category">
+                      {relatedTopic}
+                    </span>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
         )}

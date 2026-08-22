@@ -118,6 +118,7 @@ function App() {
       codeExample: topic.codeExample,
       commonMistake: topic.commonMistake,
       relatedTopics: topic.relatedTopics,
+      subject: topic.subject,
     };
 
     return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
@@ -149,6 +150,39 @@ function App() {
         });
 
         return savedTopic;
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
+  }
+
+  function handleAssignSubject(topicId, subjectId) {
+    const token = localStorage.getItem("jwt");
+
+    return fetch(`https://software-engineering-study-tracker.onrender.com/topics/${topicId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ subject: subjectId }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to update topic");
+        }
+
+        return res.json();
+      })
+      .then((updatedTopic) => {
+        setSavedTopics((prevTopics) =>
+          prevTopics.map((topic) =>
+            topic._id === updatedTopic._id ? updatedTopic : topic,
+          ),
+        );
+
+        return updatedTopic;
       })
       .catch((err) => {
         console.error(err);
@@ -225,6 +259,7 @@ function App() {
             <SavedTopicsPage
               savedTopics={savedTopics}
               onDeleteTopic={handleDeleteTopic}
+              onAssignSubject={handleAssignSubject}
             />
           }
         />

@@ -72,6 +72,29 @@
   border-color: var(--pink-border);
 }
 
+.study-card__pill--clickable {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.study-card__pill--clickable:hover {
+  background: var(--pink-accent);
+  color: var(--white);
+}
+
+.study-card__pill--clickable:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 /* Simple definition */
 
 .study-card__simple {
