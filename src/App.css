@@ -1,0 +1,50 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, #fff7ed, #fdf2f8, #eef2ff);
+  color: #2f2f3a;
+
+   
+}
+
+.app__intro {
+  min-height: 60vh;
+  max-width: 700px;
+  text-align: center;
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  
+ 
+}
+button,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(47, 47, 58, 0.12);
+}
+
+  
