@@ -16,6 +16,7 @@ function App() {
   const [userName, setUserName] = useState(
     localStorage.getItem("name") || "",
   );
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   function loadTopics(token) {
     return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
@@ -218,7 +219,11 @@ function App() {
   }
   return (
     <main className="app">
-      <Header isLoggedIn={isLoggedIn} onSignout={handleSignout} />
+      <Header
+        isLoggedIn={isLoggedIn}
+        onSignout={handleSignout}
+        isSearchLoading={isSearchLoading}
+      />
       <Routes>
         <Route
           path="/"
@@ -250,6 +255,7 @@ function App() {
               isLoggedIn={isLoggedIn}
               onSignup={handleSignup}
               onSignin={handleSignin}
+              onLoadingChange={setIsSearchLoading}
             />
           }
         />

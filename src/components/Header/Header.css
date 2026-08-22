@@ -45,6 +45,13 @@
   color: #993556;
 }
 
+.header__link--disabled,
+.header__link--disabled:hover {
+  color: #1c1b19;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .header__link--active {
   color: #993556;
   font-weight: 700;
@@ -72,8 +79,13 @@
   line-height: 1.3;
 }
 
-.header__signout:hover {
+.header__signout:hover:not(:disabled) {
   background: #f7e3ea;
+}
+
+.header__signout:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media screen and (max-width: 600px) {

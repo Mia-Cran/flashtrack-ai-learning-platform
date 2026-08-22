@@ -23,7 +23,13 @@ const exampleTopics = [
   },
 ];
 
-function SearchPage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
+function SearchPage({
+  onSaveTopic,
+  isLoggedIn,
+  onSignup,
+  onSignin,
+  onLoadingChange,
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(
@@ -36,6 +42,17 @@ function SearchPage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
   const [autoSaved, setAutoSaved] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState(null);
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
+
+  useEffect(() => {
+    return () => {
+      onLoadingChange?.(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function runSearch(rawQuery) {
     const cleanedQuery = rawQuery.trim().replace(/[.,!?]+$/, "");

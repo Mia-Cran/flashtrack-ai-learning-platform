@@ -1,11 +1,38 @@
 import { NavLink, useNavigate } from "react-router";
 import "./Header.css";
 
-function navLinkClassName({ isActive }) {
-  return isActive ? "header__link header__link--active" : "header__link";
+function HeaderNavLink({ to, disabled, children }) {
+  return (
+    <NavLink
+      className={({ isActive }) => {
+        const classes = ["header__link"];
+
+        if (isActive) {
+          classes.push("header__link--active");
+        }
+
+        if (disabled) {
+          classes.push("header__link--disabled");
+        }
+
+        return classes.join(" ");
+      }}
+      to={to}
+      end
+      aria-disabled={disabled}
+      tabIndex={disabled ? -1 : undefined}
+      onClick={(event) => {
+        if (disabled) {
+          event.preventDefault();
+        }
+      }}
+    >
+      {children}
+    </NavLink>
+  );
 }
 
-function Header({ isLoggedIn, onSignout }) {
+function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
   const navigate = useNavigate();
 
   function handleSignoutClick() {
@@ -19,34 +46,35 @@ function Header({ isLoggedIn, onSignout }) {
         <span className="header__brand">FlashTrack</span>
 
         <div className="header__links">
-          <NavLink className={navLinkClassName} to="/" end>
+          <HeaderNavLink to="/" disabled={isSearchLoading}>
             Welcome
-          </NavLink>
+          </HeaderNavLink>
 
           {isLoggedIn && (
-            <NavLink className={navLinkClassName} to="/home" end>
+            <HeaderNavLink to="/home" disabled={isSearchLoading}>
               Home
-            </NavLink>
+            </HeaderNavLink>
           )}
 
-          <NavLink className={navLinkClassName} to="/search" end>
+          <HeaderNavLink to="/search" disabled={isSearchLoading}>
             Search
-          </NavLink>
+          </HeaderNavLink>
 
           {isLoggedIn && (
             <>
-              <NavLink className={navLinkClassName} to="/saved" end>
+              <HeaderNavLink to="/saved" disabled={isSearchLoading}>
                 Saved Topics
-              </NavLink>
+              </HeaderNavLink>
 
-              <NavLink className={navLinkClassName} to="/about" end>
+              <HeaderNavLink to="/about" disabled={isSearchLoading}>
                 About
-              </NavLink>
+              </HeaderNavLink>
 
               <button
                 type="button"
                 className="header__signout"
                 onClick={handleSignoutClick}
+                disabled={isSearchLoading}
               >
                 Sign Out
               </button>
