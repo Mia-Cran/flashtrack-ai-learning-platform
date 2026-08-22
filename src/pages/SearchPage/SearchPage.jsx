@@ -146,6 +146,7 @@ function SearchPage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
           placeholder='Try "React", "Photosynthesis", or "The French Revolution"'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          disabled={isLoading}
         />
         <button
           className="home__button"
@@ -181,6 +182,7 @@ function SearchPage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
             id="search-subject-picker"
             value={selectedSubjectId}
             onChange={setSelectedSubjectId}
+            disabled={isLoading}
           />
         </div>
       )}
@@ -191,6 +193,7 @@ function SearchPage({ onSaveTopic, isLoggedIn, onSignup, onSignin }) {
           onSaveTopic={handleSaveTopic}
           onRelatedTopicClick={handleRelatedTopicClick}
           isSavedExternally={autoSaved}
+          disabled={isLoading}
         />
       )}
 

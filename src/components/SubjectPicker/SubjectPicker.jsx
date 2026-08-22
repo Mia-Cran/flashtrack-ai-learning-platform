@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./SubjectPicker.css";
 
-function SubjectPicker({ id, value, onChange, className }) {
+function SubjectPicker({ id, value, onChange, className, disabled = false }) {
   const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +31,7 @@ function SubjectPicker({ id, value, onChange, className }) {
       className={`subject-picker${className ? ` ${className}` : ""}`}
       value={value || ""}
       onChange={(event) => onChange(event.target.value || null)}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
     >
       <option value="">
         {isLoading ? "Loading subjects..." : "Choose a subject..."}

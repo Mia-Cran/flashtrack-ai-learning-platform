@@ -85,7 +85,7 @@
     transform 0.15s ease;
 }
 
-.study-card__pill--clickable:hover {
+.study-card__pill--clickable:hover:not(:disabled) {
   background: var(--pink-accent);
   color: var(--white);
 }
@@ -93,6 +93,11 @@
 .study-card__pill--clickable:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+.study-card__pill--clickable:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Simple definition */
@@ -158,7 +163,7 @@
   text-align: left;
 }
 
-.study-card__accordion-button:hover {
+.study-card__accordion-button:hover:not(:disabled) {
   color: var(--pink-accent);
 }
 
@@ -166,6 +171,11 @@
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: 6px;
+}
+
+.study-card__accordion-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .study-card__accordion-label {
@@ -287,8 +297,13 @@
   color: var(--pink-accent);
 }
 
-.study-card__delete-button:hover {
+.study-card__delete-button:hover:not(:disabled) {
   background: var(--pink-bg);
+}
+
+.study-card__delete-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .study-card__save-button:focus-visible,

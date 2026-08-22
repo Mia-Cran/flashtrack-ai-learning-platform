@@ -68,7 +68,15 @@ function Icon({ name, className }) {
   }
 }
 
-function AccordionSection({ id, icon, label, isOpen, onToggle, children }) {
+function AccordionSection({
+  id,
+  icon,
+  label,
+  isOpen,
+  onToggle,
+  disabled,
+  children,
+}) {
   const buttonId = `${id}-button`;
   const panelId = `${id}-panel`;
 
@@ -82,6 +90,7 @@ function AccordionSection({ id, icon, label, isOpen, onToggle, children }) {
           aria-expanded={isOpen}
           aria-controls={panelId}
           onClick={onToggle}
+          disabled={disabled}
         >
           <span className="study-card__accordion-label">
             <Icon name={icon} className="study-card__section-icon" />
@@ -114,6 +123,7 @@ function StudyCard({
   onDeleteTopic,
   onRelatedTopicClick,
   isSavedExternally = false,
+  disabled = false,
 }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -227,6 +237,7 @@ function StudyCard({
                   label={section.label}
                   isOpen={Boolean(openSections[section.key])}
                   onToggle={() => toggleSection(section.key)}
+                  disabled={disabled}
                 >
                   {typeof section.content === "string" ? (
                     <p>{section.content}</p>
@@ -249,6 +260,7 @@ function StudyCard({
                       type="button"
                       className="study-card__pill study-card__pill--category study-card__pill--clickable"
                       onClick={() => onRelatedTopicClick(relatedTopic)}
+                      disabled={disabled}
                     >
                       {relatedTopic}
                     </button>
@@ -272,7 +284,7 @@ function StudyCard({
                 className="study-card__save-button"
                 type="button"
                 onClick={handleSaveTopic}
-                disabled={isSaving || effectivelySaved}
+                disabled={isSaving || effectivelySaved || disabled}
               >
                 {isSaving
                   ? "Saving..."
@@ -287,6 +299,7 @@ function StudyCard({
                 className="study-card__delete-button"
                 type="button"
                 onClick={() => onDeleteTopic(topic._id)}
+                disabled={disabled}
               >
                 Delete Topic
               </button>
