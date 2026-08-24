@@ -17,6 +17,8 @@ function App() {
     localStorage.getItem("name") || "",
   );
   const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [sectionsCollapsedByDefault, setSectionsCollapsedByDefault] =
+    useState(true);
 
   function loadTopics(token) {
     return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
@@ -37,6 +39,28 @@ function App() {
       });
   }
 
+  function loadLearnerProfile(token) {
+    return fetch("https://software-engineering-study-tracker.onrender.com/learner-profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load learner profile");
+        }
+
+        return res.json();
+      })
+      .then((profile) => {
+        setSectionsCollapsedByDefault(
+          profile.accessibilityPreferences?.sectionsCollapsedByDefault ??
+            true,
+        );
+        return profile;
+      });
+  }
+
   useEffect(() => {
     const token = localStorage.getItem("jwt");
 
@@ -45,6 +69,10 @@ function App() {
     }
 
     loadTopics(token).catch((err) => {
+      console.error(err);
+    });
+
+    loadLearnerProfile(token).catch((err) => {
       console.error(err);
     });
   }, []);
@@ -69,6 +97,10 @@ function App() {
         localStorage.setItem("name", data.name || "");
         setIsLoggedIn(true);
         setUserName(data.name || "");
+
+        loadLearnerProfile(data.token).catch((err) => {
+          console.error(err);
+        });
 
         return loadTopics(data.token).then(() => {
           return data.token;
@@ -102,6 +134,7 @@ function App() {
     setSavedTopics([]);
     setIsLoggedIn(false);
     setUserName("");
+    setSectionsCollapsedByDefault(true);
   }
 
   function handleSaveTopic(topic) {
@@ -256,6 +289,7 @@ function App() {
               onSignup={handleSignup}
               onSignin={handleSignin}
               onLoadingChange={setIsSearchLoading}
+              sectionsCollapsedByDefault={sectionsCollapsedByDefault}
             />
           }
         />
@@ -266,6 +300,7 @@ function App() {
               savedTopics={savedTopics}
               onDeleteTopic={handleDeleteTopic}
               onAssignSubject={handleAssignSubject}
+              sectionsCollapsedByDefault={sectionsCollapsedByDefault}
             />
           }
         />

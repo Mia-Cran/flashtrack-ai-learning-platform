@@ -1,5 +1,18 @@
 import "./StudyCard.css";
-import { useId, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
+
+const SECTION_KEYS = ["beginner", "technical", "analogy", "code", "mistake"];
+
+function getInitialOpenSections(sectionsCollapsedByDefault) {
+  if (sectionsCollapsedByDefault) {
+    return {};
+  }
+
+  return SECTION_KEYS.reduce((openByKey, key) => {
+    openByKey[key] = true;
+    return openByKey;
+  }, {});
+}
 
 function Icon({ name, className }) {
   const common = {
@@ -124,15 +137,31 @@ function StudyCard({
   onRelatedTopicClick,
   isSavedExternally = false,
   disabled = false,
+  sectionsCollapsedByDefault = true,
 }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [openSections, setOpenSections] = useState({});
+  const [openSections, setOpenSections] = useState(() =>
+    getInitialOpenSections(sectionsCollapsedByDefault),
+  );
   const baseId = useId();
+  const hasUserToggledRef = useRef(false);
+
+  // sectionsCollapsedByDefault often arrives from an async profile fetch that can
+  // resolve after this card has already mounted with the fallback default — sync
+  // once it settles, but only until the learner actually toggles something by hand.
+  useLayoutEffect(() => {
+    if (hasUserToggledRef.current) {
+      return;
+    }
+
+    setOpenSections(getInitialOpenSections(sectionsCollapsedByDefault));
+  }, [sectionsCollapsedByDefault]);
 
   const effectivelySaved = isSaved || isSavedExternally;
 
   const toggleSection = (key) => {
+    hasUserToggledRef.current = true;
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 

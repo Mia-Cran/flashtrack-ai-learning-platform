@@ -29,6 +29,7 @@ function SearchPage({
   onSignup,
   onSignin,
   onLoadingChange,
+  sectionsCollapsedByDefault = true,
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -211,6 +212,7 @@ function SearchPage({
           onRelatedTopicClick={handleRelatedTopicClick}
           isSavedExternally={autoSaved}
           disabled={isLoading}
+          sectionsCollapsedByDefault={sectionsCollapsedByDefault}
         />
       )}
 

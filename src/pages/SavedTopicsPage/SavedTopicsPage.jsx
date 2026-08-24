@@ -4,7 +4,12 @@ import StudyCard from "../../components/StudyCard/StudyCard";
 import SubjectPicker from "../../components/SubjectPicker/SubjectPicker";
 import "./SavedTopicsPage.css";
 
-function SavedTopicsPage({ savedTopics, onDeleteTopic, onAssignSubject }) {
+function SavedTopicsPage({
+  savedTopics,
+  onDeleteTopic,
+  onAssignSubject,
+  sectionsCollapsedByDefault = true,
+}) {
   const [assigningTopicId, setAssigningTopicId] = useState(null);
   const [isAssigning, setIsAssigning] = useState(false);
   const navigate = useNavigate();
@@ -76,6 +81,7 @@ function SavedTopicsPage({ savedTopics, onDeleteTopic, onAssignSubject }) {
                 }}
                 onDeleteTopic={onDeleteTopic}
                 onRelatedTopicClick={handleRelatedTopicClick}
+                sectionsCollapsedByDefault={sectionsCollapsedByDefault}
               />
             </div>
           ))}
