@@ -141,7 +141,7 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
             Preferred Difficulty
           </h2>
           <p className="settings__group-hint">
-            New topics will default to this level when it's available.
+            Shapes how much background knowledge new study cards assume when you're signed in.
           </p>
           <select
             className="settings__select"

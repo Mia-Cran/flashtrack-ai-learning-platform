@@ -1,5 +1,6 @@
 const openai = require("../utils/openai");
 const Subject = require("../models/subject");
+const LearnerProfile = require("../models/learnerProfile");
 
 function normalizeSubjectName(name) {
   return typeof name === "string" ? name.trim().toLowerCase() : "";
@@ -20,6 +21,52 @@ const BLOCKED_MODERATION_CATEGORIES = [
   "illicit",
   "illicit/violent",
 ];
+
+const PACING_INSTRUCTIONS = {
+  fast: "Keep explanations brief and to-the-point -- favor short, direct sentences over a fuller build-up.",
+  slow: "Take a fuller, more gradual approach -- walk through ideas step by step rather than compressing them.",
+};
+
+const EXPLANATION_STYLE_INSTRUCTIONS = {
+  analogies: "Lean heavily on the real-world analogy -- make it vivid and refer back to it in the beginner explanation too.",
+  technical: "Emphasize technical precision and depth over analogy -- a reader who wants the mechanism, not just the metaphor.",
+};
+
+// Builds an extra instructions block from a signed-in learner's saved
+// preferences, or returns an empty string if they have none set (or are
+// searching anonymously). Deliberately does not touch the AI's own
+// "difficulty" classification for the topic -- that stays an honest
+// assessment of the topic itself. This only shapes HOW it's explained.
+function buildPersonalizationInstructions(profile) {
+  if (!profile) {
+    return "";
+  }
+
+  const lines = [];
+
+  if (profile.preferredDifficulty) {
+    lines.push(
+      `- This student's preferred difficulty level is ${profile.preferredDifficulty}. Calibrate how much background knowledge you assume, and how much you scaffold the beginner explanation and technical definition, to that level.`,
+    );
+  }
+
+  const pacingInstruction = PACING_INSTRUCTIONS[profile.learningPreferences?.pacing];
+  if (pacingInstruction) {
+    lines.push(`- ${pacingInstruction}`);
+  }
+
+  const styleInstruction =
+    EXPLANATION_STYLE_INSTRUCTIONS[profile.learningPreferences?.explanationStyle];
+  if (styleInstruction) {
+    lines.push(`- ${styleInstruction}`);
+  }
+
+  if (lines.length === 0) {
+    return "";
+  }
+
+  return `\n\n    This student has saved learning preferences. Use them to shape how you explain, without changing your honest difficulty classification of the topic itself:\n${lines.join("\n")}\n`;
+}
 
 const generateStudyGuide = async (req, res) => {
   const { term } = req.body;
@@ -49,6 +96,16 @@ const generateStudyGuide = async (req, res) => {
       sortOrder: 1,
     });
     const subjectNames = subjects.map((subject) => subject.name);
+
+    // Optional: only present when the request carried a valid token (search
+    // itself stays public/anonymous-friendly -- see optionalAuth middleware).
+    let learnerProfile = null;
+
+    if (req.user?._id) {
+      learnerProfile = await LearnerProfile.findOne({ user: req.user._id });
+    }
+
+    const personalizationInstructions = buildPersonalizationInstructions(learnerProfile);
 
     const response = await openai.responses.create({
       model: "gpt-5.5",
@@ -82,7 +139,7 @@ const generateStudyGuide = async (req, res) => {
     - A suggested subject: choose the single best match from this exact list
       and respond with the exact text of one item from it, nothing else:
       ${subjectNames.join(", ")}
-          `,
+${personalizationInstructions}          `,
       input: `Create a study guide for: ${term}`,
       text: {
         format: {
