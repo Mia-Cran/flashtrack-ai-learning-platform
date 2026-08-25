@@ -140,6 +140,8 @@ const generateStudyGuide = async (req, res) => {
 
     If a code example is not appropriate, explain why instead of leaving it blank.
 
+    Write the beginner-friendly explanation and the technical definition as 2-4 short paragraphs (1-3 sentences each), separated by a blank line between paragraphs. Never return either of these as a single unbroken block of text -- a wall of text is hard to read no matter how simple or advanced the content is.
+
     
     For every topic, include:
     

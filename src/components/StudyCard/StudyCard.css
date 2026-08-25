@@ -209,6 +209,9 @@
 
 .study-card__accordion-panel {
   padding: 0 4px 18px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .study-card__accordion-panel p {

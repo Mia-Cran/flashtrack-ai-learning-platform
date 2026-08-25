@@ -81,6 +81,19 @@ function Icon({ name, className }) {
   }
 }
 
+// AI-generated text sometimes comes back as one long paragraph, and older saved
+// topics were saved before paragraph breaks were requested at all -- splitting on
+// blank lines (and falling back to the whole string as one paragraph when there
+// aren't any) means both old and new content render the same way, just broken up
+// into something actually readable instead of one wall of text.
+function renderParagraphs(text) {
+  return text
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph, index) => <p key={index}>{paragraph}</p>);
+}
+
 function AccordionSection({
   id,
   icon,
@@ -269,7 +282,7 @@ function StudyCard({
                   disabled={disabled}
                 >
                   {typeof section.content === "string" ? (
-                    <p>{section.content}</p>
+                    renderParagraphs(section.content)
                   ) : (
                     section.content
                   )}
