@@ -49,8 +49,14 @@ button:hover {
 
   
 
+/* Most component styles use fixed px font-sizes rather than relative units, so a
+   plain inherited font-size bump here would be overridden almost everywhere it
+   matters. `zoom` scales the whole rendered subtree -- text, spacing, icons --
+   together, which is what actually makes "larger text" visible today. A follow-up
+   pass converting component font-sizes to rem would let this become a real
+   font-size increase instead. */
 .app--larger-text {
-  font-size: 118%;
+  zoom: 1.15;
 }
 
 .app--reduce-motion,
