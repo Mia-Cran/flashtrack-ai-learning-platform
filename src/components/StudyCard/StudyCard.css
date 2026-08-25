@@ -214,6 +214,16 @@
   gap: 10px;
 }
 
+/* The panel's own `display: flex` above (added for paragraph spacing) has
+   higher cascade priority than the browser's built-in `[hidden] { display:
+   none }` rule, even though both have equal specificity -- author styles
+   always beat user-agent styles. Without this override, a "collapsed"
+   section never actually hides, since the React `hidden` attribute alone
+   can no longer do it. */
+.study-card__accordion-panel[hidden] {
+  display: none;
+}
+
 .study-card__accordion-panel p {
   margin: 0;
   font-size: 16px;
