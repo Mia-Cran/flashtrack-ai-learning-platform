@@ -48,3 +48,13 @@ button:hover {
 }
 
   
+
+.app--larger-text {
+  font-size: 118%;
+}
+
+.app--reduce-motion,
+.app--reduce-motion * {
+  transition: none !important;
+  animation: none !important;
+}

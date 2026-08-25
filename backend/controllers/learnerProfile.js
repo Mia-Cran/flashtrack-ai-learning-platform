@@ -36,12 +36,19 @@ const updateLearnerProfile = (req, res) => {
     update.accessibilityPreferences = accessibilityPreferences;
   }
 
-  LearnerProfile.findOneAndUpdate({ user: req.user._id }, update, {
-    new: true,
-    upsert: true,
-    runValidators: true,
-    setDefaultsOnInsert: true,
-  })
+  // Wrapped in $set so this only touches the fields being updated — without it,
+  // MongoDB treats a plain object as a full replacement document and would wipe
+  // out `user` and every other field not included in this request.
+  LearnerProfile.findOneAndUpdate(
+    { user: req.user._id },
+    { $set: update },
+    {
+      new: true,
+      upsert: true,
+      runValidators: true,
+      setDefaultsOnInsert: true,
+    },
+  )
     .then((profile) => {
       res.status(200).send(profile);
     })

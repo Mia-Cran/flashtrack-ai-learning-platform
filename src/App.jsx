@@ -5,6 +5,7 @@ import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import SearchPage from "./pages/SearchPage/SearchPage";
 import SavedTopicsPage from "./pages/SavedTopicsPage/SavedTopicsPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
+import SettingsPage from "./pages/SettingsPage/SettingsPage";
 import Header from "./components/Header/Header";
 import { useEffect, useState } from "react";
 
@@ -17,8 +18,14 @@ function App() {
     localStorage.getItem("name") || "",
   );
   const [isSearchLoading, setIsSearchLoading] = useState(false);
-  const [sectionsCollapsedByDefault, setSectionsCollapsedByDefault] =
-    useState(true);
+  const [learnerProfile, setLearnerProfile] = useState(null);
+
+  const sectionsCollapsedByDefault =
+    learnerProfile?.accessibilityPreferences?.sectionsCollapsedByDefault ??
+    true;
+  const hasLargerText = learnerProfile?.accessibilityPreferences?.largerText ?? false;
+  const hasReducedMotion =
+    learnerProfile?.accessibilityPreferences?.reduceMotion ?? false;
 
   function loadTopics(token) {
     return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
@@ -53,11 +60,36 @@ function App() {
         return res.json();
       })
       .then((profile) => {
-        setSectionsCollapsedByDefault(
-          profile.accessibilityPreferences?.sectionsCollapsedByDefault ??
-            true,
-        );
+        setLearnerProfile(profile);
         return profile;
+      });
+  }
+
+  function handleUpdateLearnerProfile(updates) {
+    const token = localStorage.getItem("jwt");
+
+    return fetch("https://software-engineering-study-tracker.onrender.com/learner-profile", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to update learner profile");
+        }
+
+        return res.json();
+      })
+      .then((profile) => {
+        setLearnerProfile(profile);
+        return profile;
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
       });
   }
 
@@ -134,7 +166,7 @@ function App() {
     setSavedTopics([]);
     setIsLoggedIn(false);
     setUserName("");
-    setSectionsCollapsedByDefault(true);
+    setLearnerProfile(null);
   }
 
   function handleSaveTopic(topic) {
@@ -251,7 +283,11 @@ function App() {
       });
   }
   return (
-    <main className="app">
+    <main
+      className={`app${hasLargerText ? " app--larger-text" : ""}${
+        hasReducedMotion ? " app--reduce-motion" : ""
+      }`}
+    >
       <Header
         isLoggedIn={isLoggedIn}
         onSignout={handleSignout}
@@ -305,6 +341,16 @@ function App() {
           }
         />
         <Route path="/about" element={<AboutPage />} />
+        <Route
+          path="/settings"
+          element={
+            <SettingsPage
+              isLoggedIn={isLoggedIn}
+              learnerProfile={learnerProfile}
+              onUpdateLearnerProfile={handleUpdateLearnerProfile}
+            />
+          }
+        />
       </Routes>
     </main>
   );

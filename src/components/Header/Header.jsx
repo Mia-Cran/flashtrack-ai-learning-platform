@@ -70,6 +70,10 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
                 About
               </HeaderNavLink>
 
+              <HeaderNavLink to="/settings" disabled={isSearchLoading}>
+                Settings
+              </HeaderNavLink>
+
               <button
                 type="button"
                 className="header__signout"
