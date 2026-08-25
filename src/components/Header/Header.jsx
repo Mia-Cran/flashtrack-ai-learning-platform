@@ -60,10 +60,6 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
             Search
           </HeaderNavLink>
 
-          <HeaderNavLink to="/feedback" disabled={isSearchLoading}>
-            Feedback
-          </HeaderNavLink>
-
           {isLoggedIn && (
             <>
               <HeaderNavLink to="/saved" disabled={isSearchLoading}>
@@ -77,16 +73,26 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
               <HeaderNavLink to="/settings" disabled={isSearchLoading}>
                 Settings
               </HeaderNavLink>
-
-              <button
-                type="button"
-                className="header__signout"
-                onClick={handleSignoutClick}
-                disabled={isSearchLoading}
-              >
-                Sign Out
-              </button>
             </>
+          )}
+
+          {/* Stays visible to every visitor, logged in or not -- positioned
+              right next to Sign Out so it reads as "leave, but tell me
+              something first" for logged-in users, while still being
+              reachable on its own for anonymous visitors. */}
+          <HeaderNavLink to="/feedback" disabled={isSearchLoading}>
+            Feedback
+          </HeaderNavLink>
+
+          {isLoggedIn && (
+            <button
+              type="button"
+              className="header__signout"
+              onClick={handleSignoutClick}
+              disabled={isSearchLoading}
+            >
+              Sign Out
+            </button>
           )}
         </div>
       </nav>
