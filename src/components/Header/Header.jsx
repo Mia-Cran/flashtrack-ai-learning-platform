@@ -60,6 +60,10 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
             Search
           </HeaderNavLink>
 
+          <HeaderNavLink to="/feedback" disabled={isSearchLoading}>
+            Feedback
+          </HeaderNavLink>
+
           {isLoggedIn && (
             <>
               <HeaderNavLink to="/saved" disabled={isSearchLoading}>

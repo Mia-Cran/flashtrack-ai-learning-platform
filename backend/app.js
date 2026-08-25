@@ -6,6 +6,7 @@ const studyRoutes = require("./routes/study");
 const quoteRoutes = require("./routes/quote");
 const subjectRoutes = require("./routes/subject");
 const learnerProfileRoutes = require("./routes/learnerProfile");
+const feedbackRoutes = require("./routes/feedback");
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use("/study", studyRoutes);
 app.use("/quote", quoteRoutes);
 app.use("/subjects", subjectRoutes);
 app.use("/learner-profile", learnerProfileRoutes);
+app.use("/feedback", feedbackRoutes);
 
 module.exports = app;

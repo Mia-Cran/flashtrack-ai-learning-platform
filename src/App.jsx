@@ -6,6 +6,7 @@ import SearchPage from "./pages/SearchPage/SearchPage";
 import SavedTopicsPage from "./pages/SavedTopicsPage/SavedTopicsPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import SettingsPage from "./pages/SettingsPage/SettingsPage";
+import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
 import Header from "./components/Header/Header";
 import { useEffect, useState } from "react";
 
@@ -350,6 +351,10 @@ function App() {
               onUpdateLearnerProfile={handleUpdateLearnerProfile}
             />
           }
+        />
+        <Route
+          path="/feedback"
+          element={<FeedbackPage isLoggedIn={isLoggedIn} />}
         />
       </Routes>
     </main>
