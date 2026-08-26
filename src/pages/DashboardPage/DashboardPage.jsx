@@ -63,7 +63,12 @@ function getTopSubject(savedTopics) {
   const countsByName = {};
 
   savedTopics.forEach((topic) => {
-    const name = topic.subject?.name;
+    // Prefer the curated Subject (assigned since the Multisubject Foundation
+    // shipped), but fall back to the AI-generated category for older saved
+    // topics that predate Subjects entirely -- every topic has always had a
+    // category, so this keeps the stat meaningful on every account, not
+    // just ones with newer saves.
+    const name = topic.subject?.name || topic.category;
 
     if (!name) {
       return;
