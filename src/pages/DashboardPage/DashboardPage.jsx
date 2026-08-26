@@ -7,6 +7,7 @@ import {
   IconBookmark,
   IconSearch,
   IconBookmarks,
+  IconTrophy,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
 
@@ -52,6 +53,38 @@ function getRecentTopics(savedTopics) {
     .slice(0, RECENT_TOPICS_LIMIT);
 }
 
+// The first real "adaptive learning" signal (Version 3.0 roadmap item 3,
+// Session 8): which subject a learner actually studies most, derived
+// straight from their existing saved topics -- no new field to store or
+// keep in sync, since getTopics already returns each topic's subject
+// populated. This is the input Session 9's recommendation feature will
+// build on top of.
+function getTopSubject(savedTopics) {
+  const countsByName = {};
+
+  savedTopics.forEach((topic) => {
+    const name = topic.subject?.name;
+
+    if (!name) {
+      return;
+    }
+
+    countsByName[name] = (countsByName[name] || 0) + 1;
+  });
+
+  const entries = Object.entries(countsByName);
+
+  if (entries.length === 0) {
+    return null;
+  }
+
+  const [name, count] = entries.reduce((best, entry) =>
+    entry[1] > best[1] ? entry : best,
+  );
+
+  return { name, count };
+}
+
 function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
   const [quote, setQuote] = useState("");
   const [isQuoteLoading, setIsQuoteLoading] = useState(true);
@@ -87,6 +120,7 @@ function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
   const totalSaved = savedTopics.length;
   const dayStreak = getDayStreak(savedTopics);
   const recentTopics = getRecentTopics(savedTopics);
+  const topSubject = getTopSubject(savedTopics);
 
   return (
     <section className="dashboard">
@@ -133,6 +167,21 @@ function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
             {dayStreak === 1 ? "Day streak" : "Day streak"}
           </span>
         </div>
+
+        {topSubject && (
+          <div className="dashboard__stat">
+            <IconTrophy
+              size={22}
+              stroke={1.75}
+              className="dashboard__stat-icon dashboard__stat-icon--green"
+              aria-hidden="true"
+            />
+            <span className="dashboard__stat-value">{topSubject.count}</span>
+            <span className="dashboard__stat-label">
+              Top Subject: {topSubject.name}
+            </span>
+          </div>
+        )}
       </div>
 
       <section className="dashboard__recent" aria-label="Recently saved topics">
