@@ -7,6 +7,7 @@ import SavedTopicsPage from "./pages/SavedTopicsPage/SavedTopicsPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import SettingsPage from "./pages/SettingsPage/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
+import SubjectsPage from "./pages/SubjectsPage/SubjectsPage";
 import Header from "./components/Header/Header";
 import { useEffect, useState } from "react";
 
@@ -355,6 +356,12 @@ function App() {
         <Route
           path="/feedback"
           element={<FeedbackPage isLoggedIn={isLoggedIn} />}
+        />
+        <Route
+          path="/subjects"
+          element={
+            <SubjectsPage isLoggedIn={isLoggedIn} savedTopics={savedTopics} />
+          }
         />
       </Routes>
     </main>

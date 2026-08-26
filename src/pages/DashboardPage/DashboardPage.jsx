@@ -7,7 +7,7 @@ import {
   IconBookmark,
   IconSearch,
   IconBookmarks,
-  IconTrophy,
+  IconBooks,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
 
@@ -54,13 +54,16 @@ function getRecentTopics(savedTopics) {
 }
 
 // The first real "adaptive learning" signal (Version 3.0 roadmap item 3,
-// Session 8): which subject a learner actually studies most, derived
-// straight from their existing saved topics -- no new field to store or
-// keep in sync, since getTopics already returns each topic's subject
-// populated. This is the input Session 9's recommendation feature will
-// build on top of.
-function getTopSubject(savedTopics) {
-  const countsByName = {};
+// Session 8/9): how many distinct subjects a learner is actually studying
+// across, derived straight from their existing saved topics -- no new field
+// to store or keep in sync, since getTopics already returns each topic's
+// subject populated. Started as a single "Top Subject" stat, but that
+// couldn't answer a real question -- a learner juggling several subjects at
+// once (e.g. studying for a test) has no way to see that spread from one
+// top pick alone -- so this counts the full spread instead, and links
+// through to the Subjects page (Session 9) that breaks it down.
+function getSubjectNames(savedTopics) {
+  const names = new Set();
 
   savedTopics.forEach((topic) => {
     // Prefer the curated Subject (assigned since the Multisubject Foundation
@@ -70,24 +73,12 @@ function getTopSubject(savedTopics) {
     // just ones with newer saves.
     const name = topic.subject?.name || topic.category;
 
-    if (!name) {
-      return;
+    if (name) {
+      names.add(name);
     }
-
-    countsByName[name] = (countsByName[name] || 0) + 1;
   });
 
-  const entries = Object.entries(countsByName);
-
-  if (entries.length === 0) {
-    return null;
-  }
-
-  const [name, count] = entries.reduce((best, entry) =>
-    entry[1] > best[1] ? entry : best,
-  );
-
-  return { name, count };
+  return names;
 }
 
 function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
@@ -125,7 +116,7 @@ function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
   const totalSaved = savedTopics.length;
   const dayStreak = getDayStreak(savedTopics);
   const recentTopics = getRecentTopics(savedTopics);
-  const topSubject = getTopSubject(savedTopics);
+  const subjectCount = getSubjectNames(savedTopics).size;
 
   return (
     <section className="dashboard">
@@ -173,19 +164,19 @@ function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
           </span>
         </div>
 
-        {topSubject && (
-          <div className="dashboard__stat">
-            <IconTrophy
+        {subjectCount > 0 && (
+          <Link to="/subjects" className="dashboard__stat dashboard__stat--link">
+            <IconBooks
               size={22}
               stroke={1.75}
               className="dashboard__stat-icon dashboard__stat-icon--green"
               aria-hidden="true"
             />
-            <span className="dashboard__stat-value">{topSubject.count}</span>
+            <span className="dashboard__stat-value">{subjectCount}</span>
             <span className="dashboard__stat-label">
-              Top Subject: {topSubject.name}
+              {subjectCount === 1 ? "Subject" : "Subjects"}
             </span>
-          </div>
+          </Link>
         )}
       </div>
 
