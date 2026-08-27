@@ -8,11 +8,22 @@ import {
   IconSearch,
   IconBookmarks,
   IconBooks,
+  IconSparkles,
+  IconBulb,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
+const RECOMMENDATIONS_LIMIT = 4;
+
+const STAGE_OPTIONS = [
+  { value: "k12", label: "K-12 Student" },
+  { value: "college", label: "College Student" },
+  { value: "trade", label: "Trade / Vocational Program" },
+  { value: "testPrep", label: "Studying for a Test" },
+  { value: "exploring", label: "Just Exploring" },
+];
 
 function toDateKey(ms) {
   const date = new Date(ms);
@@ -81,9 +92,47 @@ function getSubjectNames(savedTopics) {
   return names;
 }
 
-function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
+// Session 10, entry point 1: for learners who already have saved-topic
+// history, recommend topics pulled straight from the related-topics lists
+// the AI already generates on every study card -- no separate recommendation
+// engine needed. Dedupes against what's already saved (case-insensitive,
+// since a learner might save "React" and a related list might surface
+// "react") and against repeats across multiple saved topics' related lists.
+function getRecommendations(savedTopics) {
+  const savedTermsLower = new Set(
+    savedTopics.map((topic) => topic.term.trim().toLowerCase()),
+  );
+  const seen = new Set();
+  const recommendations = [];
+
+  savedTopics.forEach((topic) => {
+    (topic.relatedTopics ?? []).forEach((related) => {
+      const key = related.trim().toLowerCase();
+
+      if (!key || savedTermsLower.has(key) || seen.has(key)) {
+        return;
+      }
+
+      seen.add(key);
+      recommendations.push(related);
+    });
+  });
+
+  return recommendations.slice(0, RECOMMENDATIONS_LIMIT);
+}
+
+function DashboardPage({
+  isLoggedIn,
+  userName,
+  savedTopics = [],
+  learnerProfile,
+  onUpdateLearnerProfile = () => Promise.resolve(),
+}) {
   const [quote, setQuote] = useState("");
   const [isQuoteLoading, setIsQuoteLoading] = useState(true);
+  const [interestInput, setInterestInput] = useState("");
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [skippedInterestPrompt, setSkippedInterestPrompt] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -117,6 +166,38 @@ function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
   const dayStreak = getDayStreak(savedTopics);
   const recentTopics = getRecentTopics(savedTopics);
   const subjectCount = getSubjectNames(savedTopics).size;
+  const recommendations = getRecommendations(savedTopics);
+
+  function handleStageSelect(stage) {
+    setIsSavingProfile(true);
+
+    onUpdateLearnerProfile({ studentStage: stage })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setIsSavingProfile(false);
+      });
+  }
+
+  function handleInterestSubmit(e) {
+    e.preventDefault();
+    const trimmed = interestInput.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    setIsSavingProfile(true);
+
+    onUpdateLearnerProfile({ primaryInterest: trimmed })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setIsSavingProfile(false);
+      });
+  }
 
   return (
     <section className="dashboard">
@@ -198,6 +279,105 @@ function DashboardPage({ isLoggedIn, userName, savedTopics = [] }) {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      <section className="dashboard__recommended" aria-label="Recommended for you">
+        <h2 className="dashboard__section-heading">
+          <IconSparkles size={20} stroke={1.75} aria-hidden="true" />
+          Recommended for You
+        </h2>
+
+        {recommendations.length > 0 ? (
+          <div className="dashboard__recommend-grid">
+            {recommendations.map((term) => (
+              <Link
+                key={term}
+                to="/search"
+                state={{ searchTerm: term }}
+                className="dashboard__recommend-card"
+              >
+                {term}
+              </Link>
+            ))}
+          </div>
+        ) : learnerProfile?.primaryInterest ? (
+          <div className="dashboard__recommend-cta">
+            <p className="dashboard__recommend-text">
+              Ready to keep going with {learnerProfile.primaryInterest}?
+            </p>
+            <Link
+              to="/search"
+              state={{ searchTerm: learnerProfile.primaryInterest }}
+              className="dashboard__link dashboard__link--primary"
+            >
+              <IconSearch size={18} stroke={2} aria-hidden="true" />
+              Explore {learnerProfile.primaryInterest}
+            </Link>
+          </div>
+        ) : learnerProfile?.studentStage && !skippedInterestPrompt ? (
+          <form
+            className="dashboard__recommend-form"
+            onSubmit={handleInterestSubmit}
+          >
+            <label
+              htmlFor="dashboard-interest-input"
+              className="dashboard__recommend-label"
+            >
+              What are you focused on studying right now?
+            </label>
+            <div className="dashboard__recommend-form-row">
+              <input
+                id="dashboard-interest-input"
+                type="text"
+                className="dashboard__recommend-input"
+                placeholder='Try "React" or "Cellular Biology"'
+                value={interestInput}
+                onChange={(e) => setInterestInput(e.target.value)}
+                disabled={isSavingProfile}
+              />
+              <button
+                type="submit"
+                className="dashboard__link dashboard__link--primary"
+                disabled={isSavingProfile || !interestInput.trim()}
+              >
+                Save
+              </button>
+            </div>
+            <button
+              type="button"
+              className="dashboard__recommend-skip"
+              onClick={() => setSkippedInterestPrompt(true)}
+            >
+              Skip for now
+            </button>
+          </form>
+        ) : !learnerProfile?.studentStage ? (
+          <div className="dashboard__recommend-stage">
+            <p className="dashboard__recommend-text">
+              <IconBulb size={18} stroke={1.75} aria-hidden="true" />
+              Tell us a bit about yourself so we can point you in the right
+              direction.
+            </p>
+            <div className="dashboard__recommend-stage-options">
+              {STAGE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className="dashboard__recommend-stage-button"
+                  onClick={() => handleStageSelect(option.value)}
+                  disabled={isSavingProfile}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="dashboard__empty">
+            Keep saving topics and we&apos;ll start recommending related ones
+            here.
+          </p>
         )}
       </section>
 

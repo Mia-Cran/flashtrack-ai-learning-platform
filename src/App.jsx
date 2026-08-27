@@ -315,6 +315,8 @@ function App() {
               isLoggedIn={isLoggedIn}
               userName={userName}
               savedTopics={savedTopics}
+              learnerProfile={learnerProfile}
+              onUpdateLearnerProfile={handleUpdateLearnerProfile}
             />
           }
         />
