@@ -65,6 +65,21 @@ const learnerProfileSchema = new mongoose.Schema({
       ref: "Subject",
     },
   ],
+  // Answers to the "guiding questions" a new/undecided learner answers once
+  // (Phase 3, Session 10 design -- not a one-time throwaway quiz). Saved
+  // here, not just used in the moment, so recommendations can build on them
+  // without re-asking. Both optional: a learner with real saved-topic
+  // history doesn't need to answer these at all.
+  studentStage: {
+    type: String,
+    enum: ["k12", "college", "trade", "testPrep", "exploring"],
+    required: false,
+  },
+  primaryInterest: {
+    type: String,
+    required: false,
+    trim: true,
+  },
 });
 
 module.exports = mongoose.model("LearnerProfile", learnerProfileSchema);

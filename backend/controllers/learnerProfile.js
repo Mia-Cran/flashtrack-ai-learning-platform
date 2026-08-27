@@ -19,8 +19,13 @@ const getLearnerProfile = (req, res) => {
 };
 
 const updateLearnerProfile = (req, res) => {
-  const { preferredDifficulty, learningPreferences, accessibilityPreferences } =
-    req.body;
+  const {
+    preferredDifficulty,
+    learningPreferences,
+    accessibilityPreferences,
+    studentStage,
+    primaryInterest,
+  } = req.body;
 
   const update = {};
 
@@ -34,6 +39,17 @@ const updateLearnerProfile = (req, res) => {
 
   if (accessibilityPreferences !== undefined) {
     update.accessibilityPreferences = accessibilityPreferences;
+  }
+
+  // Answers to the guiding questions (Phase 3, Session 10 design) -- saved
+  // the same way as every other preference here, so a learner never has to
+  // re-answer once they have.
+  if (studentStage !== undefined) {
+    update.studentStage = studentStage;
+  }
+
+  if (primaryInterest !== undefined) {
+    update.primaryInterest = primaryInterest;
   }
 
   // Wrapped in $set so this only touches the fields being updated — without it,
