@@ -44,7 +44,16 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
   return (
     <header className="header">
       <nav className="header__nav">
-        <span className="header__brand">FlashTrack</span>
+        <div className="header__brand-group">
+          <span className="header__brand">FlashTrack</span>
+
+          {/* Open to every visitor, same as Search itself -- browsing a
+              subject is just a way to find something to search, not a
+              feature that needs an account. Kept next to the brand, on its
+              own, rather than mixed in with the other nav links -- moved
+              here after it felt out of place sitting among the page links. */}
+          <SubjectsNavDropdown disabled={isSearchLoading} />
+        </div>
 
         <div className="header__links">
           <HeaderNavLink to="/" disabled={isSearchLoading}>
@@ -60,11 +69,6 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
           <HeaderNavLink to="/search" disabled={isSearchLoading}>
             Search
           </HeaderNavLink>
-
-          {/* Open to every visitor, same as Search itself -- browsing a
-              subject is just a way to find something to search, not a
-              feature that needs an account. */}
-          <SubjectsNavDropdown disabled={isSearchLoading} />
 
           {isLoggedIn && (
             <>
