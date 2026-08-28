@@ -1,4 +1,12 @@
-require("dotenv").config();
+const path = require("path");
+
+// Load backend/.env by its own real location, not by whatever directory
+// the command happens to be run from -- dotenv's default config() resolves
+// ".env" relative to process.cwd(), so running this script from the repo
+// root (rather than from inside backend/) silently loaded nothing and left
+// MONGODB_URI undefined. __dirname makes this work the same way no matter
+// where it's invoked from.
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 const mongoose = require("mongoose");
 const Subject = require("../models/subject");
 

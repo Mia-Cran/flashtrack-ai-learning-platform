@@ -9,8 +9,14 @@
 // stay exactly as they were, so a user who already saved this topic doesn't
 // lose it or see it move, it just quietly becomes correct.
 //
-// Run from the backend/ directory: node scripts/fixCorruptedTopics.js [--fix]
-require("dotenv").config();
+// Can be run from any directory: node backend/scripts/fixCorruptedTopics.js [--fix]
+const path = require("path");
+
+// Loaded by real location, not by whatever directory the command is run
+// from -- dotenv's default config() resolves ".env" relative to
+// process.cwd(), which silently loads nothing (and leaves MONGODB_URI
+// undefined) if this script isn't run from inside backend/ specifically.
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 const mongoose = require("mongoose");
 const openai = require("../utils/openai");
 const Topic = require("../models/topic");
