@@ -43,6 +43,11 @@ function SearchPage({
   const [autoSaved, setAutoSaved] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState(null);
+  // Session 10, entry point 2: set when a student arrives here by browsing
+  // a subject from the nav dropdown instead of searching directly. Purely
+  // local display state -- it swaps which example topics are shown below,
+  // never anything sent to the backend or used to classify a search.
+  const [browseSubject, setBrowseSubject] = useState(null);
 
   useEffect(() => {
     onLoadingChange?.(isLoading);
@@ -69,6 +74,7 @@ function SearchPage({
     setShowAuthModal(false);
     setAutoSaved(false);
     setIsSaved(false);
+    setBrowseSubject(null);
 
     try {
       const token = localStorage.getItem("jwt");
@@ -127,15 +133,32 @@ function SearchPage({
   }
 
   useEffect(() => {
-    const incomingTerm = location.state?.searchTerm;
+    const state = location.state;
 
-    if (incomingTerm) {
+    if (!state) {
+      return;
+    }
+
+    if (state.searchTerm) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      runSearch(incomingTerm);
+      runSearch(state.searchTerm);
+      navigate(location.pathname, { replace: true, state: null });
+      return;
+    }
+
+    if (state.browseSubjectId) {
+      setBrowseSubject({
+        name: state.browseSubjectName,
+        exampleTopics: state.browseExampleTopics ?? [],
+      });
+      setTopicResult(null);
       navigate(location.pathname, { replace: true, state: null });
     }
+    // Depends on location.state (not mount-only) so picking a different
+    // subject from the nav dropdown updates this page even when already
+    // sitting on /search, rather than only working on the first arrival.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location.state]);
 
   function handleSaveTopic(topic) {
     if (!isLoggedIn) {
@@ -238,7 +261,42 @@ function SearchPage({
         />
       )}
 
-      {!topicResult && !isLoading && (
+      {!topicResult && !isLoading && browseSubject && (
+        <section className="home__examples" aria-label={`Example topics in ${browseSubject.name}`}>
+          <p className="home__examples-label">
+            Browsing {browseSubject.name} — try one, or search anything:
+          </p>
+          {browseSubject.exampleTopics.length > 0 ? (
+            <div className="home__browse-chips">
+              {browseSubject.exampleTopics.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  className="home__browse-chip"
+                  onClick={() => setSearchQuery(term)}
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="home__empty">
+              No example topics for this subject yet — search anything and
+              it'll be classified into {browseSubject.name} automatically if
+              that's the best fit.
+            </p>
+          )}
+          <button
+            type="button"
+            className="home__browse-clear"
+            onClick={() => setBrowseSubject(null)}
+          >
+            ← Or see general example topics instead
+          </button>
+        </section>
+      )}
+
+      {!topicResult && !isLoading && !browseSubject && (
         <section className="home__examples" aria-label="Example topics">
           <p className="home__examples-label">
             See what a study card looks like — try one:

@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router";
+import SubjectsNavDropdown from "../SubjectsNavDropdown/SubjectsNavDropdown";
 import "./Header.css";
 
 function HeaderNavLink({ to, disabled, children }) {
@@ -59,6 +60,11 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
           <HeaderNavLink to="/search" disabled={isSearchLoading}>
             Search
           </HeaderNavLink>
+
+          {/* Open to every visitor, same as Search itself -- browsing a
+              subject is just a way to find something to search, not a
+              feature that needs an account. */}
+          <SubjectsNavDropdown disabled={isSearchLoading} />
 
           {isLoggedIn && (
             <>
