@@ -86,18 +86,31 @@ function SearchPage({
         }),
       });
 
+      // Read the body before branching on response.ok so a specific
+      // backend-provided message (e.g. the rate limiter's) can be shown
+      // instead of a generic one -- previously every non-ok response
+      // (rate limited, not found, server error) looked identical to the
+      // user, which hid a real, working rate limit behind a confusing
+      // "something went wrong."
+      const data = await response.json().catch(() => null);
+
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error(
+            data?.message ||
+              "You've hit the search limit for now. Please wait a few minutes and try again.",
+          );
+        }
+
         throw new Error("Topic not found.");
       }
-
-      const data = await response.json();
 
       setTopicResult({ ...data.studyGuide, searchTerm: cleanedQuery });
       setSelectedSubjectId(data.studyGuide.suggestedSubject?._id ?? null);
     } catch (err) {
       console.log(err);
       setTopicResult(null);
-      setError("Something went wrong. Please try another search.");
+      setError(err.message || "Something went wrong. Please try another search.");
     } finally {
       setIsLoading(false);
     }
