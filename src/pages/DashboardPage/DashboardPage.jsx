@@ -1,4 +1,5 @@
 import "./DashboardPage.css";
+import { API_BASE_URL } from "../../utils/api";
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router";
 import {
@@ -139,7 +140,7 @@ function DashboardPage({
       return;
     }
 
-    fetch("https://software-engineering-study-tracker.onrender.com/quote/daily")
+    fetch(`${API_BASE_URL}/quote/daily`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to load quote");

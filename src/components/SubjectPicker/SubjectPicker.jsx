@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../utils/api";
 import "./SubjectPicker.css";
 
 function SubjectPicker({ id, value, onChange, className, disabled = false }) {
@@ -6,7 +7,7 @@ function SubjectPicker({ id, value, onChange, className, disabled = false }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://software-engineering-study-tracker.onrender.com/subjects")
+    fetch(`${API_BASE_URL}/subjects`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to load subjects");

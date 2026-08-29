@@ -1,26 +1,11 @@
 const openai = require("../utils/openai");
+const { isTextBlocked } = require("../utils/moderation");
 const Subject = require("../models/subject");
 const LearnerProfile = require("../models/learnerProfile");
 
 function normalizeSubjectName(name) {
   return typeof name === "string" ? name.trim().toLowerCase() : "";
 }
-
-const BLOCKED_MODERATION_CATEGORIES = [
-  "hate",
-  "hate/threatening",
-  "harassment",
-  "harassment/threatening",
-  "self-harm",
-  "self-harm/intent",
-  "self-harm/instructions",
-  "sexual",
-  "sexual/minors",
-  "violence",
-  "violence/graphic",
-  "illicit",
-  "illicit/violent",
-];
 
 const DIFFICULTY_INSTRUCTIONS = {
   Beginner:
@@ -94,12 +79,7 @@ const generateStudyGuide = async (req, res) => {
   }
 
   try {
-    const moderation = await openai.moderations.create({ input: term });
-    const { categories } = moderation.results[0];
-
-    const isBlocked = BLOCKED_MODERATION_CATEGORIES.some(
-      (category) => categories[category] === true,
-    );
+    const isBlocked = await isTextBlocked(term);
 
     if (isBlocked) {
       return res.status(400).send({

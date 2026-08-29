@@ -1,6 +1,7 @@
 import "./FeedbackPage.css";
 import { useEffect, useState } from "react";
 import { IconMessage2, IconSend } from "@tabler/icons-react";
+import { API_BASE_URL } from "../../utils/api";
 
 function FeedbackPage({ isLoggedIn }) {
   const [feedbackList, setFeedbackList] = useState([]);
@@ -16,7 +17,7 @@ function FeedbackPage({ isLoggedIn }) {
   // inside the fetch's own callbacks (not synchronously in the effect body)
   // to avoid a cascading-render setState-in-effect lint error.
   useEffect(() => {
-    fetch("https://software-engineering-study-tracker.onrender.com/feedback")
+    fetch(`${API_BASE_URL}/feedback`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to load feedback");
@@ -55,7 +56,7 @@ function FeedbackPage({ isLoggedIn }) {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    fetch("https://software-engineering-study-tracker.onrender.com/feedback", {
+    fetch(`${API_BASE_URL}/feedback`, {
       method: "POST",
       headers,
       body: JSON.stringify({

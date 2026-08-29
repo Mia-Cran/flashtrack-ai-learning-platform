@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../utils/api";
 import { useLocation, useNavigate } from "react-router";
 import "./SearchPage.css";
 import StudyCard from "../../components/StudyCard/StudyCard";
@@ -84,7 +85,7 @@ function SearchPage({
         headers.Authorization = `Bearer ${token}`;
       }
 
-      const response = await fetch("https://software-engineering-study-tracker.onrender.com/study/generate", {
+      const response = await fetch(`${API_BASE_URL}/study/generate`, {
         method: "POST",
         headers,
         body: JSON.stringify({

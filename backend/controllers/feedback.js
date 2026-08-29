@@ -1,21 +1,5 @@
-const openai = require("../utils/openai");
 const Feedback = require("../models/feedback");
-
-const BLOCKED_MODERATION_CATEGORIES = [
-  "hate",
-  "hate/threatening",
-  "harassment",
-  "harassment/threatening",
-  "self-harm",
-  "self-harm/intent",
-  "self-harm/instructions",
-  "sexual",
-  "sexual/minors",
-  "violence",
-  "violence/graphic",
-  "illicit",
-  "illicit/violent",
-];
+const { isTextBlocked } = require("../utils/moderation");
 
 const createFeedback = async (req, res) => {
   const { message, contactEmail } = req.body;
@@ -25,12 +9,7 @@ const createFeedback = async (req, res) => {
   }
 
   try {
-    const moderation = await openai.moderations.create({ input: message });
-    const { categories } = moderation.results[0];
-
-    const isBlocked = BLOCKED_MODERATION_CATEGORIES.some(
-      (category) => categories[category] === true,
-    );
+    const isBlocked = await isTextBlocked(message);
 
     if (isBlocked) {
       return res.status(400).send({

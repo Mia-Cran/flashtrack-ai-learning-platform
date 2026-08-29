@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../utils/api";
 import { useNavigate } from "react-router";
 import "./SubjectsNavDropdown.css";
 
@@ -13,7 +14,7 @@ function SubjectsNavDropdown({ disabled = false }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://software-engineering-study-tracker.onrender.com/subjects")
+    fetch(`${API_BASE_URL}/subjects`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to load subjects");

@@ -10,6 +10,7 @@ import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
 import SubjectsPage from "./pages/SubjectsPage/SubjectsPage";
 import Header from "./components/Header/Header";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "./utils/api";
 
 function App() {
   const [savedTopics, setSavedTopics] = useState([]);
@@ -30,7 +31,7 @@ function App() {
     learnerProfile?.accessibilityPreferences?.reduceMotion ?? false;
 
   function loadTopics(token) {
-    return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
+    return fetch(`${API_BASE_URL}/topics`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -49,7 +50,7 @@ function App() {
   }
 
   function loadLearnerProfile(token) {
-    return fetch("https://software-engineering-study-tracker.onrender.com/learner-profile", {
+    return fetch(`${API_BASE_URL}/learner-profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -70,7 +71,7 @@ function App() {
   function handleUpdateLearnerProfile(updates) {
     const token = localStorage.getItem("jwt");
 
-    return fetch("https://software-engineering-study-tracker.onrender.com/learner-profile", {
+    return fetch(`${API_BASE_URL}/learner-profile`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -112,7 +113,7 @@ function App() {
   }, []);
 
   function handleSignin(email, password) {
-    return fetch("https://software-engineering-study-tracker.onrender.com/signin", {
+    return fetch(`${API_BASE_URL}/signin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -143,7 +144,7 @@ function App() {
   }
 
   function handleSignup(name, email, password) {
-    return fetch("https://software-engineering-study-tracker.onrender.com/signup", {
+    return fetch(`${API_BASE_URL}/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -189,7 +190,7 @@ function App() {
       subject: topic.subject,
     };
 
-    return fetch("https://software-engineering-study-tracker.onrender.com/topics", {
+    return fetch(`${API_BASE_URL}/topics`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -228,7 +229,7 @@ function App() {
   function handleAssignSubject(topicId, subjectId) {
     const token = localStorage.getItem("jwt");
 
-    return fetch(`https://software-engineering-study-tracker.onrender.com/topics/${topicId}`, {
+    return fetch(`${API_BASE_URL}/topics/${topicId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -261,7 +262,7 @@ function App() {
   function handleDeleteTopic(topicId) {
     const token = localStorage.getItem("jwt");
 
-    return fetch(`https://software-engineering-study-tracker.onrender.com/topics/${topicId}`, {
+    return fetch(`${API_BASE_URL}/topics/${topicId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
