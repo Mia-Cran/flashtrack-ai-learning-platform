@@ -1,19 +1,21 @@
 const router = require("express").Router();
 const auth = require("../middleware/auth");
 
-const { 
-    getTopics, 
-    createTopic, 
-    getTopicById, 
+const {
+    getTopics,
+    createTopic,
+    getTopicById,
     deleteTopic,
     updateTopic,
+    regenerateTopic,
 } = require("../controllers/topics");
 
 router.get("/", auth, getTopics);
 router.post("/", auth, createTopic);
-router.get("/:id", auth,  getTopicById);
+router.get("/:id", auth, getTopicById);
 router.put("/:id", auth, updateTopic);
+router.patch("/:id", auth, updateTopic);
+router.post("/:id/regenerate", auth, regenerateTopic);
 router.delete("/:id", auth, deleteTopic);
-router.patch("/:id", auth,  updateTopic);
 
 module.exports = router;

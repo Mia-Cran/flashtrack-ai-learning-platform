@@ -285,6 +285,45 @@ function App() {
         throw err;
       });
   }
+
+  function handleRegenerateTopic(topicId, difficulty) {
+    const token = localStorage.getItem("jwt");
+
+    console.log("Regenerating topic:", topicId, "to difficulty:", difficulty);
+
+    return fetch(`${API_BASE_URL}/topics/${topicId}/regenerate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ difficulty }),
+    })
+      .then((res) => {
+        console.log("Response status:", res.status);
+        if (!res.ok) {
+          return res.text().then((text) => {
+            throw new Error(`Failed to regenerate topic: ${res.status} ${text}`);
+          });
+        }
+
+        return res.json();
+      })
+      .then((updatedTopic) => {
+        console.log("Topic regenerated successfully:", updatedTopic);
+        setSavedTopics((prevTopics) =>
+          prevTopics.map((topic) =>
+            topic._id === updatedTopic._id ? updatedTopic : topic,
+          ),
+        );
+
+        return updatedTopic;
+      })
+      .catch((err) => {
+        console.error("Regenerate error:", err);
+        throw err;
+      });
+  }
   return (
     <main
       className={`app${hasLargerText ? " app--larger-text" : ""}${
@@ -341,6 +380,7 @@ function App() {
               savedTopics={savedTopics}
               onDeleteTopic={handleDeleteTopic}
               onAssignSubject={handleAssignSubject}
+              onRegenerateTopic={handleRegenerateTopic}
               sectionsCollapsedByDefault={sectionsCollapsedByDefault}
             />
           }

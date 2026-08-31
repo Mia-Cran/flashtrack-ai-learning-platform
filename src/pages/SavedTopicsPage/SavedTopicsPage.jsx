@@ -8,6 +8,7 @@ function SavedTopicsPage({
   savedTopics,
   onDeleteTopic,
   onAssignSubject,
+  onRegenerateTopic,
   sectionsCollapsedByDefault = true,
 }) {
   const [assigningTopicId, setAssigningTopicId] = useState(null);
@@ -79,8 +80,10 @@ function SavedTopicsPage({
                   title: topic.term,
                   beginnerExplanation: topic.beginnerDefinition,
                 }}
+                isSavedExternally={true}
                 onDeleteTopic={onDeleteTopic}
                 onRelatedTopicClick={handleRelatedTopicClick}
+                onRegenerateTopic={onRegenerateTopic}
                 sectionsCollapsedByDefault={sectionsCollapsedByDefault}
               />
             </div>

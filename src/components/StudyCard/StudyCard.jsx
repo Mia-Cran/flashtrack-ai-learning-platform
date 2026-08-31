@@ -148,12 +148,14 @@ function StudyCard({
   onSaveTopic,
   onDeleteTopic,
   onRelatedTopicClick,
+  onRegenerateTopic,
   isSavedExternally = false,
   disabled = false,
   sectionsCollapsedByDefault = true,
 }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [openSections, setOpenSections] = useState(() =>
     getInitialOpenSections(sectionsCollapsedByDefault),
   );
@@ -188,6 +190,20 @@ function StudyCard({
       console.error("Failed to save topic:", err);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleRegenerateTopic = async (difficulty) => {
+    if (!onRegenerateTopic) return;
+
+    setIsRegenerating(true);
+
+    try {
+      await onRegenerateTopic(topic._id, difficulty);
+    } catch (err) {
+      console.error("Failed to regenerate topic:", err);
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -319,7 +335,7 @@ function StudyCard({
           </div>
         )}
 
-        {(onSaveTopic || onDeleteTopic) && (
+        {(onSaveTopic || onDeleteTopic || onRegenerateTopic) && (
           <div className="study-card__actions">
             {onSaveTopic && (
               <button
@@ -334,6 +350,26 @@ function StudyCard({
                     ? "Saved ✓"
                     : "Save Topic"}
               </button>
+            )}
+
+            {effectivelySaved && onRegenerateTopic && (
+              <div className="study-card__difficulty-selector">
+                <label htmlFor={`difficulty-${baseId}`} className="study-card__difficulty-label">
+                  View at:
+                </label>
+                <select
+                  id={`difficulty-${baseId}`}
+                  className="study-card__difficulty-select"
+                  value={topic.difficulty || "Beginner"}
+                  onChange={(e) => handleRegenerateTopic(e.target.value)}
+                  disabled={isRegenerating || disabled}
+                >
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+                {isRegenerating && <span className="study-card__regenerating">Regenerating...</span>}
+              </div>
             )}
 
             {onDeleteTopic && (
