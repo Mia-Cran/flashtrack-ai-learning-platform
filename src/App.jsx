@@ -29,6 +29,8 @@ function App() {
   const hasLargerText = learnerProfile?.accessibilityPreferences?.largerText ?? false;
   const hasReducedMotion =
     learnerProfile?.accessibilityPreferences?.reduceMotion ?? false;
+  const explanationStyle =
+    learnerProfile?.learningPreferences?.explanationStyle ?? "analogies";
 
   function loadTopics(token) {
     return fetch(`${API_BASE_URL}/topics`, {
@@ -370,6 +372,7 @@ function App() {
               onSignin={handleSignin}
               onLoadingChange={setIsSearchLoading}
               sectionsCollapsedByDefault={sectionsCollapsedByDefault}
+              explanationStyle={explanationStyle}
             />
           }
         />
@@ -382,6 +385,7 @@ function App() {
               onAssignSubject={handleAssignSubject}
               onRegenerateTopic={handleRegenerateTopic}
               sectionsCollapsedByDefault={sectionsCollapsedByDefault}
+              explanationStyle={explanationStyle}
             />
           }
         />

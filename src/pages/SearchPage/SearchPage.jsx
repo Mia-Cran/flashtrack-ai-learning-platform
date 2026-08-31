@@ -31,6 +31,7 @@ function SearchPage({
   onSignin,
   onLoadingChange,
   sectionsCollapsedByDefault = true,
+  explanationStyle = "analogies",
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -250,6 +251,7 @@ function SearchPage({
           isSavedExternally={autoSaved}
           disabled={isLoading}
           sectionsCollapsedByDefault={sectionsCollapsedByDefault}
+          explanationStyle={explanationStyle}
         />
       )}
 

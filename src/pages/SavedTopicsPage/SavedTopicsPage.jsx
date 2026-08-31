@@ -10,6 +10,7 @@ function SavedTopicsPage({
   onAssignSubject,
   onRegenerateTopic,
   sectionsCollapsedByDefault = true,
+  explanationStyle = "analogies",
 }) {
   const [assigningTopicId, setAssigningTopicId] = useState(null);
   const [isAssigning, setIsAssigning] = useState(false);
@@ -85,6 +86,7 @@ function SavedTopicsPage({
                 onRelatedTopicClick={handleRelatedTopicClick}
                 onRegenerateTopic={onRegenerateTopic}
                 sectionsCollapsedByDefault={sectionsCollapsedByDefault}
+                explanationStyle={explanationStyle}
               />
             </div>
           ))}

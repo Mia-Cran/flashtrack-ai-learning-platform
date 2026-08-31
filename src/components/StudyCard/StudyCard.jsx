@@ -3,9 +3,14 @@ import { useId, useLayoutEffect, useRef, useState } from "react";
 
 const SECTION_KEYS = ["beginner", "technical", "analogy", "code", "mistake"];
 
-function getInitialOpenSections(sectionsCollapsedByDefault) {
+function getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle) {
   if (sectionsCollapsedByDefault) {
-    return {};
+    // Open the preferred section based on explanation style
+    if (explanationStyle === "technical") {
+      return { technical: true };
+    }
+    // Default to analogies
+    return { analogy: true };
   }
 
   return SECTION_KEYS.reduce((openByKey, key) => {
@@ -152,12 +157,13 @@ function StudyCard({
   isSavedExternally = false,
   disabled = false,
   sectionsCollapsedByDefault = true,
+  explanationStyle = "analogies",
 }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [openSections, setOpenSections] = useState(() =>
-    getInitialOpenSections(sectionsCollapsedByDefault),
+    getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle),
   );
   const baseId = useId();
   const hasUserToggledRef = useRef(false);
@@ -170,8 +176,8 @@ function StudyCard({
       return;
     }
 
-    setOpenSections(getInitialOpenSections(sectionsCollapsedByDefault));
-  }, [sectionsCollapsedByDefault]);
+    setOpenSections(getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle));
+  }, [sectionsCollapsedByDefault, explanationStyle]);
 
   const effectivelySaved = isSaved || isSavedExternally;
 
