@@ -279,7 +279,8 @@
 }
 
 .study-card__save-button,
-.study-card__delete-button {
+.study-card__delete-button,
+.study-card__quiz-button {
   padding: 10px 20px;
   font-size: 16px;
   font-weight: 600;
@@ -319,8 +320,26 @@
   opacity: 0.6;
 }
 
+.study-card__quiz-button {
+  background: var(--pink-accent);
+  border: 1px solid var(--pink-accent);
+  color: var(--white);
+}
+
+.study-card__quiz-button:hover:not(:disabled) {
+  background: #7a2543;
+  border-color: #7a2543;
+}
+
+.study-card__quiz-button:disabled {
+  background: #c89ba6;
+  border-color: #c89ba6;
+  cursor: not-allowed;
+}
+
 .study-card__save-button:focus-visible,
-.study-card__delete-button:focus-visible {
+.study-card__delete-button:focus-visible,
+.study-card__quiz-button:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }

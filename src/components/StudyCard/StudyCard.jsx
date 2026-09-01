@@ -1,5 +1,7 @@
 import "./StudyCard.css";
 import { useId, useLayoutEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import { API_BASE_URL } from "../../utils/api";
 
 const SECTION_KEYS = ["beginner", "technical", "analogy", "code", "mistake"];
 
@@ -159,9 +161,11 @@ function StudyCard({
   sectionsCollapsedByDefault = true,
   explanationStyle = "analogies",
 }) {
+  const navigate = useNavigate();
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
   const [openSections, setOpenSections] = useState(() =>
     getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle),
   );
@@ -210,6 +214,34 @@ function StudyCard({
       console.error("Failed to regenerate topic:", err);
     } finally {
       setIsRegenerating(false);
+    }
+  };
+
+  const handleTakeQuiz = async () => {
+    setIsLoadingQuiz(true);
+
+    try {
+      const token = localStorage.getItem("jwt");
+      const headers = { "Content-Type": "application/json" };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Try to generate quiz if it doesn't exist
+      await fetch(`${API_BASE_URL}/quizzes/${topic._id}/generate`, {
+        method: "POST",
+        headers,
+      }).catch(() => {
+        // Quiz might already exist, that's okay
+      });
+
+      // Navigate to the quiz
+      navigate(`/quiz/${topic._id}`);
+    } catch (err) {
+      console.error("Failed to load quiz:", err);
+    } finally {
+      setIsLoadingQuiz(false);
     }
   };
 
@@ -376,6 +408,17 @@ function StudyCard({
                 </select>
                 {isRegenerating && <span className="study-card__regenerating">Regenerating...</span>}
               </div>
+            )}
+
+            {effectivelySaved && (
+              <button
+                className="study-card__quiz-button"
+                type="button"
+                onClick={handleTakeQuiz}
+                disabled={isLoadingQuiz || disabled}
+              >
+                {isLoadingQuiz ? "Loading Quiz..." : "Take Quiz"}
+              </button>
             )}
 
             {onDeleteTopic && (
