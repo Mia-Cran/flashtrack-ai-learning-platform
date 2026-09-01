@@ -7,6 +7,34 @@ function normalizeSubjectName(name) {
   return typeof name === "string" ? name.trim().toLowerCase() : "";
 }
 
+// Blocklist of terms that shouldn't generate study guides.
+// Add terms here as they're discovered to be unhelpful or nonsensical.
+const BLOCKED_TERMS = new Set([
+  // Common articles and pronouns
+  "the",
+  "a",
+  "an",
+  // Common conjunctions
+  "and",
+  "or",
+  "but",
+  // Common prepositions
+  "in",
+  "on",
+  "at",
+  // Fillers
+  "um",
+  "uh",
+  // Generic placeholders
+  "thing",
+  "stuff",
+  "whatever",
+]);
+
+function isBlockedTerm(term) {
+  return BLOCKED_TERMS.has(term.toLowerCase().trim());
+}
+
 const DIFFICULTY_INSTRUCTIONS = {
   Beginner:
     "Assume zero prior background in this subject. Define every term before using it. Do not compress this for the sake of brevity.",
@@ -75,6 +103,13 @@ const generateStudyGuide = async (req, res) => {
   if (!term) {
     return res.status(400).send({
       message: "A study term is required",
+    });
+  }
+
+  if (isBlockedTerm(term)) {
+    return res.status(400).send({
+      message:
+        "This search couldn't be processed. Please try a different topic.",
     });
   }
 
