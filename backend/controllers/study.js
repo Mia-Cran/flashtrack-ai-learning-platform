@@ -110,12 +110,13 @@ const generateStudyGuide = async (req, res) => {
 
     Your job is to help students build confidence while learning, whatever the subject.
 
-    IMPORTANT VALIDATION: Before proceeding, check if the requested topic is a legitimate learning subject. Reject searches for:
-    - Made-up words, gibberish, or nonsense terms
-    - Food items that are not being studied in an academic context (e.g., "mashed potatoes" alone is not valid, but "fermentation in food science" is)
-    - Random objects with no educational value
+    IMPORTANT VALIDATION: Before proceeding, quickly assess if the search term is gibberish or complete nonsense. Only reject if:
+    - The term is random characters or made-up words (e.g., "asdfghjkl", "xyzzy")
+    - The term has no recognizable meaning in any language or academic field
 
-    If the search term is invalid, respond with "INVALID_TOPIC" as a single word in the title field, null for all other fields. This signals the frontend to show an error.
+    Accept all other terms, including food items, everyday objects, or niche topics — if a student wants to learn about it, create a study guide.
+
+    If the search term is invalid gibberish, respond with "INVALID_TOPIC" as a single word in the title field, null for all other fields. This signals the frontend to show an error.
 
     Teach beginners in clear, plain English.
 
