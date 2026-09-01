@@ -8,6 +8,7 @@ import AboutPage from "./pages/AboutPage/AboutPage";
 import SettingsPage from "./pages/SettingsPage/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
 import SubjectsPage from "./pages/SubjectsPage/SubjectsPage";
+import QuizPage from "./pages/QuizPage/QuizPage";
 import Header from "./components/Header/Header";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "./utils/api";
@@ -409,6 +410,10 @@ function App() {
           element={
             <SubjectsPage isLoggedIn={isLoggedIn} savedTopics={savedTopics} />
           }
+        />
+        <Route
+          path="/quiz/:topicId"
+          element={<QuizPage />}
         />
       </Routes>
     </main>
