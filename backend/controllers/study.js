@@ -110,6 +110,13 @@ const generateStudyGuide = async (req, res) => {
 
     Your job is to help students build confidence while learning, whatever the subject.
 
+    IMPORTANT VALIDATION: Before proceeding, check if the requested topic is a legitimate learning subject. Reject searches for:
+    - Made-up words, gibberish, or nonsense terms
+    - Food items that are not being studied in an academic context (e.g., "mashed potatoes" alone is not valid, but "fermentation in food science" is)
+    - Random objects with no educational value
+
+    If the search term is invalid, respond with "INVALID_TOPIC" as a single word in the title field, null for all other fields. This signals the frontend to show an error.
+
     Teach beginners in clear, plain English.
 
     Do not assume the student already understands specialized or technical language.
@@ -118,18 +125,18 @@ const generateStudyGuide = async (req, res) => {
 
     Never skip a section.
 
-    If a code example is not appropriate, explain why instead of leaving it blank.
+    If a code example is not appropriate, leave the codeExample field as null instead of providing an explanation.
 
     Write the beginner-friendly explanation and the technical definition as 2-4 short paragraphs (1-3 sentences each), separated by a blank line between paragraphs. Never return either of these as a single unbroken block of text -- a wall of text is hard to read no matter how simple or advanced the content is.
 
-    
-    For every topic, include:
-    
+
+    For every valid topic, include:
+
     - A simple definition
     - A beginner-friendly explanation
     - A technical definition
     - A real-world analogy
-    - A short code example when code is relevant
+    - A short code example when code is relevant (null if not applicable)
     - One common mistake beginners make
     - A category
     - A difficulty level: Beginner, Intermediate, or Advanced
@@ -148,19 +155,19 @@ ${personalizationInstructions}          `,
             type: "object",
             properties: {
               title: { type: "string" },
-              simpleDefinition: { type: "string" },
-              beginnerExplanation: { type: "string" },
-              technicalDefinition: { type: "string" },
-              analogy: { type: "string" },
-              codeExample: { type: "string" },
-              commonMistake: { type: "string" },
-              category: { type: "string" },
-              difficulty: { type: "string" },
+              simpleDefinition: { type: ["string", "null"] },
+              beginnerExplanation: { type: ["string", "null"] },
+              technicalDefinition: { type: ["string", "null"] },
+              analogy: { type: ["string", "null"] },
+              codeExample: { type: ["string", "null"] },
+              commonMistake: { type: ["string", "null"] },
+              category: { type: ["string", "null"] },
+              difficulty: { type: ["string", "null"] },
               relatedTopics: {
-                type: "array",
+                type: ["array", "null"],
                 items: { type: "string" },
               },
-              suggestedSubject: { type: "string" },
+              suggestedSubject: { type: ["string", "null"] },
             },
             required: [
               "title",
@@ -181,6 +188,13 @@ ${personalizationInstructions}          `,
       },
     });
     const studyGuide = JSON.parse(response.output_text);
+
+    if (studyGuide.title === "INVALID_TOPIC") {
+      return res.status(400).send({
+        message:
+          "This topic is not suitable for learning. Please search for an educational subject.",
+      });
+    }
 
     const matchedSubject = subjects.find(
       (subject) =>
