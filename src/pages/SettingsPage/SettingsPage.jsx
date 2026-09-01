@@ -175,15 +175,15 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
               />
               <RadioOption
                 name="pacing"
-                value="fast"
-                label="Fast & to-the-point"
+                value="keyPointsOnly"
+                label="Key Points Only"
                 currentValue={form.pacing}
                 onChange={(value) => updateField("pacing", value)}
               />
               <RadioOption
                 name="pacing"
-                value="slow"
-                label="Slower &amp; more gradual"
+                value="stepByStep"
+                label="Step-by-Step"
                 currentValue={form.pacing}
                 onChange={(value) => updateField("pacing", value)}
               />

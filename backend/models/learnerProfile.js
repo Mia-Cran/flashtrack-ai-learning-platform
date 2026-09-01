@@ -14,10 +14,10 @@ const learnerProfileSchema = new mongoose.Schema({
   learningPreferences: {
     type: new mongoose.Schema(
       {
-        // "fast" = brief, to-the-point explanations. "slow" = fuller, more gradual explanations.
+        // "keyPointsOnly" = brief, to-the-point explanations. "stepByStep" = fuller, more gradual explanations.
         pacing: {
           type: String,
-          enum: ["fast", "slow"],
+          enum: ["keyPointsOnly", "stepByStep"],
         },
         // "analogies" = lean on real-world analogies. "technical" = lean on technical depth.
         explanationStyle: {

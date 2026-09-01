@@ -45,8 +45,8 @@ const DIFFICULTY_INSTRUCTIONS = {
 };
 
 const PACING_INSTRUCTIONS = {
-  fast: "Keep every section to 1-3 sentences. Do not pad with a fuller build-up -- get to the point immediately.",
-  slow: "Walk through this step by step across several sentences. Do not compress -- a fuller, more gradual build-up is what this student wants, even if it takes longer to read.",
+  keyPointsOnly: "Keep every section to 1-3 sentences. Do not pad with a fuller build-up -- get to the point immediately.",
+  stepByStep: "Walk through this step by step across several sentences. Do not compress -- a fuller, more gradual build-up is what this student wants, even if it takes longer to read.",
 };
 
 const EXPLANATION_STYLE_INSTRUCTIONS = {
