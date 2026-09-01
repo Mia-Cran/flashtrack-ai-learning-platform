@@ -27,7 +27,7 @@ const topicSchema = new mongoose.Schema({
   },
   codeExample: {
     type: String,
-    required: true,
+    required: false,
   },
   commonMistake: {
     type: String,
