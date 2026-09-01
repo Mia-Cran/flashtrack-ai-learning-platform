@@ -24,6 +24,11 @@ const learnerProfileSchema = new mongoose.Schema({
           type: String,
           enum: ["analogies", "technical"],
         },
+        // Preferred quiz question format
+        questionType: {
+          type: String,
+          enum: ["multipleChoice", "trueFalse", "shortAnswer"],
+        },
       },
       { _id: false, strict: false },
     ),

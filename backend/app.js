@@ -7,6 +7,7 @@ const quoteRoutes = require("./routes/quote");
 const subjectRoutes = require("./routes/subject");
 const learnerProfileRoutes = require("./routes/learnerProfile");
 const feedbackRoutes = require("./routes/feedback");
+const quizRoutes = require("./routes/quizzes");
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.use("/quote", quoteRoutes);
 app.use("/subjects", subjectRoutes);
 app.use("/learner-profile", learnerProfileRoutes);
 app.use("/feedback", feedbackRoutes);
+app.use("/quizzes", quizRoutes);
 
 module.exports = app;
