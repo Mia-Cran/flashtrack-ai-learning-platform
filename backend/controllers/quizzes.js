@@ -276,17 +276,36 @@ Return JSON in this exact format:
   }
 };
 
+// The quiz GET is public, so it must never include the answer key. Grading
+// happens server-side in submitQuizResponse, which reads the full document
+// from the database, so removing these fields here does not affect scoring.
+const DIFFICULTY_LEVELS = ["Beginner", "Intermediate", "Advanced"];
+
+const withoutAnswers = (question) => {
+  const publicQuestion = { ...question };
+  delete publicQuestion.correctAnswer;
+  delete publicQuestion.explanation;
+  return publicQuestion;
+};
+
 const getQuiz = async (req, res) => {
   const { topicId } = req.params;
 
   try {
-    const quiz = await Quiz.findOne({ topic: topicId }).populate("topic");
+    // .lean() returns a plain object instead of a Mongoose document, so we
+    // can safely build a copy without the answer fields.
+    const quiz = await Quiz.findOne({ topic: topicId }).populate("topic").lean();
 
     if (!quiz) {
       return res.status(404).send({ message: "Quiz not found" });
     }
 
-    return res.send(quiz);
+    const questions = {};
+    for (const level of DIFFICULTY_LEVELS) {
+      questions[level] = (quiz.questions?.[level] ?? []).map(withoutAnswers);
+    }
+
+    return res.send({ ...quiz, questions });
   } catch (err) {
     console.error(err);
     return res.status(500).send({ message: "Error getting quiz" });
