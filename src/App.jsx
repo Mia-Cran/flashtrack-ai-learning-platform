@@ -202,6 +202,12 @@ function App() {
       body: JSON.stringify(backendTopic),
     })
       .then((res) => {
+        if (res.status === 409) {
+          // Topic already exists - fetch it instead
+          return fetch(`${API_BASE_URL}/topics?term=${encodeURIComponent(topic.title)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }).then(r => r.json()).then(topics => topics[0]);
+        }
         if (!res.ok) {
           throw new Error("Failed to save topic");
         }

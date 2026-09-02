@@ -410,16 +410,7 @@ function StudyCard({
               </div>
             )}
 
-            {effectivelySaved && (
-              <button
-                className="study-card__quiz-button"
-                type="button"
-                onClick={handleTakeQuiz}
-                disabled={isLoadingQuiz || disabled}
-              >
-                {isLoadingQuiz ? "Loading Quiz..." : "Take Quiz"}
-              </button>
-            )}
+            {/* Quiz button removed */}
 
             {onDeleteTopic && (
               <button

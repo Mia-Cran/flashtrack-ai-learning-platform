@@ -6,22 +6,52 @@ const openai = require("../utils/openai");
 
 const generateQuiz = async (req, res) => {
   const { topicId } = req.params;
+  console.log("🚀 Quiz generate endpoint called with topicId:", topicId);
 
   try {
     // Check if quiz already exists for this topic
     const existingQuiz = await Quiz.findOne({ topic: topicId });
     if (existingQuiz) {
-      return res.status(409).send({
-        message: "Quiz already exists for this topic",
-      });
+      console.log("ℹ️ Quiz already exists");
+      return res.status(200).send(existingQuiz);
     }
 
     // Get topic details
     const topic = await Topic.findById(topicId);
     if (!topic) {
+      console.log("❌ Topic not found");
       return res.status(404).send({ message: "Topic not found" });
     }
 
+    console.log("✅ Creating dummy quiz for testing");
+    // Create a simple dummy quiz for testing
+    const mongoose = require("mongoose");
+    const dummyQuestions = {
+      Beginner: [
+        { _id: new mongoose.Types.ObjectId(), text: "What is this topic?", type: "multipleChoice", options: ["A", "B", "C", "D"], correctAnswer: "A", explanation: "Test" }
+      ],
+      Intermediate: [
+        { _id: new mongoose.Types.ObjectId(), text: "Intermediate question?", type: "multipleChoice", options: ["A", "B", "C", "D"], correctAnswer: "B", explanation: "Test" }
+      ],
+      Advanced: [
+        { _id: new mongoose.Types.ObjectId(), text: "Advanced question?", type: "multipleChoice", options: ["A", "B", "C", "D"], correctAnswer: "C", explanation: "Test" }
+      ]
+    };
+
+    const quiz = await Quiz.create({ topic: topicId, questions: dummyQuestions });
+    console.log("✅ Quiz created successfully:", quiz._id);
+    return res.status(201).send(quiz);
+  } catch (err) {
+    console.error("❌ Quiz generation error:", err.message);
+    console.error(err);
+    return res.status(500).send({
+      message: "Failed to generate quiz",
+    });
+  }
+};
+
+/*
+OLD OPENAI CODE - DISABLED FOR TESTING
     // Get learner profile to know preferred question type
     let preferredQuestionType = "multipleChoice"; // default
     if (req.user?._id) {
@@ -32,10 +62,12 @@ const generateQuiz = async (req, res) => {
     }
 
     // Generate questions for all 3 difficulty levels
-    const response = await openai.responses.create({
-      model: "gpt-5.5",
-      instructions: `
-You are an expert quiz generator for educational content. Create 5 ${preferredQuestionType} questions for the topic: "${topic.term}"
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert quiz generator for educational content. Create 5 ${preferredQuestionType} questions for the topic: "${topic.term}"
 
 IMPORTANT:
 - Generate exactly 5 questions
@@ -54,9 +86,11 @@ For shortAnswer questions:
 - No options array needed
 - correctAnswer should be a string (accept variations)
 
-Each question must have: text, type, options (if applicable), correctAnswer, explanation
-
-Return JSON in this exact format:
+Each question must have: text, type, options (if applicable), correctAnswer, explanation`,
+        },
+        {
+          role: "user",
+          content: `Generate 5 ${preferredQuestionType} quiz questions for the Beginner level about "${topic.term}". Focus on foundational understanding. Return JSON in this exact format:
 {
   "questions": [
     {
@@ -67,12 +101,12 @@ Return JSON in this exact format:
       "explanation": "why this is correct"
     }
   ]
-}
-      `,
-      input: `Generate 5 ${preferredQuestionType} quiz questions for the Beginner level about "${topic.term}". Focus on foundational understanding.`,
-      text: {
-        format: {
-          type: "json_schema",
+}`,
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
           name: "quiz_questions",
           strict: true,
           schema: {
@@ -93,6 +127,7 @@ Return JSON in this exact format:
                     explanation: { type: "string" },
                   },
                   required: ["text", "type", "correctAnswer", "explanation"],
+                  additionalProperties: false,
                 },
               },
             },
@@ -103,13 +138,15 @@ Return JSON in this exact format:
       },
     });
 
-    const beginnerQuestions = JSON.parse(response.output_text).questions;
+    const beginnerQuestions = JSON.parse(response.choices[0].message.content).questions;
 
     // Generate Intermediate questions
-    const intermediateResponse = await openai.responses.create({
-      model: "gpt-5.5",
-      instructions: `
-You are an expert quiz generator for educational content. Create 5 ${preferredQuestionType} questions for the topic: "${topic.term}"
+    const intermediateResponse = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert quiz generator for educational content. Create 5 ${preferredQuestionType} questions for the topic: "${topic.term}"
 
 IMPORTANT:
 - Generate exactly 5 questions
@@ -128,9 +165,11 @@ For shortAnswer questions:
 - No options array needed
 - correctAnswer should be a string (accept variations)
 
-Each question must have: text, type, options (if applicable), correctAnswer, explanation
-
-Return JSON in this exact format:
+Each question must have: text, type, options (if applicable), correctAnswer, explanation`,
+        },
+        {
+          role: "user",
+          content: `Generate 5 ${preferredQuestionType} quiz questions for the Intermediate level about "${topic.term}". Focus on application and deeper understanding. Return JSON in this exact format:
 {
   "questions": [
     {
@@ -141,12 +180,12 @@ Return JSON in this exact format:
       "explanation": "why this is correct"
     }
   ]
-}
-      `,
-      input: `Generate 5 ${preferredQuestionType} quiz questions for the Intermediate level about "${topic.term}". Focus on application and deeper understanding.`,
-      text: {
-        format: {
-          type: "json_schema",
+}`,
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
           name: "quiz_questions",
           strict: true,
           schema: {
@@ -167,6 +206,7 @@ Return JSON in this exact format:
                     explanation: { type: "string" },
                   },
                   required: ["text", "type", "correctAnswer", "explanation"],
+                  additionalProperties: false,
                 },
               },
             },
@@ -178,14 +218,16 @@ Return JSON in this exact format:
     });
 
     const intermediateQuestions = JSON.parse(
-      intermediateResponse.output_text,
+      intermediateResponse.choices[0].message.content,
     ).questions;
 
     // Generate Advanced questions
-    const advancedResponse = await openai.responses.create({
-      model: "gpt-5.5",
-      instructions: `
-You are an expert quiz generator for educational content. Create 5 ${preferredQuestionType} questions for the topic: "${topic.term}"
+    const advancedResponse = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert quiz generator for educational content. Create 5 ${preferredQuestionType} questions for the topic: "${topic.term}"
 
 IMPORTANT:
 - Generate exactly 5 questions
@@ -204,9 +246,11 @@ For shortAnswer questions:
 - No options array needed
 - correctAnswer should be a string (accept variations)
 
-Each question must have: text, type, options (if applicable), correctAnswer, explanation
-
-Return JSON in this exact format:
+Each question must have: text, type, options (if applicable), correctAnswer, explanation`,
+        },
+        {
+          role: "user",
+          content: `Generate 5 ${preferredQuestionType} quiz questions for the Advanced level about "${topic.term}". Focus on complex reasoning and edge cases. Return JSON in this exact format:
 {
   "questions": [
     {
@@ -217,12 +261,12 @@ Return JSON in this exact format:
       "explanation": "why this is correct"
     }
   ]
-}
-      `,
-      input: `Generate 5 ${preferredQuestionType} quiz questions for the Advanced level about "${topic.term}". Focus on complex reasoning and edge cases.`,
-      text: {
-        format: {
-          type: "json_schema",
+}`,
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
           name: "quiz_questions",
           strict: true,
           schema: {
@@ -243,6 +287,7 @@ Return JSON in this exact format:
                     explanation: { type: "string" },
                   },
                   required: ["text", "type", "correctAnswer", "explanation"],
+                  additionalProperties: false,
                 },
               },
             },
@@ -254,7 +299,7 @@ Return JSON in this exact format:
     });
 
     const advancedQuestions = JSON.parse(
-      advancedResponse.output_text,
+      advancedResponse.choices[0].message.content,
     ).questions;
 
     // Create and save the quiz
@@ -269,12 +314,14 @@ Return JSON in this exact format:
 
     return res.status(201).send(quiz);
   } catch (err) {
+    console.error("❌ Quiz generation error:", err.message);
     console.error(err);
     return res.status(500).send({
       message: "Failed to generate quiz",
     });
   }
 };
+*/
 
 const getQuiz = async (req, res) => {
   const { topicId } = req.params;
