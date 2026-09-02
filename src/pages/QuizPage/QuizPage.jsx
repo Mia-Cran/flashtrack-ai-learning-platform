@@ -26,7 +26,9 @@ function QuizPage() {
       })
       .then((data) => {
         setQuiz(data);
-        setResponses(new Array(5).fill(null));
+        setResponses(
+          new Array(data.questions?.[difficulty]?.length ?? 0).fill(null),
+        );
       })
       .catch((err) => {
         setError(err.message);
@@ -44,9 +46,12 @@ function QuizPage() {
     return <div className="quiz-page">Error: {error || "Quiz not found"}</div>;
   }
 
-  const questions = quiz.questions[difficulty];
+  // A quiz may be missing a difficulty level (or have an empty one), so never
+  // assume there are exactly 5 questions. Use the real count everywhere.
+  const questions = quiz.questions?.[difficulty] ?? [];
+  const total = questions.length;
   const currentQuestion = questions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const isLastQuestion = currentQuestionIndex === total - 1;
 
   function handleAnswerChange(answer) {
     const newResponses = [...responses];
@@ -105,21 +110,27 @@ function QuizPage() {
         <div className="quiz-result">
           <h2>Quiz Complete!</h2>
           <div className="quiz-score">
-            <div className="score-number">{score}/5</div>
-            <div className="score-percentage">{(score / 5) * 100}%</div>
+            <div className="score-number">
+              {score}/{total}
+            </div>
+            <div className="score-percentage">
+              {total > 0 ? Math.round((score / total) * 100) : 0}%
+            </div>
           </div>
           <p className="score-message">
-            {score === 5 && "Perfect score! 🎉"}
-            {score >= 4 && score < 5 && "Great job! 🌟"}
-            {score >= 3 && score < 4 && "Good effort! Keep practicing."}
-            {score < 3 && "Review the material and try again."}
+            {score === total && "Perfect score! 🎉"}
+            {score < total && score / total >= 0.8 && "Great job! 🌟"}
+            {score / total >= 0.6 &&
+              score / total < 0.8 &&
+              "Good effort! Keep practicing."}
+            {score / total < 0.6 && "Review the material and try again."}
           </p>
           <button
             className="quiz-restart-button"
             onClick={() => {
               setSubmitted(false);
               setCurrentQuestionIndex(0);
-              setResponses(new Array(5).fill(null));
+              setResponses(new Array(total).fill(null));
               setScore(null);
             }}
           >
@@ -142,7 +153,11 @@ function QuizPage() {
               onChange={(e) => {
                 setDifficulty(e.target.value);
                 setCurrentQuestionIndex(0);
-                setResponses(new Array(5).fill(null));
+                setResponses(
+                  new Array(
+                    quiz.questions?.[e.target.value]?.length ?? 0,
+                  ).fill(null),
+                );
               }}
               disabled={submitted}
             >
@@ -154,20 +169,29 @@ function QuizPage() {
         </div>
       </div>
 
+      {total === 0 && (
+        <p className="quiz-empty">
+          No {difficulty} questions yet for this topic. Try another difficulty.
+        </p>
+      )}
+
+      {total > 0 && (
       <div className="quiz-progress">
         <div className="progress-bar">
           <div
             className="progress-fill"
             style={{
-              width: `${((currentQuestionIndex + 1) / 5) * 100}%`,
+              width: `${((currentQuestionIndex + 1) / total) * 100}%`,
             }}
           />
         </div>
         <p className="progress-text">
-          Question {currentQuestionIndex + 1} of 5
+          Question {currentQuestionIndex + 1} of {total}
         </p>
       </div>
+      )}
 
+      {total > 0 && (
       <div className="quiz-question">
         <h3>{currentQuestion.text}</h3>
 
@@ -240,6 +264,7 @@ function QuizPage() {
           </button>
         </div>
       </div>
+      )}
     </section>
   );
 }

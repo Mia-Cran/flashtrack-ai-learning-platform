@@ -166,6 +166,7 @@ function StudyCard({
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
+  const [quizError, setQuizError] = useState("");
   const [openSections, setOpenSections] = useState(() =>
     getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle),
   );
@@ -219,6 +220,7 @@ function StudyCard({
 
   const handleTakeQuiz = async () => {
     setIsLoadingQuiz(true);
+    setQuizError("");
 
     try {
       const token = localStorage.getItem("jwt");
@@ -228,18 +230,24 @@ function StudyCard({
         headers.Authorization = `Bearer ${token}`;
       }
 
-      // Try to generate quiz if it doesn't exist
-      await fetch(`${API_BASE_URL}/quizzes/${topic._id}/generate`, {
+      // Generate the quiz if it doesn't exist yet. 201 means it was just
+      // created, 409 means one already exists -- both are fine to continue.
+      // Anything else (401 not logged in, 500 generation failed, ...) means
+      // there is no quiz to show, so stay here and tell the user why.
+      const res = await fetch(`${API_BASE_URL}/quizzes/${topic._id}/generate`, {
         method: "POST",
         headers,
-      }).catch(() => {
-        // Quiz might already exist, that's okay
       });
 
-      // Navigate to the quiz
+      if (!res.ok && res.status !== 409) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || `Could not load quiz (error ${res.status})`);
+      }
+
       navigate(`/quiz/${topic._id}`);
     } catch (err) {
       console.error("Failed to load quiz:", err);
+      setQuizError(err.message || "Could not load quiz. Please try again.");
     } finally {
       setIsLoadingQuiz(false);
     }
@@ -419,6 +427,12 @@ function StudyCard({
               >
                 {isLoadingQuiz ? "Loading Quiz..." : "Take Quiz"}
               </button>
+            )}
+
+            {quizError && (
+              <p className="study-card__quiz-error" role="alert">
+                {quizError}
+              </p>
             )}
 
             {onDeleteTopic && (
