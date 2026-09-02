@@ -5,7 +5,15 @@ const jwt = require("jsonwebtoken");
 const createUser = (req, res) => {
   const { name, email, password } = req.body;
 
-  bcrypt
+  // Check for empty fields up front: bcrypt.hash throws on undefined, which
+  // would otherwise turn "you forgot the password" into a 500.
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .send({ message: "Name, email, and password are all required" });
+  }
+
+  return bcrypt
     .hash(password, 10)
     .then((hash) =>
       User.create({
@@ -22,8 +30,20 @@ const createUser = (req, res) => {
       });
     })
     .catch((err) => {
+      // Mongo's duplicate-key error (the email has a unique index)
+      if (err.code === 11000) {
+        return res
+          .status(409)
+          .send({ message: "An account with that email already exists" });
+      }
+
+      // Mongoose schema validation (missing/invalid field)
+      if (err.name === "ValidationError") {
+        return res.status(400).send({ message: err.message });
+      }
+
       console.error(err);
-      res.status(500).send({ message: "Failed to create user" });
+      return res.status(500).send({ message: "Failed to create user" });
     });
 };
 const login = (req, res) => {
