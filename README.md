@@ -65,12 +65,36 @@ npm run dev
 
 Open the URL Vite prints (normally http://localhost:5173). In development the frontend talks to `http://localhost:3001` automatically.
 
-## Deploying
+## Deploying (ten minutes, two paste steps)
 
-The two halves deploy separately.
+The front end is already on Vercel. The only reason the live site can't log in or make quizzes is that the backend has never been put online. Do that once, and your existing Vercel link just works.
 
-- **Backend**: any Node host (Render, Railway, Fly.io, etc.). Run `npm start` from `backend/`. Set the same three environment variables as in `.env`, plus `CLIENT_URL` = your frontend's public URL so CORS allows it.
-- **Frontend (Vercel)**: set `VITE_API_BASE_URL` to the backend's public URL in Project Settings → Environment Variables, then redeploy. Vite reads it at build time, so an existing deployment won't see it until rebuilt. `vercel.json` already rewrites all paths to `index.html` for client-side routing.
+**Step 1 — put the backend online (free).**
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Mia-Cran/flashtrack-ai-learning-platform)
+
+Click the button (sign in to Render with GitHub if asked). It reads `render.yaml` from this repo and shows one service, `flashtrack-api`. Before it builds, it asks you for four values — paste them exactly as they are in your `backend/.env`:
+
+| Render asks for | Paste |
+|---|---|
+| `MONGODB_URI` | your MongoDB Atlas string (`mongodb+srv://...`) |
+| `JWT_SECRET` | the same long random string you use locally |
+| `OPENAI_API_KEY` | your OpenAI key (`sk-...`) |
+| `CLIENT_URL` | your Vercel site address, e.g. `https://flashtrack.vercel.app` — no slash at the end |
+
+Click **Apply**. In a couple of minutes Render shows the backend's address, something like `https://flashtrack-api.onrender.com`. Copy it.
+
+**Step 2 — tell Vercel where the backend is.**
+
+In Vercel: your project → **Settings** → **Environment Variables** → **Add**: name `VITE_API_BASE_URL`, value = the address you just copied (no slash at the end), environment **Production**. Save, then **Deployments** → the three dots on the latest one → **Redeploy**. The site reads this at build time, so the redeploy is what makes it stick.
+
+That's it. Open your Vercel link, sign up, add a topic, take a quiz.
+
+**Good to know**
+- The free Render plan naps after about 15 idle minutes; the first click after a nap takes ~30 seconds, then it's normal. Upgrading the plan later removes the nap.
+- To ship a code change to the backend later: Render dashboard → `flashtrack-api` → **Manual Deploy** (this repo sets `autoDeploy: false` so nothing deploys behind your back).
+- If the site says it can't reach the server, the two addresses above are the only things to check: `CLIENT_URL` on Render must be your Vercel address, and `VITE_API_BASE_URL` on Vercel must be your Render address.
+- Prefer another host (Railway, Fly.io)? Same idea: run `npm start` from `backend/` with those four variables, then do Step 2 with that host's address.
 
 ## API overview
 
