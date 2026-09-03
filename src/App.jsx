@@ -156,7 +156,14 @@ function App() {
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Signup failed");
+          // Use the server's message (e.g. "An account with that email
+          // already exists") so the form can show the real reason.
+          return res
+            .json()
+            .catch(() => ({}))
+            .then((data) => {
+              throw new Error(data.message || "Signup failed");
+            });
         }
 
         return res.json();

@@ -19,7 +19,13 @@ function SignupForm({ onSignup, onSuccess }) {
       })
       .catch((err) => {
         console.error(err);
-        setError("Couldn't create your account. Please try again.");
+        // A TypeError here means the request never reached the server
+        // (offline, backend down). Anything else is the server's own message.
+        setError(
+          err instanceof TypeError || !err.message
+            ? "Couldn't create your account. Please try again."
+            : err.message,
+        );
       })
       .finally(() => {
         setIsSubmitting(false);
