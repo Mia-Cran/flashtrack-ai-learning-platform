@@ -1,0 +1,26 @@
+# One-click backend deploy for Render (https://render.com).
+# Click the "Deploy to Render" button in README.md, or import this file as a
+# Blueprint. Render reads this file, shows you the service below, and asks you
+# for the three secrets marked `sync: false` before it builds anything.
+# Nothing secret is stored in this file.
+services:
+  - type: web
+    name: flashtrack-api
+    runtime: node
+    plan: free            # free tier sleeps after ~15 idle minutes; first request then takes ~30 s
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: false     # redeploy from the Render dashboard when you want, not on every push
+    envVars:
+      - key: MONGODB_URI
+        sync: false       # your MongoDB Atlas "mongodb+srv://..." string
+      - key: JWT_SECRET
+        sync: false       # any long random string (signs login tokens)
+      - key: OPENAI_API_KEY
+        sync: false       # your OpenAI key, starts with "sk-"
+      - key: CLIENT_URL
+        sync: false       # your Vercel site URL, e.g. https://flashtrack.vercel.app (no trailing slash)
+      - key: NODE_ENV
+        value: production
