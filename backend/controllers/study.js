@@ -1,66 +1,89 @@
-const openai = require("../utils/openai");
 const { isTextBlocked } = require("../utils/moderation");
+const { generateStudyGuide } = require("../utils/studyGuide");
 const Subject = require("../models/subject");
 const LearnerProfile = require("../models/learnerProfile");
 
-function normalizeSubjectName(name) {
-  return typeof name === "string" ? name.trim().toLowerCase() : "";
-}
-
+// Words that can never be a study topic on their own. Cheap to check, so it
+// runs before the moderation call and the OpenAI request.
 const BLOCKED_TERMS = new Set([
-  "the", "a", "an", "and", "or", "but", "in", "on", "at", "um", "uh", "thing", "stuff", "whatever",
+  // Articles
+  "the", "a", "an",
+  // Conjunctions
+  "and", "or", "but",
+  // Prepositions
+  "in", "on", "at",
+  // Fillers
+  "um", "uh",
+  // Placeholders
+  "thing", "stuff", "whatever",
 ]);
 
 function isBlockedTerm(term) {
   return BLOCKED_TERMS.has(term.toLowerCase().trim());
 }
 
-const generateStudyGuide = async (req, res) => {
-  console.log("📖 Study endpoint called");
-  const { term } = req.body;
-  console.log("📖 Term:", term);
+const UNUSABLE_TERM_MESSAGE =
+  "This search couldn't be processed. Please try a different topic.";
 
-  if (!term) {
+const generateStudyGuideHandler = async (req, res) => {
+  const { term } = req.body;
+
+  if (!term || typeof term !== "string" || !term.trim()) {
     return res.status(400).send({ message: "A study term is required" });
   }
 
   if (isBlockedTerm(term)) {
-    return res.status(400).send({
-      message: "This search couldn't be processed. Please try a different topic.",
-    });
+    return res.status(400).send({ message: UNUSABLE_TERM_MESSAGE });
   }
 
   try {
-    const isBlocked = await isTextBlocked(term);
-    if (isBlocked) {
+    if (await isTextBlocked(term)) {
+      return res.status(400).send({ message: UNUSABLE_TERM_MESSAGE });
+    }
+
+    const subjects = await Subject.find({ isActive: true }).sort({ sortOrder: 1 });
+
+    // Search stays open to anonymous visitors (see optionalAuth on the route);
+    // a signed-in learner's saved preferences personalize the explanation.
+    let learnerProfile = null;
+    if (req.user?._id) {
+      learnerProfile = await LearnerProfile.findOne({ user: req.user._id });
+    }
+
+    const { studyGuide, matchedSubject } = await generateStudyGuide({
+      term: term.trim(),
+      subjects,
+      learnerProfile,
+    });
+
+    if (!studyGuide) {
       return res.status(400).send({
-        message: "This search couldn't be processed. Please try a different topic.",
+        message:
+          "This topic is not suitable for learning. Please search for an educational subject.",
       });
     }
 
-    // Dummy study guide for testing
     return res.status(200).send({
       studyGuide: {
-        title: term,
-        simpleDefinition: "A simple definition of " + term,
-        beginnerExplanation: "Here's how to understand " + term + " as a beginner. It's an important concept you should know.",
-        technicalDefinition: "From a technical perspective, " + term + " refers to a specific implementation detail or concept.",
-        analogy: "Think of " + term + " like a common real-world object that works in a similar way.",
-        codeExample: "// Code example for " + term,
-        commonMistake: "A common mistake is to confuse " + term + " with something else entirely.",
-        category: "Technology",
-        difficulty: "Beginner",
-        relatedTopics: ["Related Topic 1", "Related Topic 2", "Related Topic 3"],
-        suggestedSubject: "Technology"
+        ...studyGuide,
+        // The frontend needs the subject's id to preselect it in the picker,
+        // not just the name the model chose.
+        suggestedSubject: matchedSubject
+          ? {
+              _id: matchedSubject._id,
+              name: matchedSubject.name,
+              slug: matchedSubject.slug,
+            }
+          : null,
       },
-      suggestedSubject: null
     });
   } catch (err) {
-    console.error("Study error:", err.message);
+    console.error("Study guide generation failed:", err);
     return res.status(500).send({ message: "Failed to generate study guide" });
   }
 };
 
 module.exports = {
-  generateStudyGuide,
+  generateStudyGuide: generateStudyGuideHandler,
+  isBlockedTerm,
 };

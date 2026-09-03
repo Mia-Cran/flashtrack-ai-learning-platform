@@ -15,7 +15,7 @@ const optionalAuth = (req, res, next) => {
 
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (err) {
+  } catch {
     // Invalid/expired token on an optional-auth route just means "treat this
     // request as anonymous" -- not an error worth blocking the request over.
   }

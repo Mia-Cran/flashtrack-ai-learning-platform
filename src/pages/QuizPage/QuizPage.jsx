@@ -14,29 +14,45 @@ function QuizPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Load the quiz whenever the topic in the URL changes. The `cancelled`
+  // flag stops a slow response for an old topic from overwriting the new one.
   useEffect(() => {
-    fetchQuiz();
-  }, [topicId]);
+    let cancelled = false;
 
-  function fetchQuiz() {
-    fetch(`${API_BASE_URL}/quizzes/${topicId}`)
+    // Reset inside the promise chain (not synchronously in the effect body)
+    // so React doesn't re-render twice before the request even starts.
+    Promise.resolve()
+      .then(() => {
+        if (cancelled) return null;
+        setIsLoading(true);
+        setError("");
+        return fetch(`${API_BASE_URL}/quizzes/${topicId}`);
+      })
       .then((res) => {
+        if (cancelled || res === null) return null;
         if (!res.ok) throw new Error("Quiz not found");
         return res.json();
       })
       .then((data) => {
+        if (cancelled || data === null) return;
         setQuiz(data);
+        setDifficulty("Beginner");
+        setCurrentQuestionIndex(0);
         setResponses(
-          new Array(data.questions?.[difficulty]?.length ?? 0).fill(null),
+          new Array(data.questions?.Beginner?.length ?? 0).fill(null),
         );
       })
       .catch((err) => {
-        setError(err.message);
+        if (!cancelled) setError(err.message);
       })
       .finally(() => {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       });
-  }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [topicId]);
 
   if (isLoading) {
     return <div className="quiz-page">Loading quiz...</div>;
