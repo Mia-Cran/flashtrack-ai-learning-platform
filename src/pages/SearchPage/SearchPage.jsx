@@ -110,6 +110,14 @@ function SearchPage({
           );
         }
 
+        // 503 = the server is running without an OpenAI key. Its message
+        // says exactly what to do, so show it instead of "Topic not found."
+        if (response.status === 503) {
+          throw new Error(
+            data?.message || "AI features are turned off on this server.",
+          );
+        }
+
         throw new Error("Topic not found.");
       }
 

@@ -162,23 +162,30 @@ const subjects = [
   },
 ];
 
-async function seed() {
-  await mongoose.connect(process.env.MONGODB_URI);
-
+// Upserts every subject above by slug. Safe to run repeatedly. Expects an
+// open Mongoose connection (see the bottom of this file, or demoServer.js).
+async function seedSubjects({ log = console.log } = {}) {
   for (const subject of subjects) {
     const result = await Subject.findOneAndUpdate(
       { slug: subject.slug },
       { $set: subject },
       { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
     );
-    console.log(`Upserted: ${result.name} (${result.slug})`);
+    log(`Upserted: ${result.name} (${result.slug})`);
   }
-
-  console.log(`Done. ${subjects.length} subjects seeded.`);
-  await mongoose.disconnect();
+  log(`Done. ${subjects.length} subjects seeded.`);
 }
 
-seed().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+module.exports = { subjects, seedSubjects };
+
+// Run directly: `node scripts/seedSubjects.js` connects, seeds, disconnects.
+if (require.main === module) {
+  mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(seedSubjects)
+    .then(() => mongoose.disconnect())
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+}

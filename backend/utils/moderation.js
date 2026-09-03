@@ -23,6 +23,12 @@ const BLOCKED_MODERATION_CATEGORIES = [
 // Runs OpenAI's moderation check on a piece of text and returns true if it
 // trips any of the blocked categories above.
 async function isTextBlocked(text) {
+  // No key means no moderation service. Feedback still posts; the AI
+  // routes that matter are already switched off by middleware/requireAI.
+  if (!openai.isConfigured()) {
+    return false;
+  }
+
   const moderation = await openai.moderations.create({ input: text });
   const { categories } = moderation.results[0];
 

@@ -43,7 +43,7 @@ You need Node 20+, a MongoDB connection string (a free MongoDB Atlas cluster wor
 cp backend/.env.example backend/.env
 ```
 
-Open `backend/.env` and fill in `MONGODB_URI`, `JWT_SECRET` (any long random string), and `OPENAI_API_KEY`. The file is git-ignored, so your keys never get committed.
+Open `backend/.env` and fill in `MONGODB_URI` and `JWT_SECRET` (any long random string). `OPENAI_API_KEY` is optional: leave it empty and the app runs with the three AI actions (search, regenerate, quiz creation) switched off, each showing a "turn on AI" message, until you add a key. The file is git-ignored, so your keys never get committed.
 
 **2. Start the backend** (terminal 1)
 
@@ -65,6 +65,15 @@ npm run dev
 
 Open the URL Vite prints (normally http://localhost:5173). In development the frontend talks to `http://localhost:3001` automatically.
 
+## Trying it without any accounts
+
+```bash
+cd backend && npm run demo     # in-memory database, no Atlas, no key needed
+npm run dev                    # in another terminal, from the repo root
+```
+
+Sign up, browse subjects, save topics, leave feedback. Search and quizzes show a "turn on AI" message until `OPENAI_API_KEY` is in `backend/.env`. Nothing is saved when the demo stops.
+
 ## Deploying (ten minutes, two paste steps)
 
 The front end is already on Vercel. The only reason the live site can't log in or make quizzes is that the backend has never been put online. Do that once, and your existing Vercel link just works.
@@ -79,7 +88,7 @@ Click the button (sign in to Render with GitHub if asked). It reads `render.yaml
 |---|---|
 | `MONGODB_URI` | your MongoDB Atlas string (`mongodb+srv://...`) |
 | `JWT_SECRET` | the same long random string you use locally |
-| `OPENAI_API_KEY` | your OpenAI key (`sk-...`) |
+| `OPENAI_API_KEY` | your OpenAI key (`sk-...`), or leave blank to start with AI features off |
 | `CLIENT_URL` | your Vercel site address, e.g. `https://flashtrack.vercel.app` — no slash at the end |
 
 Click **Apply**. In a couple of minutes Render shows the backend's address, something like `https://flashtrack-api.onrender.com`. Copy it.
