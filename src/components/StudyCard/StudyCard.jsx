@@ -418,7 +418,16 @@ function StudyCard({
               </div>
             )}
 
-            {/* Quiz button removed */}
+            {effectivelySaved && (
+              <button
+                className="study-card__quiz-button"
+                type="button"
+                onClick={handleTakeQuiz}
+                disabled={isLoadingQuiz || disabled}
+              >
+                {isLoadingQuiz ? "Writing your quiz..." : "Take Quiz"}
+              </button>
+            )}
 
             {quizError && (
               <p className="study-card__quiz-error" role="alert">

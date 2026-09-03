@@ -123,6 +123,8 @@ src/                 React app
   pages/             one folder per page (Welcome, Search, Saved, Quiz, Settings, ...)
   components/        StudyCard, Header, auth forms, ...
   utils/api.js       the backend URL (single source of truth)
+  **/*.test.jsx      frontend tests live next to the thing they test
+.github/workflows/   CI: lint + both test suites + build, on every push and PR
 backend/
   server.js          loads .env, checks required keys, connects to Mongo, starts listening
   app.js             Express app: CORS, JSON parsing, routes, 404 and error handlers
@@ -130,9 +132,47 @@ backend/
   controllers/       the logic for each route
   models/            Mongoose schemas (User, Topic, Quiz, UserQuizResponse, ...)
   middleware/        auth (JWT check), optionalAuth, rate limiters
-  utils/             OpenAI client, moderation helper
+  utils/             OpenAI client, studyGuide.js (the study-card prompt), quizGeneration.js, moderation
+  tests/             backend test suite (runs offline, no keys needed)
   scripts/           one-off maintenance scripts (seed subjects, reports)
 ```
+
+## Keeping it going (the maintainer's guide)
+
+Everything below runs offline. No OpenAI key, no database: the backend tests start a throwaway in-memory MongoDB and replace OpenAI with canned answers.
+
+**Before you push anything, run these three. If they're green, you're good.**
+
+```bash
+npm run lint             # both frontend and backend
+npm test                 # frontend (Vitest)
+cd backend && npm test   # backend (Node's built-in test runner + Supertest)
+```
+
+CI runs the same three on GitHub for every push and pull request. A red check on a PR means one of them failed; open the check to see which.
+
+**How a change gets shipped**
+
+1. Make a branch: `git checkout -b my-change`
+2. Change the code and, if it's behavior, the test that covers it (or add one: copy the nearest `*.test.js` and edit).
+3. Run the three commands above.
+4. Push, open a pull request, wait for the green check, merge.
+5. Backend changes: Render dashboard → `flashtrack-api` → **Manual Deploy**. Frontend changes: Vercel redeploys on its own when `main` moves.
+
+**Where things live**
+
+| Want to change... | Look in |
+|---|---|
+| What the study card says or how it's worded | `backend/utils/studyGuide.js` (one prompt, used by search and by regenerate) |
+| Quiz questions: how many, what the model is told | `backend/utils/quizGeneration.js` |
+| Which OpenAI model is used | `OPENAI_MODEL` in `backend/.env` (defaults to `gpt-5.5`, no code change needed) |
+| A page's look | `src/pages/<Page>/<Page>.css` |
+| The rate limit on AI endpoints | `backend/middleware/rateLimit.js` |
+| Who is allowed to call the API (CORS) | `CLIENT_URL` in `backend/.env` |
+
+**Adding a backend route**: controller in `backend/controllers/`, wire it in `backend/routes/`, mount it in `backend/app.js`, and add a test in `backend/tests/` using the helpers there (`createUser`, `fakeOpenAI`, `seedSubjects`).
+
+**If OpenAI calls start failing** it is almost always one of: the key in `.env` is missing or revoked, the OpenAI account is out of credit, or `OPENAI_MODEL` names a model that no longer exists. The server logs the real error; the browser only ever sees "Failed to generate study guide".
 
 ## A note on auth
 
