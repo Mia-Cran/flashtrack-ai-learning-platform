@@ -337,6 +337,13 @@
   cursor: not-allowed;
 }
 
+.study-card__quiz-error {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #b3261e;
+}
+
 .study-card__save-button:focus-visible,
 .study-card__delete-button:focus-visible,
 .study-card__quiz-button:focus-visible {
