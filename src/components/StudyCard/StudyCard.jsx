@@ -1,7 +1,5 @@
 import "./StudyCard.css";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router";
-import { API_BASE_URL } from "../../utils/api";
 
 const SECTION_KEYS = ["beginner", "technical", "analogy", "code", "mistake"];
 
@@ -409,27 +407,21 @@ function StudyCard({
   sectionsCollapsedByDefault = true,
   explanationStyle = "analogies",
 }) {
-  const navigate = useNavigate();
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
-  const [quizError, setQuizError] = useState("");
   const baseId = useId();
 
   const topicKey = topic._id || topic.searchTerm || topic.title || topic.term;
 
   // A new search reuses this component with different topic data. Reset
-  // local "saved / flipped / quiz" UI so the previous card's state does
-  // not stick to the new one.
+  // local saved/flipped UI so the previous card's state does not stick.
   useEffect(() => {
     setIsSaved(false);
     setIsFlipped(false);
     setIsSaving(false);
     setIsRegenerating(false);
-    setIsLoadingQuiz(false);
-    setQuizError("");
   }, [topicKey]);
 
   const effectivelySaved = isSaved || isSavedExternally;
@@ -465,41 +457,6 @@ function StudyCard({
       console.error("Failed to regenerate topic:", err);
     } finally {
       setIsRegenerating(false);
-    }
-  };
-
-  const handleTakeQuiz = async () => {
-    setIsLoadingQuiz(true);
-    setQuizError("");
-
-    try {
-      const token = localStorage.getItem("jwt");
-      const headers = { "Content-Type": "application/json" };
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      // Generate the quiz if it doesn't exist yet. 201 means it was just
-      // created, 409 means one already exists -- both are fine to continue.
-      // Anything else (401 not logged in, 500 generation failed, ...) means
-      // there is no quiz to show, so stay here and tell the user why.
-      const res = await fetch(`${API_BASE_URL}/quizzes/${topic._id}/generate`, {
-        method: "POST",
-        headers,
-      });
-
-      if (!res.ok && res.status !== 409) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || `Could not load quiz (error ${res.status})`);
-      }
-
-      navigate(`/quiz/${topic._id}`);
-    } catch (err) {
-      console.error("Failed to load quiz:", err);
-      setQuizError(err.message || "Could not load quiz. Please try again.");
-    } finally {
-      setIsLoadingQuiz(false);
     }
   };
 
@@ -595,23 +552,6 @@ function StudyCard({
                 </select>
                 {isRegenerating && <span className="study-card__regenerating">Regenerating...</span>}
               </div>
-            )}
-
-            {effectivelySaved && (
-              <button
-                className="study-card__quiz-button"
-                type="button"
-                onClick={handleTakeQuiz}
-                disabled={isLoadingQuiz || disabled}
-              >
-                {isLoadingQuiz ? "Writing your quiz..." : "Take Quiz"}
-              </button>
-            )}
-
-            {quizError && (
-              <p className="study-card__quiz-error" role="alert">
-                {quizError}
-              </p>
             )}
 
             {onDeleteTopic && (
