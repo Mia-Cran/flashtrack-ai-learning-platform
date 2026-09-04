@@ -78,8 +78,18 @@ const generateStudyGuideHandler = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Study guide generation failed:", err);
-    return res.status(500).send({ message: "Failed to generate study guide" });
+    // Surface the real OpenAI/network reason (never the API key) so deploy
+    // debugging is not a blind "paste the key again" loop.
+    const detail =
+      err?.error?.message ||
+      err?.message ||
+      (typeof err === "string" ? err : "Unknown error");
+    console.error("Study guide generation failed:", detail);
+    return res.status(500).send({
+      message: "Failed to generate study guide",
+      detail: String(detail).slice(0, 300),
+      status: err?.status || null,
+    });
   }
 };
 

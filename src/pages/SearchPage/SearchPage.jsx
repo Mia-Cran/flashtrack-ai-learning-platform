@@ -120,8 +120,9 @@ function SearchPage({
 
         // Prefer the server's reason (bad/missing key, model error, etc.)
         // over a generic "Topic not found" that hid real setup problems.
+        const reason = [data?.message, data?.detail].filter(Boolean).join(" — ");
         throw new Error(
-          data?.message || "Topic not found. Please try another search.",
+          reason || "Topic not found. Please try another search.",
         );
       }
 
