@@ -118,7 +118,11 @@ function SearchPage({
           );
         }
 
-        throw new Error("Topic not found.");
+        // Prefer the server's reason (bad/missing key, model error, etc.)
+        // over a generic "Topic not found" that hid real setup problems.
+        throw new Error(
+          data?.message || "Topic not found. Please try another search.",
+        );
       }
 
       setTopicResult({ ...data.studyGuide, searchTerm: cleanedQuery });
@@ -253,6 +257,7 @@ function SearchPage({
 
       {topicResult && (
         <StudyCard
+          key={topicResult.searchTerm || topicResult.title}
           topic={topicResult}
           onSaveTopic={handleSaveTopic}
           onRelatedTopicClick={handleRelatedTopicClick}

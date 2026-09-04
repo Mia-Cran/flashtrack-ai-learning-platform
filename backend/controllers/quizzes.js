@@ -24,9 +24,18 @@ const generateQuiz = async (req, res) => {
       return res.status(200).send(existingQuiz);
     }
 
-    // Use the learner's preferred question format when they have set one.
+    // Use an explicit type from the request when provided (e.g. dashboard
+    // multiple-choice quizzes), otherwise the learner's saved preference.
+    const allowedTypes = new Set([
+      "multipleChoice",
+      "trueFalse",
+      "shortAnswer",
+    ]);
+    const requestedType = req.body?.questionType;
     const profile = await LearnerProfile.findOne({ user: req.user._id });
-    const questionType = profile?.learningPreferences?.questionType || "multipleChoice";
+    const questionType = allowedTypes.has(requestedType)
+      ? requestedType
+      : profile?.learningPreferences?.questionType || "multipleChoice";
 
     const questions = await generateQuizQuestions(topic.term, questionType);
 

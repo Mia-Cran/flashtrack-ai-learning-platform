@@ -1,7 +1,7 @@
 import "./DashboardPage.css";
 import { API_BASE_URL } from "../../utils/api";
 import { useEffect, useState } from "react";
-import { Navigate, Link } from "react-router";
+import { Navigate, Link, useNavigate } from "react-router";
 import {
   IconQuote,
   IconFlame,
@@ -11,12 +11,14 @@ import {
   IconBooks,
   IconSparkles,
   IconBulb,
+  IconSchool,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
 const RECOMMENDATIONS_LIMIT = 4;
+const QUIZ_UNLOCK_COUNT = 5;
 
 const STAGE_OPTIONS = [
   { value: "k12", label: "K-12 Student" },
@@ -134,6 +136,10 @@ function DashboardPage({
   const [interestInput, setInterestInput] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [skippedInterestPrompt, setSkippedInterestPrompt] = useState(false);
+  const [quizLoadingId, setQuizLoadingId] = useState(null);
+  const [quizError, setQuizError] = useState("");
+  const [isStartingReview, setIsStartingReview] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -199,6 +205,80 @@ function DashboardPage({
         setIsSavingProfile(false);
       });
   }
+
+  async function handleTakeTopicQuiz(topicId) {
+    setQuizLoadingId(topicId);
+    setQuizError("");
+
+    try {
+      const token = localStorage.getItem("jwt");
+      const headers = { "Content-Type": "application/json" };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/quizzes/${topicId}/generate`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ questionType: "multipleChoice" }),
+      });
+
+      if (!res.ok && res.status !== 409) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          data.message || `Could not load quiz (error ${res.status})`,
+        );
+      }
+
+      navigate(`/quiz/${topicId}`);
+    } catch (err) {
+      console.error(err);
+      setQuizError(err.message || "Could not start that quiz. Please try again.");
+    } finally {
+      setQuizLoadingId(null);
+    }
+  }
+
+  async function handleStartReviewQuiz() {
+    setIsStartingReview(true);
+    setQuizError("");
+
+    try {
+      const token = localStorage.getItem("jwt");
+      const headers = { "Content-Type": "application/json" };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/quizzes/review/generate`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(
+          data.message || `Could not start review quiz (error ${res.status})`,
+        );
+      }
+
+      navigate(`/quiz/review/${data._id}`);
+    } catch (err) {
+      console.error(err);
+      setQuizError(
+        err.message || "Could not start the review quiz. Please try again.",
+      );
+    } finally {
+      setIsStartingReview(false);
+    }
+  }
+
+  const quizzesUnlocked = totalSaved >= QUIZ_UNLOCK_COUNT;
+  const quizTopics = [...savedTopics].sort(
+    (a, b) => (getSavedAt(b._id) ?? 0) - (getSavedAt(a._id) ?? 0),
+  );
 
   return (
     <section className="dashboard">
@@ -280,6 +360,102 @@ function DashboardPage({
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      <section className="dashboard__quizzes" aria-label="Quizzes by topic">
+        <h2 className="dashboard__section-heading">
+          <IconSchool size={20} stroke={1.75} aria-hidden="true" />
+          Quizzes by Topic
+        </h2>
+
+        {!quizzesUnlocked ? (
+          <div className="dashboard__quiz-locked">
+            <p className="dashboard__quiz-locked-text">
+              Save {QUIZ_UNLOCK_COUNT} flashcards to unlock a review quiz across
+              those cards. Missed topics get a focused practice quiz next.
+            </p>
+            <div
+              className="dashboard__quiz-progress"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={QUIZ_UNLOCK_COUNT}
+              aria-valuenow={totalSaved}
+              aria-label={`${totalSaved} of ${QUIZ_UNLOCK_COUNT} topics saved`}
+            >
+              <div
+                className="dashboard__quiz-progress-fill"
+                style={{
+                  width: `${Math.min(100, (totalSaved / QUIZ_UNLOCK_COUNT) * 100)}%`,
+                }}
+              />
+            </div>
+            <p className="dashboard__quiz-progress-label">
+              {totalSaved} / {QUIZ_UNLOCK_COUNT} saved
+            </p>
+            <Link to="/search" className="dashboard__link dashboard__link--primary">
+              <IconSearch size={18} stroke={2} aria-hidden="true" />
+              Save more topics
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="dashboard__review-cta">
+              <p className="dashboard__quiz-intro">
+                Ready for a mixed review? We&apos;ll ask one multiple-choice
+                question from each of your recent cards (up to 10). Topics you
+                miss unlock a focused practice quiz.
+              </p>
+              <button
+                type="button"
+                className="dashboard__quiz-button dashboard__quiz-button--review"
+                onClick={handleStartReviewQuiz}
+                disabled={isStartingReview}
+                aria-busy={isStartingReview}
+              >
+                {isStartingReview
+                  ? "Building your review..."
+                  : "Start review quiz"}
+              </button>
+            </div>
+
+            {quizError && (
+              <p className="dashboard__quiz-error" role="alert">
+                {quizError}
+              </p>
+            )}
+
+            <h3 className="dashboard__quiz-subheading">
+              Or practice one topic
+            </h3>
+            <ul className="dashboard__quiz-list">
+              {quizTopics.map((topic) => (
+                <li className="dashboard__quiz-item" key={topic._id}>
+                  <div className="dashboard__quiz-item-copy">
+                    <span className="dashboard__quiz-item-title">
+                      {topic.term || topic.title}
+                    </span>
+                    {(topic.subject?.name || topic.category) && (
+                      <span className="dashboard__quiz-item-meta">
+                        {topic.subject?.name || topic.category}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="dashboard__quiz-button"
+                    onClick={() => handleTakeTopicQuiz(topic._id)}
+                    disabled={quizLoadingId === topic._id || isStartingReview}
+                    aria-busy={quizLoadingId === topic._id}
+                  >
+                    {quizLoadingId === topic._id
+                      ? "Writing quiz..."
+                      : "Take Quiz"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </section>
 

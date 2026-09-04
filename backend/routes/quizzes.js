@@ -7,8 +7,25 @@ const {
   getQuiz,
   submitQuizResponse,
 } = require("../controllers/quizzes");
+const {
+  generateReviewQuiz,
+  getReviewQuiz,
+  submitReviewQuiz,
+} = require("../controllers/reviewQuizzes");
 
 const router = express.Router();
+
+// Mixed review quiz across saved cards. These paths must be registered
+// before "/:topicId" or Express will treat "review" as a topic id.
+router.post(
+  "/review/generate",
+  requireAI,
+  auth,
+  generateLimiter,
+  generateReviewQuiz,
+);
+router.get("/review/:reviewQuizId", auth, getReviewQuiz);
+router.post("/review/:reviewQuizId/submit", auth, submitReviewQuiz);
 
 // Generate a quiz for a topic (requires auth). Rate limited because this
 // makes three OpenAI calls per request -- same limiter /study/generate uses.

@@ -23,7 +23,26 @@ const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
   .split(",")
   .map((origin) => origin.trim());
 
-app.use(cors({ origin: allowedOrigins }));
+// Cursor Simple Browser / extra Vite instances often land on 5174, 5175,
+// or 127.0.0.1 — same app, different Origin, so login fails without this.
+const isLocalFrontend = (origin) =>
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin) || isLocalFrontend(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
+  }),
+);
 app.use(express.json());
 
 // Simple, useful in Render's log view. Quiet during tests.

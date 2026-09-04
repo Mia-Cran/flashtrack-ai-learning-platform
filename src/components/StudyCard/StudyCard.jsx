@@ -1,5 +1,5 @@
 import "./StudyCard.css";
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { API_BASE_URL } from "../../utils/api";
 
@@ -21,6 +21,19 @@ function getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle) {
   }, {});
 }
 
+// Flip back includes the simple definition too. When the learner prefers
+// collapsed sections, keep simple closed and only open their chosen style.
+// When they prefer everything open, open all.
+function getInitialFlipOpenSections(sectionsCollapsedByDefault, explanationStyle) {
+  const openByKey = getInitialOpenSections(
+    sectionsCollapsedByDefault,
+    explanationStyle,
+  );
+
+  openByKey.simple = !sectionsCollapsedByDefault;
+  return openByKey;
+}
+
 function Icon({ name, className }) {
   const common = {
     className,
@@ -34,58 +47,115 @@ function Icon({ name, className }) {
     focusable: "false",
   };
 
-  switch (name) {
-    case "check":
-      return (
-        <svg {...common}>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M8.5 12.5l2.5 2.5 5-5.5" />
-        </svg>
-      );
-    case "beginner":
-      return (
-        <svg {...common}>
-          <path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5z" />
-          <path d="M12 6v13" />
-        </svg>
-      );
-    case "technical":
-      return (
-        <svg {...common}>
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-        </svg>
-      );
-    case "analogy":
-      return (
-        <svg {...common}>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M15 9l-2 5-5 2 2-5z" />
-        </svg>
-      );
-    case "code":
-      return (
-        <svg {...common}>
-          <path d="M9 8l-4.5 4L9 16M15 8l4.5 4L15 16" />
-        </svg>
-      );
-    case "mistake":
-      return (
-        <svg {...common}>
-          <path d="M12 3.5l9.5 16.5H2.5z" />
-          <path d="M12 10v4" />
-          <circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none" />
-        </svg>
-      );
-    case "chevron":
-      return (
-        <svg {...common}>
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      );
-    default:
-      return null;
+  if (name === "chevron") {
+    return (
+      <svg {...common}>
+        <path d="M6 9l6 6 6-6" />
+      </svg>
+    );
   }
+
+  if (name === "speaker") {
+    return (
+      <svg {...common}>
+        <path d="M11 5L6 9H3v6h3l5 4V5z" />
+        <path d="M15.5 8.5a5 5 0 010 7" />
+        <path d="M18.5 5.5a9 9 0 010 13" />
+      </svg>
+    );
+  }
+
+  if (name === "speakerOff") {
+    return (
+      <svg {...common}>
+        <path d="M11 5L6 9H3v6h3l5 4V5z" />
+        <path d="M22 9l-6 6M16 9l6 6" />
+      </svg>
+    );
+  }
+
+  return null;
+}
+
+const canUseSpeech =
+  typeof window !== "undefined" && "speechSynthesis" in window;
+
+function stopSpeech() {
+  if (canUseSpeech) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+function speakText(text, { onStart, onEnd } = {}) {
+  if (!canUseSpeech || !text?.trim()) {
+    return false;
+  }
+
+  stopSpeech();
+
+  const utterance = new SpeechSynthesisUtterance(text.trim());
+  utterance.rate = 0.95;
+  utterance.onstart = () => onStart?.();
+  utterance.onend = () => onEnd?.();
+  utterance.onerror = () => onEnd?.();
+  window.speechSynthesis.speak(utterance);
+  return true;
+}
+
+function HearButton({
+  label,
+  text,
+  disabled = false,
+  className = "",
+}) {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      stopSpeech();
+    };
+  }, []);
+
+  if (!canUseSpeech) {
+    return null;
+  }
+
+  const handleClick = (event) => {
+    event.stopPropagation();
+
+    if (disabled || !text?.trim()) {
+      return;
+    }
+
+    if (isSpeaking) {
+      stopSpeech();
+      setIsSpeaking(false);
+      return;
+    }
+
+    speakText(text, {
+      onStart: () => setIsSpeaking(true),
+      onEnd: () => setIsSpeaking(false),
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      className={`study-card__hear-button ${className}`.trim()}
+      onClick={handleClick}
+      disabled={disabled || !text?.trim()}
+      aria-pressed={isSpeaking}
+      aria-label={isSpeaking ? `Stop pronunciation of ${label}` : `Hear pronunciation of ${label}`}
+      title={isSpeaking ? "Stop" : `Hear “${label}”`}
+    >
+      <Icon
+        name={isSpeaking ? "speakerOff" : "speaker"}
+        className="study-card__hear-icon"
+      />
+      <span>{isSpeaking ? "Stop" : "Hear it"}</span>
+    </button>
+  );
 }
 
 // AI-generated text sometimes comes back as one long paragraph, and older saved
@@ -101,51 +171,229 @@ function renderParagraphs(text) {
     .map((paragraph, index) => <p key={index}>{paragraph}</p>);
 }
 
-function AccordionSection({
-  id,
-  icon,
-  label,
-  isOpen,
-  onToggle,
-  disabled,
-  children,
+function getLearningSections(topic) {
+  return [
+    {
+      key: "simple",
+      label: "Simple Definition",
+      content: topic.simpleDefinition,
+      isCode: false,
+    },
+    {
+      key: "beginner",
+      label: "Beginner-Friendly Explanation",
+      content: topic.beginnerExplanation,
+      isCode: false,
+    },
+    {
+      key: "technical",
+      label: "Technical Definition",
+      content: topic.technicalDefinition,
+      isCode: false,
+    },
+    {
+      key: "analogy",
+      label: "Real-World Analogy",
+      content: topic.analogy,
+      isCode: false,
+    },
+    {
+      key: "code",
+      label: "Code Example",
+      content: topic.codeExample,
+      isCode: true,
+    },
+    {
+      key: "mistake",
+      label: "Common Beginner Mistake",
+      content: topic.commonMistake,
+      isCode: false,
+    },
+  ].filter((section) => Boolean(section.content));
+}
+
+function FlipStudyDeck({
+  topic,
+  disabled = false,
+  sectionsCollapsedByDefault = true,
+  explanationStyle = "analogies",
+  isFlipped,
+  onFlip,
 }) {
-  const buttonId = `${id}-button`;
-  const panelId = `${id}-panel`;
+  const [openSections, setOpenSections] = useState(() =>
+    getInitialFlipOpenSections(sectionsCollapsedByDefault, explanationStyle),
+  );
+  const hasUserToggledRef = useRef(false);
+  const learningSections = useMemo(() => getLearningSections(topic), [topic]);
+  const baseId = useId();
+
+  useLayoutEffect(() => {
+    if (hasUserToggledRef.current) {
+      return;
+    }
+
+    setOpenSections(
+      getInitialFlipOpenSections(sectionsCollapsedByDefault, explanationStyle),
+    );
+  }, [sectionsCollapsedByDefault, explanationStyle]);
+
+  const flip = () => {
+    if (disabled) {
+      return;
+    }
+    stopSpeech();
+    onFlip();
+  };
+
+  const toggleSection = (key) => {
+    hasUserToggledRef.current = true;
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === " " || event.key === "Enter") {
+      event.preventDefault();
+      flip();
+    }
+  };
 
   return (
-    <div className="study-card__accordion-item">
-      <h3 className="study-card__accordion-heading">
-        <button
-          type="button"
-          id={buttonId}
-          className="study-card__accordion-button"
-          aria-expanded={isOpen}
-          aria-controls={panelId}
-          onClick={onToggle}
-          disabled={disabled}
+    <div className="study-card__flip-mode">
+      <div className="study-card__flip-scene">
+        <div
+          className={`study-card__flip${isFlipped ? " study-card__flip--flipped" : ""}`}
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          onClick={flip}
+          onKeyDown={handleKeyDown}
+          aria-disabled={disabled || undefined}
+          aria-pressed={isFlipped}
+          aria-label={
+            isFlipped
+              ? `${topic.title} learning guide. Press to show the term again.`
+              : `${topic.title}. Press to flip and see ways to learn it.`
+          }
         >
-          <span className="study-card__accordion-label">
-            <Icon name={icon} className="study-card__section-icon" />
-            {label}
-          </span>
-          <Icon
-            name="chevron"
-            className={`study-card__chevron${
-              isOpen ? " study-card__chevron--open" : ""
-            }`}
-          />
-        </button>
-      </h3>
-      <div
-        id={panelId}
-        role="region"
-        aria-labelledby={buttonId}
-        className="study-card__accordion-panel"
-        hidden={!isOpen}
-      >
-        {children}
+          <div className="study-card__flip-inner">
+            <div className="study-card__flip-face study-card__flip-face--front">
+              <p className="study-card__flip-term">{topic.title}</p>
+              <div className="study-card__flip-front-footer">
+                <HearButton
+                  label={topic.title}
+                  text={topic.title}
+                  disabled={disabled}
+                />
+                <p className="study-card__flip-hint">Tap to flip</p>
+              </div>
+            </div>
+
+            <div
+              className="study-card__flip-face study-card__flip-face--back"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              <div className="study-card__flip-back-header">
+                <p className="study-card__flip-kicker">Ways to learn it</p>
+                <button
+                  type="button"
+                  className="study-card__flip-back-button"
+                  onClick={flip}
+                  disabled={disabled}
+                >
+                  Flip
+                </button>
+              </div>
+
+              <div className="study-card__flip-answer">
+                {learningSections.map((section) => {
+                  const panelId = `${baseId}-flip-${section.key}-panel`;
+                  const buttonId = `${baseId}-flip-${section.key}-button`;
+                  const isOpen = Boolean(openSections[section.key]);
+
+                  return (
+                    <section
+                      key={section.key}
+                      className="study-card__flip-section"
+                    >
+                      <h3 className="study-card__flip-section-heading">
+                        <button
+                          type="button"
+                          id={buttonId}
+                          className="study-card__flip-section-button"
+                          aria-expanded={isOpen}
+                          aria-controls={panelId}
+                          onClick={() => toggleSection(section.key)}
+                          disabled={disabled}
+                        >
+                          <span>{section.label}</span>
+                          <Icon
+                            name="chevron"
+                            className={`study-card__chevron${
+                              isOpen ? " study-card__chevron--open" : ""
+                            }`}
+                          />
+                        </button>
+                      </h3>
+                      <div
+                        id={panelId}
+                        role="region"
+                        aria-labelledby={buttonId}
+                        className="study-card__flip-section-panel"
+                        hidden={!isOpen}
+                      >
+                        {!section.isCode && (
+                          <HearButton
+                            label={section.label}
+                            text={section.content}
+                            disabled={disabled}
+                            className="study-card__hear-button--inline"
+                          />
+                        )}
+                        {section.isCode ? (
+                          <pre className="study-card__code">
+                            <code>{section.content}</code>
+                          </pre>
+                        ) : (
+                          renderParagraphs(section.content)
+                        )}
+                      </div>
+                    </section>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function TopicBadges({ topic }) {
+  if (!(topic.subject?.name || topic.difficulty || topic.category)) {
+    return null;
+  }
+
+  return (
+    <div className="study-card__badges">
+      {topic.subject?.name && (
+        <span className="study-card__pill study-card__pill--category">
+          <span className="sr-only">Subject: </span>
+          {topic.subject.name}
+        </span>
+      )}
+      {topic.difficulty && (
+        <span className="study-card__pill study-card__pill--difficulty">
+          <span className="sr-only">Difficulty: </span>
+          {topic.difficulty}
+        </span>
+      )}
+      {topic.category && (
+        <span className="study-card__pill study-card__pill--category">
+          <span className="sr-only">Category: </span>
+          {topic.category}
+        </span>
+      )}
     </div>
   );
 }
@@ -162,33 +410,35 @@ function StudyCard({
   explanationStyle = "analogies",
 }) {
   const navigate = useNavigate();
+  const [isFlipped, setIsFlipped] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
   const [quizError, setQuizError] = useState("");
-  const [openSections, setOpenSections] = useState(() =>
-    getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle),
-  );
   const baseId = useId();
-  const hasUserToggledRef = useRef(false);
 
-  // sectionsCollapsedByDefault often arrives from an async profile fetch that can
-  // resolve after this card has already mounted with the fallback default — sync
-  // once it settles, but only until the learner actually toggles something by hand.
-  useLayoutEffect(() => {
-    if (hasUserToggledRef.current) {
-      return;
-    }
+  const topicKey = topic._id || topic.searchTerm || topic.title || topic.term;
 
-    setOpenSections(getInitialOpenSections(sectionsCollapsedByDefault, explanationStyle));
-  }, [sectionsCollapsedByDefault, explanationStyle]);
+  // A new search reuses this component with different topic data. Reset
+  // local "saved / flipped / quiz" UI so the previous card's state does
+  // not stick to the new one.
+  useEffect(() => {
+    setIsSaved(false);
+    setIsFlipped(false);
+    setIsSaving(false);
+    setIsRegenerating(false);
+    setIsLoadingQuiz(false);
+    setQuizError("");
+  }, [topicKey]);
 
   const effectivelySaved = isSaved || isSavedExternally;
 
-  const toggleSection = (key) => {
-    hasUserToggledRef.current = true;
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  const handleFlip = () => {
+    if (disabled) {
+      return;
+    }
+    setIsFlipped((prev) => !prev);
   };
 
   const handleSaveTopic = async () => {
@@ -253,105 +503,34 @@ function StudyCard({
     }
   };
 
-  const sections = [
-    {
-      key: "beginner",
-      icon: "beginner",
-      label: "Beginner-Friendly Explanation",
-      content: topic.beginnerExplanation,
-    },
-    {
-      key: "technical",
-      icon: "technical",
-      label: "Technical Definition",
-      content: topic.technicalDefinition,
-    },
-    {
-      key: "analogy",
-      icon: "analogy",
-      label: "Real-World Analogy",
-      content: topic.analogy,
-    },
-    {
-      key: "code",
-      icon: "code",
-      label: "Code Example",
-      content: topic.codeExample ? (
-        <pre className="study-card__code">
-          <code>{topic.codeExample}</code>
-        </pre>
-      ) : null,
-    },
-    {
-      key: "mistake",
-      icon: "mistake",
-      label: "Common Beginner Mistake",
-      content: topic.commonMistake,
-    },
-  ];
-
   const relatedTopics = topic.relatedTopics?.filter(Boolean) ?? [];
 
   return (
     <article className="study-card">
       <div className="study-card__inner">
-        <h2 className="study-card__title">{topic.title}</h2>
-
-        {(topic.subject?.name || topic.difficulty || topic.category) && (
-          <div className="study-card__badges">
-            {topic.subject?.name && (
-              <span className="study-card__pill study-card__pill--category">
-                <span className="sr-only">Subject: </span>
-                {topic.subject.name}
-              </span>
-            )}
-            {topic.difficulty && (
-              <span className="study-card__pill study-card__pill--difficulty">
-                <span className="sr-only">Difficulty: </span>
-                {topic.difficulty}
-              </span>
-            )}
-            {topic.category && (
-              <span className="study-card__pill study-card__pill--category">
-                <span className="sr-only">Category: </span>
-                {topic.category}
-              </span>
-            )}
-          </div>
-        )}
-
-        <div className="study-card__simple">
-          <h3 className="study-card__simple-label">
-            <Icon name="check" className="study-card__simple-icon" />
-            Simple Definition
-          </h3>
-          <p className="study-card__simple-definition">
-            {topic.simpleDefinition}
-          </p>
+        <div className="study-card__header-row">
+          <h2 className="study-card__title">{topic.title}</h2>
+          <button
+            type="button"
+            className="study-card__flip-corner-button"
+            onClick={handleFlip}
+            disabled={disabled}
+            aria-pressed={isFlipped}
+          >
+            Flip
+          </button>
         </div>
 
-        <div className="study-card__accordion">
-          {sections.map(
-            (section) =>
-              section.content && (
-                <AccordionSection
-                  key={section.key}
-                  id={`${baseId}-${section.key}`}
-                  icon={section.icon}
-                  label={section.label}
-                  isOpen={Boolean(openSections[section.key])}
-                  onToggle={() => toggleSection(section.key)}
-                  disabled={disabled}
-                >
-                  {typeof section.content === "string" ? (
-                    renderParagraphs(section.content)
-                  ) : (
-                    section.content
-                  )}
-                </AccordionSection>
-              ),
-          )}
-        </div>
+        <TopicBadges topic={topic} />
+
+        <FlipStudyDeck
+          topic={topic}
+          disabled={disabled}
+          sectionsCollapsedByDefault={sectionsCollapsedByDefault}
+          explanationStyle={explanationStyle}
+          isFlipped={isFlipped}
+          onFlip={handleFlip}
+        />
 
         {relatedTopics.length > 0 && (
           <div className="study-card__related">
