@@ -1,0 +1,90 @@
+const mongoose = require("mongoose");
+
+const learnerProfileSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    unique: true,
+  },
+  preferredDifficulty: {
+    type: String,
+    required: false,
+  },
+  learningPreferences: {
+    type: new mongoose.Schema(
+      {
+        // "keyPointsOnly" = brief, to-the-point explanations. "stepByStep" = fuller, more gradual explanations.
+        pacing: {
+          type: String,
+          enum: ["keyPointsOnly", "stepByStep"],
+        },
+        // "analogies" = lean on real-world analogies. "technical" = lean on technical depth.
+        explanationStyle: {
+          type: String,
+          enum: ["analogies", "technical"],
+        },
+        // Preferred quiz question format
+        questionType: {
+          type: String,
+          enum: ["multipleChoice", "trueFalse", "shortAnswer"],
+        },
+      },
+      { _id: false, strict: false },
+    ),
+    default: () => ({}),
+  },
+  accessibilityPreferences: {
+    type: new mongoose.Schema(
+      {
+        reduceMotion: {
+          type: Boolean,
+          default: false,
+        },
+        largerText: {
+          type: Boolean,
+          default: false,
+        },
+        // Matches this app's existing ADHD-friendly design (see About page): sections
+        // stay collapsed until the learner is ready for them.
+        sectionsCollapsedByDefault: {
+          type: Boolean,
+          default: true,
+        },
+      },
+      { _id: false, strict: false },
+    ),
+    default: () => ({}),
+  },
+  // Filled from real quiz scores (see utils/progress.js). Never from
+  // "saved a lot of cards" or other proxies.
+  strengths: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+  ],
+  areasOfStruggle: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+  ],
+  // Answers to the "guiding questions" a new/undecided learner answers once
+  // (Phase 3, Session 10 design -- not a one-time throwaway quiz). Saved
+  // here, not just used in the moment, so recommendations can build on them
+  // without re-asking. Both optional: a learner with real saved-topic
+  // history doesn't need to answer these at all.
+  studentStage: {
+    type: String,
+    enum: ["k12", "college", "trade", "testPrep", "exploring"],
+    required: false,
+  },
+  primaryInterest: {
+    type: String,
+    required: false,
+    trim: true,
+  },
+});
+
+module.exports = mongoose.model("LearnerProfile", learnerProfileSchema);

@@ -1,0 +1,269 @@
+.settings {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings__title {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+  text-align: center;
+  color: #1c1b19;
+}
+
+.settings__subtitle {
+  margin: 0 0 20px;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+  color: #5b574d;
+}
+
+.settings__loading {
+  text-align: center;
+  color: #5b574d;
+  font-size: 16px;
+}
+
+.settings__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings__group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 24px;
+  background: #ffffff;
+  border: 1px solid #e4dcc8;
+  border-radius: 14px;
+}
+
+.settings__group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  color: #1c1b19;
+}
+
+.settings__group-title svg {
+  color: #993556;
+  flex-shrink: 0;
+}
+
+.settings__group-hint {
+  margin: -6px 0 0;
+  font-size: 14px;
+  color: #5b574d;
+}
+
+.settings__select {
+  padding: 10px 14px;
+  font-size: 16px;
+  border: 1px solid #e4dcc8;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1c1b19;
+  width: 100%;
+  max-width: 260px;
+}
+
+.settings__select:focus-visible {
+  outline: 3px solid #3b6d11;
+  outline-offset: 2px;
+  border-color: #3b6d11;
+}
+
+.settings__fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings__legend {
+  padding: 0;
+  margin-bottom: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #5b574d;
+}
+
+.settings__radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.settings__radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  color: #1c1b19;
+}
+
+.settings__radio input {
+  accent-color: #993556;
+  width: 16px;
+  height: 16px;
+}
+
+.settings__toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid #f0ebdd;
+}
+
+.settings__toggle-row:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.settings__toggle-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings__toggle-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1c1b19;
+}
+
+.settings__toggle-hint {
+  font-size: 13px;
+  color: #5b574d;
+}
+
+.settings__switch {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+}
+
+.settings__switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.settings__switch-track {
+  position: absolute;
+  inset: 0;
+  background: #e4dcc8;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+  pointer-events: none;
+}
+
+.settings__switch-track::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(28, 27, 25, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.settings__switch input:checked + .settings__switch-track {
+  background: #3b6d11;
+}
+
+.settings__switch input:checked + .settings__switch-track::before {
+  transform: translateX(18px);
+}
+
+.settings__switch input:focus-visible + .settings__switch-track {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
+
+.settings__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.settings__save-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  background: #993556;
+  color: #fbeaf0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.settings__save-button:hover:not(:disabled) {
+  background: #8a2f4d;
+}
+
+.settings__save-button:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.settings__save-button:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
+
+.settings__save-confirmation {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #3b6d11;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.settings__save-error {
+  color: #b3261e;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+@media screen and (max-width: 600px) {
+  .settings {
+    padding-top: 24px;
+  }
+
+  .settings__title {
+    font-size: 26px;
+  }
+
+  .settings__group {
+    padding: 18px;
+  }
+}
