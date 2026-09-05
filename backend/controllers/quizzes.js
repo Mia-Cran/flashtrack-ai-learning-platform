@@ -160,7 +160,21 @@ const submitQuizResponse = async (req, res) => {
       console.error("Progress refresh failed:", progressErr);
     }
 
-    return res.status(201).send(quizResponse);
+    // After submit it's safe to show the answer key for this attempt only
+    // (the public GET still strips correctAnswer / explanation).
+    const review = questions.map((question, index) => ({
+      questionId: question._id,
+      text: question.text,
+      userAnswer: graded[index].userAnswer,
+      correctAnswer: question.correctAnswer,
+      explanation: question.explanation,
+      isCorrect: graded[index].isCorrect,
+    }));
+
+    return res.status(201).send({
+      ...quizResponse.toObject(),
+      review,
+    });
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(400).send({ message: "Invalid quiz id" });

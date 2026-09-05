@@ -211,6 +211,24 @@
   color: #666;
 }
 
+.quiz-review-flashcard {
+  margin: 1.5rem 0 2rem;
+  text-align: left;
+}
+
+.quiz-review-flashcard__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.quiz-review-flashcard__hint {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  color: #666;
+  text-align: center;
+}
+
 .quiz-score {
   margin: 2rem 0;
 }

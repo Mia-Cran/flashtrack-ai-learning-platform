@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { API_BASE_URL } from "../../utils/api";
+import StudyCard from "../../components/StudyCard/StudyCard";
 import "./QuizPage.css";
 
 function formatAttemptDate(value) {
@@ -47,6 +48,7 @@ function QuizPage() {
   const [responses, setResponses] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(null);
+  const [review, setReview] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [attempts, setAttempts] = useState([]);
@@ -84,6 +86,7 @@ function QuizPage() {
         setError("");
         setSubmitted(false);
         setScore(null);
+        setReview([]);
         setAttempts([]);
         return fetch(`${API_BASE_URL}/quizzes/${topicId}`);
       })
@@ -173,6 +176,7 @@ function QuizPage() {
       })
       .then((data) => {
         setScore(data.score);
+        setReview(data.review || []);
         setSubmitted(true);
         return loadAttempts(quiz._id);
       })
@@ -182,6 +186,16 @@ function QuizPage() {
   }
 
   if (submitted) {
+    const missedCount = review.filter((entry) => !entry.isCorrect).length;
+    const studyTopic = quiz.topic
+      ? {
+          ...quiz.topic,
+          title: quiz.topic.title || quiz.topic.term,
+          beginnerExplanation:
+            quiz.topic.beginnerExplanation || quiz.topic.beginnerDefinition,
+        }
+      : null;
+
     return (
       <section className="quiz-page">
         <div className="quiz-result">
@@ -202,6 +216,21 @@ function QuizPage() {
               "Good effort! Keep practicing."}
             {score / total < 0.6 && "Review the material and try again."}
           </p>
+
+          {missedCount > 0 && studyTopic && (
+            <div className="quiz-review-flashcard">
+              <h3 className="quiz-review-flashcard__title">
+                Review this flashcard
+              </h3>
+              <p className="quiz-review-flashcard__hint">
+                You missed {missedCount}{" "}
+                {missedCount === 1 ? "question" : "questions"}. Flip the same
+                study card to go straight back to the idea.
+              </p>
+              <StudyCard topic={studyTopic} isSavedExternally />
+            </div>
+          )}
+
           <PastAttempts attempts={attempts} />
           <button
             className="quiz-restart-button"
@@ -210,6 +239,7 @@ function QuizPage() {
               setCurrentQuestionIndex(0);
               setResponses(new Array(total).fill(null));
               setScore(null);
+              setReview([]);
             }}
           >
             Try Again

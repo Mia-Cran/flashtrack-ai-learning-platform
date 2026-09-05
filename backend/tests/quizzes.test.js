@@ -140,6 +140,10 @@ test("submitting answers grades them on the server", async () => {
     res.body.responses.map((r) => r.isCorrect),
     [true, true, false, true, false],
   );
+  assert.equal(res.body.review.length, 5);
+  assert.equal(res.body.review[2].isCorrect, false);
+  assert.ok(res.body.review[2].correctAnswer);
+  assert.ok(res.body.review[2].explanation);
 });
 
 test("submitting the wrong number of answers or a bad difficulty is a 400", async () => {

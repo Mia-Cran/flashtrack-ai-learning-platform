@@ -61,7 +61,28 @@ describe('QuizPage', () => {
     localStorage.setItem('jwt', 'token')
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       if (String(url).endsWith('/submit')) {
-        return jsonResponse({ score: 1, maxScore: 2 }, 201)
+        return jsonResponse({
+          score: 1,
+          maxScore: 2,
+          review: [
+            {
+              questionId: 'q1',
+              text: 'What calls itself?',
+              userAnswer: 'A',
+              correctAnswer: 'A',
+              explanation: 'Yes.',
+              isCorrect: true,
+            },
+            {
+              questionId: 'q2',
+              text: 'Base case needed?',
+              userAnswer: 'B',
+              correctAnswer: 'A',
+              explanation: 'Yes needed.',
+              isCorrect: false,
+            },
+          ],
+        }, 201)
       }
       if (String(url).includes('/responses')) {
         return jsonResponse({ attempts: [] })
@@ -80,6 +101,8 @@ describe('QuizPage', () => {
 
     await waitFor(() => expect(screen.getByText('Quiz Complete!')).toBeInTheDocument())
     expect(screen.getByText('1/2')).toBeInTheDocument()
+    expect(screen.getByText('Review this flashcard')).toBeInTheDocument()
+    expect(screen.getByText('Recursion')).toBeInTheDocument()
 
     const submitCall = fetchMock.mock.calls.find(([url]) => String(url).endsWith('/submit'))
     const body = JSON.parse(submitCall[1].body)
