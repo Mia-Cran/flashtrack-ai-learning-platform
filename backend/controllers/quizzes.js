@@ -4,6 +4,7 @@ const Topic = require("../models/topic");
 const LearnerProfile = require("../models/learnerProfile");
 const { generateQuizQuestions } = require("../utils/quizGeneration");
 const { DIFFICULTY_LEVELS } = require("../utils/studyGuide");
+const { refreshStrengthsAndStruggles } = require("../utils/progress");
 
 // POST /quizzes/:topicId/generate (signed in)
 //
@@ -151,6 +152,13 @@ const submitQuizResponse = async (req, res) => {
       score,
       maxScore: questions.length,
     });
+
+    // Progress tracking: update strengths / struggles from real scores.
+    try {
+      await refreshStrengthsAndStruggles(req.user._id);
+    } catch (progressErr) {
+      console.error("Progress refresh failed:", progressErr);
+    }
 
     return res.status(201).send(quizResponse);
   } catch (err) {

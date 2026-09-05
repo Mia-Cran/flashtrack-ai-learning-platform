@@ -7,6 +7,7 @@ const {
   getQuiz,
   submitQuizResponse,
 } = require("../controllers/quizzes");
+const { getQuizResponses } = require("../controllers/progress");
 const {
   generateReviewQuiz,
   getReviewQuiz,
@@ -26,6 +27,9 @@ router.post(
 );
 router.get("/review/:reviewQuizId", auth, getReviewQuiz);
 router.post("/review/:reviewQuizId/submit", auth, submitReviewQuiz);
+
+// Past attempts for one quiz (must stay before "/:topicId").
+router.get("/:quizId/responses", auth, getQuizResponses);
 
 // Generate a quiz for a topic (requires auth). Rate limited because this
 // makes three OpenAI calls per request -- same limiter /study/generate uses.

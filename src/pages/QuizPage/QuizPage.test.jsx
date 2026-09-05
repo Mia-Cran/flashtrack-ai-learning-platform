@@ -63,6 +63,9 @@ describe('QuizPage', () => {
       if (String(url).endsWith('/submit')) {
         return jsonResponse({ score: 1, maxScore: 2 }, 201)
       }
+      if (String(url).includes('/responses')) {
+        return jsonResponse({ attempts: [] })
+      }
       return jsonResponse(quiz)
     })
 

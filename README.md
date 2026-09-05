@@ -154,11 +154,13 @@ All responses are JSON. Routes marked 🔒 need an `Authorization: Bearer <token
 | GET/POST | `/topics` 🔒 | List / save the current user's topics |
 | GET/PATCH/DELETE | `/topics/:id` 🔒 | Read / update / delete one topic |
 | POST | `/topics/:id/regenerate` 🔒 | Rebuild a card at another difficulty |
+| GET | `/progress` 🔒 | Quiz progress summary + strengths / struggles |
 | POST | `/quizzes/review/generate` 🔒 | Mixed review quiz across recent saved cards (needs 5+) |
 | GET | `/quizzes/review/:id` 🔒 | Read a review quiz (answers not included) |
 | POST | `/quizzes/review/:id/submit` 🔒 | Submit review answers; returns score + missed topics |
 | POST | `/quizzes/:topicId/generate` 🔒 | Create the per-topic quiz (rate limited; optional `questionType` in body) |
 | GET | `/quizzes/:topicId` | Read a topic quiz's questions (answers not included) |
+| GET | `/quizzes/:quizId/responses` 🔒 | Past attempts for a quiz (owner only) |
 | POST | `/quizzes/:quizId/submit` 🔒 | Submit topic-quiz answers, get a score |
 | GET/PATCH | `/learner-profile` 🔒 | Read / update learning preferences |
 | GET | `/subjects` | List subjects |

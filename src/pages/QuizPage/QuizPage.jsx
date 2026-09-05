@@ -3,6 +3,42 @@ import { useParams } from "react-router";
 import { API_BASE_URL } from "../../utils/api";
 import "./QuizPage.css";
 
+function formatAttemptDate(value) {
+  try {
+    return new Date(value).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+function PastAttempts({ attempts }) {
+  if (!attempts?.length) {
+    return null;
+  }
+
+  return (
+    <div className="quiz-past-attempts">
+      <h3 className="quiz-past-attempts__title">Your past scores</h3>
+      <ul className="quiz-past-attempts__list">
+        {attempts.map((attempt) => (
+          <li key={attempt._id} className="quiz-past-attempts__item">
+            <span>
+              {attempt.score}/{attempt.maxScore} ({attempt.percent}%)
+            </span>
+            <span className="quiz-past-attempts__meta">
+              {attempt.difficulty} · {formatAttemptDate(attempt.completedAt)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function QuizPage() {
   const { topicId } = useParams();
   const [quiz, setQuiz] = useState(null);
@@ -13,6 +49,26 @@ function QuizPage() {
   const [score, setScore] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [attempts, setAttempts] = useState([]);
+
+  function loadAttempts(quizId) {
+    const token = localStorage.getItem("jwt");
+    if (!token || !quizId) {
+      setAttempts([]);
+      return Promise.resolve();
+    }
+
+    return fetch(`${API_BASE_URL}/quizzes/${quizId}/responses`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : { attempts: [] }))
+      .then((data) => {
+        setAttempts(data.attempts || []);
+      })
+      .catch(() => {
+        setAttempts([]);
+      });
+  }
 
   // Load the quiz whenever the topic in the URL changes. The `cancelled`
   // flag stops a slow response for an old topic from overwriting the new one.
@@ -26,6 +82,9 @@ function QuizPage() {
         if (cancelled) return null;
         setIsLoading(true);
         setError("");
+        setSubmitted(false);
+        setScore(null);
+        setAttempts([]);
         return fetch(`${API_BASE_URL}/quizzes/${topicId}`);
       })
       .then((res) => {
@@ -34,13 +93,14 @@ function QuizPage() {
         return res.json();
       })
       .then((data) => {
-        if (cancelled || data === null) return;
+        if (cancelled || data === null) return null;
         setQuiz(data);
         setDifficulty("Beginner");
         setCurrentQuestionIndex(0);
         setResponses(
           new Array(data.questions?.Beginner?.length ?? 0).fill(null),
         );
+        return loadAttempts(data._id);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -114,6 +174,7 @@ function QuizPage() {
       .then((data) => {
         setScore(data.score);
         setSubmitted(true);
+        return loadAttempts(quiz._id);
       })
       .catch((err) => {
         setError(err.message);
@@ -141,6 +202,7 @@ function QuizPage() {
               "Good effort! Keep practicing."}
             {score / total < 0.6 && "Review the material and try again."}
           </p>
+          <PastAttempts attempts={attempts} />
           <button
             className="quiz-restart-button"
             onClick={() => {
@@ -184,6 +246,8 @@ function QuizPage() {
           </label>
         </div>
       </div>
+
+      <PastAttempts attempts={attempts} />
 
       {total === 0 && (
         <p className="quiz-empty">

@@ -56,8 +56,8 @@ const learnerProfileSchema = new mongoose.Schema({
     ),
     default: () => ({}),
   },
-  // Reserved for the future quiz/assessment feature. Left empty until there's a real
-  // way to measure this — no proxy or heuristic populates these.
+  // Filled from real quiz scores (see utils/progress.js). Never from
+  // "saved a lot of cards" or other proxies.
   strengths: [
     {
       type: mongoose.Schema.Types.ObjectId,

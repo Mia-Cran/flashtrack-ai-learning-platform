@@ -176,6 +176,41 @@
   font-size: 1.8rem;
 }
 
+.quiz-past-attempts {
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  background: #f7f7f7;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.quiz-past-attempts__title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.quiz-past-attempts__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quiz-past-attempts__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+}
+
+.quiz-past-attempts__meta {
+  color: #666;
+}
+
 .quiz-score {
   margin: 2rem 0;
 }

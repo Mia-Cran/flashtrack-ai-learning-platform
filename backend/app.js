@@ -8,6 +8,7 @@ const subjectRoutes = require("./routes/subject");
 const learnerProfileRoutes = require("./routes/learnerProfile");
 const feedbackRoutes = require("./routes/feedback");
 const quizRoutes = require("./routes/quizzes");
+const progressRoutes = require("./routes/progress");
 
 const app = express();
 
@@ -65,6 +66,7 @@ app.use("/subjects", subjectRoutes);
 app.use("/learner-profile", learnerProfileRoutes);
 app.use("/feedback", feedbackRoutes);
 app.use("/quizzes", quizRoutes);
+app.use("/progress", progressRoutes);
 
 // Anything that didn't match a route above is a 404 (as JSON, not HTML).
 app.use((req, res) => {

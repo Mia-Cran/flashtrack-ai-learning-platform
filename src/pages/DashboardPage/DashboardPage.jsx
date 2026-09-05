@@ -139,6 +139,7 @@ function DashboardPage({
   const [quizLoadingId, setQuizLoadingId] = useState(null);
   const [quizError, setQuizError] = useState("");
   const [isStartingReview, setIsStartingReview] = useState(false);
+  const [progress, setProgress] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -162,6 +163,28 @@ function DashboardPage({
       })
       .finally(() => {
         setIsQuoteLoading(false);
+      });
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      return;
+    }
+
+    fetch(`${API_BASE_URL}/progress`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setProgress(data);
+      })
+      .catch((err) => {
+        console.error(err);
       });
   }, [isLoggedIn]);
 
@@ -341,6 +364,62 @@ function DashboardPage({
           </Link>
         )}
       </div>
+
+      {(progress?.totals?.attemptCount > 0 ||
+        progress?.strengths?.length > 0 ||
+        progress?.areasOfStruggle?.length > 0) && (
+        <section className="dashboard__progress" aria-label="Your quiz progress">
+          <h2 className="dashboard__section-heading">Your Progress</h2>
+
+          {(progress.strengths.length > 0 ||
+            progress.areasOfStruggle.length > 0) && (
+            <div className="dashboard__progress-signals">
+              {progress.strengths.length > 0 && (
+                <div className="dashboard__progress-signal dashboard__progress-signal--strength">
+                  <h3 className="dashboard__progress-signal-title">Strengths</h3>
+                  <p className="dashboard__progress-signal-list">
+                    {progress.strengths.map((subject) => subject.name).join(", ")}
+                  </p>
+                </div>
+              )}
+              {progress.areasOfStruggle.length > 0 && (
+                <div className="dashboard__progress-signal dashboard__progress-signal--struggle">
+                  <h3 className="dashboard__progress-signal-title">
+                    Needs practice
+                  </h3>
+                  <p className="dashboard__progress-signal-list">
+                    {progress.areasOfStruggle
+                      .map((subject) => subject.name)
+                      .join(", ")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {progress.topics.length > 0 && (
+            <ul className="dashboard__progress-list">
+              {progress.topics.slice(0, 6).map((topic) => (
+                <li className="dashboard__progress-item" key={topic.topicId}>
+                  <div className="dashboard__progress-item-copy">
+                    <span className="dashboard__progress-item-title">
+                      {topic.term}
+                    </span>
+                    <span className="dashboard__progress-item-meta">
+                      Last {topic.lastScore}/{topic.lastMaxScore} (
+                      {topic.lastPercent}%)
+                      {topic.trend === "improving" && " · improving"}
+                      {topic.trend === "slipping" && " · slipping"}
+                      {topic.attemptCount > 1 &&
+                        ` · ${topic.attemptCount} tries`}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       <section className="dashboard__recent" aria-label="Recently saved topics">
         <h2 className="dashboard__section-heading">Recently Saved</h2>
