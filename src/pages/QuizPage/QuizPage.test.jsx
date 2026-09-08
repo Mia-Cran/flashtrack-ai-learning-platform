@@ -47,6 +47,32 @@ describe('QuizPage', () => {
     expect(screen.getByText('Question 1 of 2')).toBeInTheDocument()
   })
 
+  it('refuses placeholder letter-only questions', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
+      jsonResponse({
+        ...quiz,
+        questions: {
+          Beginner: [
+            {
+              _id: 'q1',
+              text: 'Q1?',
+              type: 'multipleChoice',
+              options: ['A', 'B', 'C', 'D'],
+            },
+          ],
+          Intermediate: [],
+          Advanced: [],
+        },
+      }),
+    )
+
+    renderQuiz()
+
+    expect(
+      await screen.findByText(/didn't generate correctly/i),
+    ).toBeInTheDocument()
+  })
+
   it('shows an error when the quiz does not exist', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
       jsonResponse({ message: 'Quiz not found' }, 404),
@@ -102,7 +128,7 @@ describe('QuizPage', () => {
     await waitFor(() => expect(screen.getByText('Quiz Complete!')).toBeInTheDocument())
     expect(screen.getByText('1/2')).toBeInTheDocument()
     expect(screen.getByText('Review this flashcard')).toBeInTheDocument()
-    expect(screen.getByText('Recursion')).toBeInTheDocument()
+    expect(screen.getAllByText('Recursion').length).toBeGreaterThan(0)
 
     const submitCall = fetchMock.mock.calls.find(([url]) => String(url).endsWith('/submit'))
     const body = JSON.parse(submitCall[1].body)

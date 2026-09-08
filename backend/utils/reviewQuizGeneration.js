@@ -3,7 +3,7 @@
 
 const openai = require("./openai");
 const { MODEL } = require("./studyGuide");
-const { normalizeMcOptions } = require("./quizOptions");
+const { normalizeMcOptions, letterFromModelAnswer, isUnusableMcQuestion } = require("./quizOptions");
 
 const REVIEW_MIN_TOPICS = 5;
 const REVIEW_MAX_TOPICS = 10;
@@ -17,9 +17,12 @@ const REVIEW_QUESTIONS_SCHEMA = {
         type: "object",
         properties: {
           topicTerm: { type: "string" },
-          text: { type: "string" },
-          options: { type: "array", items: { type: "string" } },
-          correctAnswer: { type: "string" },
+          text: { type: "string", minLength: 12 },
+          options: {
+            type: "array",
+            items: { type: "string", minLength: 2 },
+          },
+          correctAnswer: { type: "string", minLength: 2 },
           explanation: { type: "string" },
         },
         required: [
@@ -56,10 +59,11 @@ Write exactly one multiple-choice question for EACH topic (same count and order 
 Each question must clearly test that one topic's meaning. Do not write a placeholder like "Question about Topic 1".
 
 Rules:
-- Provide exactly 4 options per question. Each option must be a real answer, not just the letter A/B/C/D.
-- correctAnswer must be the letter of the correct option: "A", "B", "C", or "D" (A is the first option).
+- Provide exactly 4 options per question. Each option must be a real answer phrase, never the letter A, B, C, or D.
+- correctAnswer must be an exact copy of the winning option's full text, not a letter.
 - topicTerm must be an exact copy of the topic name from the list above.
 - Every question needs text, options, correctAnswer, and a one- or two-sentence explanation.
+- Never write placeholders like "Q1?" or "Question about Topic 1".
 - Questions must be answerable from that flashcard's meaning and must not depend on each other.`;
 }
 
@@ -105,7 +109,10 @@ async function generateReviewQuestions(topics) {
       text: question.text,
       type: "multipleChoice",
       options: normalizeMcOptions(question.options),
-      correctAnswer: String(question.correctAnswer),
+      correctAnswer: letterFromModelAnswer({
+        ...question,
+        options: normalizeMcOptions(question.options),
+      }),
       explanation: question.explanation,
     });
   });
@@ -113,7 +120,7 @@ async function generateReviewQuestions(topics) {
   // Do not glue leftover questions onto the wrong topic. A mismatch used
   // to produce a "quiz" whose text was about something else entirely.
 
-  if (mapped.length === 0) {
+  if (mapped.length === 0 || mapped.some(isUnusableMcQuestion)) {
     throw new Error("Review quiz generation returned no usable questions");
   }
 

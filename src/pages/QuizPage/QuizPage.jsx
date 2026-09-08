@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { API_BASE_URL } from "../../utils/api";
 import StudyCard from "../../components/StudyCard/StudyCard";
+import { quizHasUnusableQuestions } from "../../utils/quizQuality";
 import "./QuizPage.css";
 
 function formatAttemptDate(value) {
@@ -125,9 +126,15 @@ function QuizPage() {
     return <div className="quiz-page">Error: {error || "Quiz not found"}</div>;
   }
 
-  // A quiz may be missing a difficulty level (or have an empty one), so never
-  // assume there are exactly 5 questions. Use the real count everywhere.
   const questions = quiz.questions?.[difficulty] ?? [];
+  if (quizHasUnusableQuestions(questions)) {
+    return (
+      <div className="quiz-page">
+        Error: Those questions didn&apos;t generate correctly. Go back to Home
+        and tap Take Quiz again.
+      </div>
+    );
+  }
   const total = questions.length;
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === total - 1;

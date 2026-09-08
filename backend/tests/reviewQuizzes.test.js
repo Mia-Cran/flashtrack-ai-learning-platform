@@ -75,7 +75,12 @@ test("review quiz ignores throwaway test cards", async () => {
         questions: [1, 2, 3, 4, 5].map((n) => ({
           topicTerm: `Topic ${n}`,
           text: `Question about Topic ${n}?`,
-          options: ["A", "B", "C", "D"],
+          options: [
+            "The first idea",
+            "The second idea",
+            "The third idea",
+            "The fourth idea",
+          ],
           correctAnswer: "A",
           explanation: "Because A.",
         })),
@@ -103,7 +108,12 @@ test("review quiz grades misses by topic", async () => {
         questions: topicIds.map((_id, i) => ({
           topicTerm: `Topic ${i + 1}`,
           text: `Question about Topic ${i + 1}?`,
-          options: ["A", "B", "C", "D"],
+          options: [
+            "The first idea",
+            "The second idea",
+            "The third idea",
+            "The fourth idea",
+          ],
           correctAnswer: "A",
           explanation: "Because A.",
         })),

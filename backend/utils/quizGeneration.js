@@ -8,7 +8,7 @@
 
 const openai = require("./openai");
 const { MODEL, DIFFICULTY_LEVELS } = require("./studyGuide");
-const { normalizeMcOptions, optionsLookLikeLettersOnly } = require("./quizOptions");
+const { normalizeMcOptions, isUnusableMcQuestion, letterFromModelAnswer } = require("./quizOptions");
 
 const QUESTIONS_PER_LEVEL = 5;
 
@@ -22,7 +22,7 @@ const LEVEL_FOCUS = {
 
 const TYPE_RULES = {
   multipleChoice:
-    'Provide exactly 4 options. correctAnswer must be the letter of the correct option: "A", "B", "C", or "D" (A is the first option).',
+    "Provide exactly 4 options. Each option must be a complete answer phrase, never a single letter. correctAnswer must be an exact copy of the winning option's full text (not A/B/C/D).",
   trueFalse:
     'Provide exactly 2 options: ["true", "false"]. correctAnswer must be the string "true" or "false".',
   shortAnswer:
@@ -38,9 +38,12 @@ const QUESTIONS_SCHEMA = {
       items: {
         type: "object",
         properties: {
-          text: { type: "string" },
-          options: { type: "array", items: { type: "string" } },
-          correctAnswer: { type: "string" },
+          text: { type: "string", minLength: 12 },
+          options: {
+            type: "array",
+            items: { type: "string", minLength: 2 },
+          },
+          correctAnswer: { type: "string", minLength: 2 },
           explanation: { type: "string" },
         },
         required: ["text", "options", "correctAnswer", "explanation"],
@@ -65,7 +68,7 @@ Write exactly ${QUESTIONS_PER_LEVEL} ${questionType} questions at ${level} level
 
 Rules for ${questionType} questions: ${TYPE_RULES[questionType]}
 
-Every question needs: text, options, correctAnswer, and a one- or two-sentence explanation of why the answer is correct. Questions must be answerable from the flashcard meaning above. Do not number the questions "Question 1". Do not use options that are only the letters A, B, C, or D — each option must be a real answer.`;
+Every question needs: text, options, correctAnswer, and a one- or two-sentence explanation of why the answer is correct. Questions must be answerable from the flashcard meaning above. Never write "Q1?" or "Question 1". Never use options that are only the letters A, B, C, or D.`;
 }
 
 async function requestLevel(term, questionType, level, simpleDefinition) {
@@ -100,7 +103,10 @@ async function requestLevel(term, questionType, level, simpleDefinition) {
       text: question.text,
       type: questionType,
       options,
-      correctAnswer: String(question.correctAnswer),
+      correctAnswer:
+        questionType === "multipleChoice"
+          ? letterFromModelAnswer({ ...question, options })
+          : String(question.correctAnswer ?? ""),
       explanation: question.explanation,
     };
   });
@@ -113,7 +119,7 @@ async function generateLevel(term, questionType, level, simpleDefinition) {
   // correctAnswer is a letter. That's not a quiz — ask once more.
   if (
     questionType === "multipleChoice" &&
-    mapped.some((question) => optionsLookLikeLettersOnly(question.options))
+    mapped.some((question) => isUnusableMcQuestion(question))
   ) {
     return requestLevel(term, questionType, level, simpleDefinition);
   }
@@ -143,10 +149,10 @@ async function generateQuizQuestions(
     for (const level of DIFFICULTY_LEVELS) {
       if (
         (questions[level] || []).some((question) =>
-          optionsLookLikeLettersOnly(question.options),
+          isUnusableMcQuestion(question),
         )
       ) {
-        throw new Error(`${level} quiz came back with letter-only options`);
+        throw new Error(`${level} quiz came back as placeholder questions`);
       }
     }
   }
