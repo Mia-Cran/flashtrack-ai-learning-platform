@@ -56,16 +56,20 @@ test("a user can save, list, read, update and delete their own topics", async ()
   assert.deepEqual(after.body, []);
 });
 
-test("saving the same term twice is a 409, and ?term= finds the saved copy", async () => {
+test("saving the same term twice updates the card, and ?term= finds it", async () => {
   const { authHeader } = await createUser();
 
   await request(app).post("/topics").set(authHeader).send(topicBody);
-  const again = await request(app).post("/topics").set(authHeader).send(topicBody);
-  assert.equal(again.status, 409);
+  const again = await request(app).post("/topics").set(authHeader).send({
+    ...topicBody,
+    simpleDefinition: "A new meaning for the same term.",
+  });
+  assert.equal(again.status, 200);
+  assert.equal(again.body.simpleDefinition, "A new meaning for the same term.");
 
   const found = await request(app).get("/topics?term=Recursion").set(authHeader);
   assert.equal(found.body.length, 1);
-  assert.equal(found.body[0].term, "Recursion");
+  assert.equal(found.body[0].simpleDefinition, "A new meaning for the same term.");
 
   const none = await request(app).get("/topics?term=closures").set(authHeader);
   assert.deepEqual(none.body, []);

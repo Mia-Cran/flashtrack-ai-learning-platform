@@ -211,12 +211,6 @@ function App() {
       body: JSON.stringify(backendTopic),
     })
       .then((res) => {
-        if (res.status === 409) {
-          // Topic already exists - fetch it instead
-          return fetch(`${API_BASE_URL}/topics?term=${encodeURIComponent(topic.title)}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }).then(r => r.json()).then(topics => topics[0]);
-        }
         if (!res.ok) {
           throw new Error("Failed to save topic");
         }
@@ -225,15 +219,10 @@ function App() {
       })
       .then((savedTopic) => {
         setSavedTopics((prevTopics) => {
-          const alreadySaved = prevTopics.some(
-            (topic) => topic._id === savedTopic._id,
+          const without = prevTopics.filter(
+            (item) => item._id !== savedTopic._id,
           );
-
-          if (alreadySaved) {
-            return prevTopics;
-          }
-
-          return [...prevTopics, savedTopic];
+          return [...without, savedTopic];
         });
 
         return savedTopic;

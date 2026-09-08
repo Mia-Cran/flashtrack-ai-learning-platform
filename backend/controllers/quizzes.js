@@ -5,7 +5,7 @@ const LearnerProfile = require("../models/learnerProfile");
 const { generateQuizQuestions } = require("../utils/quizGeneration");
 const { DIFFICULTY_LEVELS } = require("../utils/studyGuide");
 const { refreshStrengthsAndStruggles } = require("../utils/progress");
-const { isThrowawayTerm } = require("../utils/playableTopics");
+const { isThrowawayTopic } = require("../utils/playableTopics");
 
 // POST /quizzes/:topicId/generate (signed in)
 //
@@ -22,7 +22,7 @@ const generateQuiz = async (req, res) => {
       return res.status(404).send({ message: "Topic not found" });
     }
 
-    if (isThrowawayTerm(topic.term)) {
+    if (isThrowawayTopic(topic)) {
       return res.status(400).send({
         message: "That looks like a test card. Save a real topic, then quiz on it.",
       });

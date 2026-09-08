@@ -74,6 +74,16 @@ describe("matchGame", () => {
     ).toBe(false);
   });
 
+  it("skips cards whose meaning is a test definition", () => {
+    expect(
+      isPlayableMatchTopic({
+        _id: "r",
+        term: "React",
+        simpleDefinition: "test definition",
+      }),
+    ).toBe(false);
+  });
+
   it("builds a four-pair round with matching ids on both sides", () => {
     const round = buildMatchRound(topics, {
       random: sequentialRandom(),

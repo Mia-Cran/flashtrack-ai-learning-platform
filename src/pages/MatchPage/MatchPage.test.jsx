@@ -104,10 +104,17 @@ describe("MatchPage", () => {
     renderMatch([
       ...topics,
       { _id: "t", term: "test", simpleDefinition: "Just checking the app." },
+      { _id: "r", term: "React", simpleDefinition: "test definition" },
     ]);
 
     expect(
       screen.queryByRole("button", { name: "Term: test" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Term: React" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/test definition/i),
     ).not.toBeInTheDocument();
   });
 });

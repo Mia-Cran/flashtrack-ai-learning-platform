@@ -42,6 +42,16 @@ export function promptForTopic(topic) {
   return compactMeaning(topic?.simpleDefinition);
 }
 
+function isThrowawayMeaning(text) {
+  const cleaned = oneLine(text).toLowerCase();
+
+  if (!cleaned || THROWAWAY_TERMS.has(cleaned)) {
+    return true;
+  }
+
+  return /\btest definition\b/.test(cleaned);
+}
+
 export function isPlayableMatchTopic(topic) {
   const term = oneLine(topic?.term);
 
@@ -50,6 +60,10 @@ export function isPlayableMatchTopic(topic) {
   }
 
   if (THROWAWAY_TERMS.has(term.toLowerCase())) {
+    return false;
+  }
+
+  if (isThrowawayMeaning(topic?.simpleDefinition)) {
     return false;
   }
 

@@ -135,10 +135,28 @@ const createTopic = (req, res) => {
     owner: req.user._id,
   })
     .then((existingTopic) => {
+      // Searching the same term again used to 409 and keep the first save
+      // forever. Match then showed the old "test definition" while Search
+      // showed the new card. Overwrite the stored study fields instead.
       if (existingTopic) {
-        return res.status(409).send({
-          message: "Topic already saved",
-        });
+        existingTopic.term = cleanedTerm;
+        existingTopic.simpleDefinition = simpleDefinition;
+        existingTopic.beginnerDefinition = beginnerDefinition;
+        existingTopic.technicalDefinition = technicalDefinition;
+        existingTopic.category = category;
+        existingTopic.difficulty = difficulty;
+        existingTopic.analogy = analogy;
+        existingTopic.codeExample = codeExample;
+        existingTopic.commonMistake = commonMistake;
+        existingTopic.relatedTopics = relatedTopics;
+        if (subject) {
+          existingTopic.subject = subject;
+        }
+
+        return existingTopic
+          .save()
+          .then((topic) => topic.populate("subject"))
+          .then((topic) => res.status(200).send(topic));
       }
 
       return Topic.create({
