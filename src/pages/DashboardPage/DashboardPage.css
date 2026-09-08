@@ -401,6 +401,11 @@
   outline-offset: 2px;
 }
 
+.dashboard__games {
+  display: flex;
+  flex-direction: column;
+}
+
 .dashboard__quizzes {
   display: flex;
   flex-direction: column;
@@ -536,6 +541,10 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dashboard__quiz-button:hover:not(:disabled) {

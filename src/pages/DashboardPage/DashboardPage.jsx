@@ -12,8 +12,10 @@ import {
   IconSparkles,
   IconBulb,
   IconSchool,
+  IconPuzzle,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
+import { MATCH_UNLOCK_COUNT } from "../../utils/matchGame";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
@@ -299,6 +301,7 @@ function DashboardPage({
   }
 
   const quizzesUnlocked = totalSaved >= QUIZ_UNLOCK_COUNT;
+  const matchUnlocked = totalSaved >= MATCH_UNLOCK_COUNT;
   const quizTopics = [...savedTopics].sort(
     (a, b) => (getSavedAt(b._id) ?? 0) - (getSavedAt(a._id) ?? 0),
   );
@@ -438,6 +441,53 @@ function DashboardPage({
                 </span>
               </div>
             ))}
+          </div>
+        )}
+      </section>
+
+      <section className="dashboard__games" aria-label="Match game">
+        <h2 className="dashboard__section-heading">
+          <IconPuzzle size={20} stroke={1.75} aria-hidden="true" />
+          Play Match
+        </h2>
+
+        {!matchUnlocked ? (
+          <div className="dashboard__quiz-locked">
+            <p className="dashboard__quiz-locked-text">
+              Save {MATCH_UNLOCK_COUNT} flashcards, then pair each term with
+              its meaning. Short round, no timer.
+            </p>
+            <div
+              className="dashboard__quiz-progress"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={MATCH_UNLOCK_COUNT}
+              aria-valuenow={totalSaved}
+              aria-label={`${totalSaved} of ${MATCH_UNLOCK_COUNT} topics saved for Match`}
+            >
+              <div
+                className="dashboard__quiz-progress-fill"
+                style={{
+                  width: `${Math.min(100, (totalSaved / MATCH_UNLOCK_COUNT) * 100)}%`,
+                }}
+              />
+            </div>
+            <p className="dashboard__quiz-progress-label">
+              {totalSaved} / {MATCH_UNLOCK_COUNT} saved
+            </p>
+          </div>
+        ) : (
+          <div className="dashboard__review-cta">
+            <p className="dashboard__quiz-intro">
+              Match four of your saved terms to their meanings. One pair at a
+              time — no timer, and a miss just means try another pair.
+            </p>
+            <Link
+              to="/match"
+              className="dashboard__quiz-button dashboard__quiz-button--review"
+            >
+              Play Match
+            </Link>
           </div>
         )}
       </section>

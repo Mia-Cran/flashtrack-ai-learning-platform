@@ -10,6 +10,7 @@ import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
 import SubjectsPage from "./pages/SubjectsPage/SubjectsPage";
 import QuizPage from "./pages/QuizPage/QuizPage";
 import ReviewQuizPage from "./pages/QuizPage/ReviewQuizPage";
+import MatchPage from "./pages/MatchPage/MatchPage";
 import Header from "./components/Header/Header";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "./utils/api";
@@ -423,6 +424,16 @@ function App() {
           path="/subjects"
           element={
             <SubjectsPage isLoggedIn={isLoggedIn} savedTopics={savedTopics} />
+          }
+        />
+        <Route
+          path="/match"
+          element={
+            <MatchPage
+              isLoggedIn={isLoggedIn}
+              savedTopics={savedTopics}
+              explanationStyle={explanationStyle}
+            />
           }
         />
         <Route

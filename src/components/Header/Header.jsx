@@ -76,6 +76,10 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
                 Saved Topics
               </HeaderNavLink>
 
+              <HeaderNavLink to="/match" disabled={isSearchLoading}>
+                Games
+              </HeaderNavLink>
+
               <HeaderNavLink to="/about" disabled={isSearchLoading}>
                 About
               </HeaderNavLink>
