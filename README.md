@@ -94,7 +94,7 @@ Sign up, browse subjects, save topics, leave feedback. Put `OPENAI_API_KEY` in `
 1. Sign up / sign in  
 2. Search a few terms, flip the card, try **Hear it**  
 3. Save at least **5** topics  
-4. Open **Games** in the header (or Dashboard → **Play Match** / **Play Spot the mistake**) after 4 saved cards  
+4. Open **Games** in the header (or Dashboard → **Play Match** / **Play Spot the mistake** / **Play Hear & pick**) after 4 saved cards  
 5. Save a fifth card, then **Start review quiz** (mixed) or **Take Quiz** on one topic  
 6. If you miss topics on the review quiz, use **Practice this topic**
 

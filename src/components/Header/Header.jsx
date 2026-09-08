@@ -81,7 +81,7 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
 
               <HeaderNavLink
                 to="/games"
-                alsoActive={["/match", "/spot"]}
+                alsoActive={["/match", "/spot", "/hear"]}
                 disabled={isSearchLoading}
               >
                 Games

@@ -24,6 +24,10 @@ import {
   SPOT_UNLOCK_COUNT,
   playableSpotTopics,
 } from "../../utils/spotGame";
+import {
+  HEAR_UNLOCK_COUNT,
+  playableHearTopics,
+} from "../../utils/hearGame";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
@@ -318,6 +322,8 @@ function DashboardPage({
   const matchUnlocked = playableMatchCount >= MATCH_UNLOCK_COUNT;
   const playableSpotCount = playableSpotTopics(savedTopics).length;
   const spotUnlocked = playableSpotCount >= SPOT_UNLOCK_COUNT;
+  const playableHearCount = playableHearTopics(savedTopics).length;
+  const hearUnlocked = playableHearCount >= HEAR_UNLOCK_COUNT;
   const quizTopics = [...playableTopics].sort(
     (a, b) => (getSavedAt(b._id) ?? 0) - (getSavedAt(a._id) ?? 0),
   );
@@ -467,12 +473,12 @@ function DashboardPage({
           Games
         </h2>
 
-        {!matchUnlocked && !spotUnlocked ? (
+        {!matchUnlocked && !spotUnlocked && !hearUnlocked ? (
           <div className="dashboard__quiz-locked">
             <p className="dashboard__quiz-locked-text">
-              Save {MATCH_UNLOCK_COUNT} real flashcards, then play Match or
-              Spot the mistake. Test cards don’t count. Short rounds, no
-              timer.
+              Save {MATCH_UNLOCK_COUNT} real flashcards, then play Match,
+              Spot the mistake, or Hear & pick. Test cards don’t count.
+              Short rounds, no timer.
             </p>
             <div
               className="dashboard__quiz-progress"
@@ -533,6 +539,27 @@ function DashboardPage({
                 <p className="dashboard__quiz-locked-text">
                   Save {SPOT_UNLOCK_COUNT} real flashcards to unlock.{" "}
                   {playableSpotCount} ready.
+                </p>
+              )}
+            </div>
+
+            <div className="dashboard__review-cta">
+              <h3 className="dashboard__quiz-subheading">Hear & pick</h3>
+              <p className="dashboard__quiz-intro">
+                Hear a saved term, then tap its meaning. Same voice as Hear
+                it — no timer, and a miss just means try another meaning.
+              </p>
+              {hearUnlocked ? (
+                <Link
+                  to="/hear"
+                  className="dashboard__quiz-button dashboard__quiz-button--review"
+                >
+                  Play Hear & pick
+                </Link>
+              ) : (
+                <p className="dashboard__quiz-locked-text">
+                  Save {HEAR_UNLOCK_COUNT} real flashcards to unlock.{" "}
+                  {playableHearCount} ready.
                 </p>
               )}
             </div>

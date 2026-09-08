@@ -13,6 +13,7 @@ import ReviewQuizPage from "./pages/QuizPage/ReviewQuizPage";
 import MatchPage from "./pages/MatchPage/MatchPage";
 import GamesPage from "./pages/GamesPage/GamesPage";
 import SpotPage from "./pages/SpotPage/SpotPage";
+import HearPage from "./pages/HearPage/HearPage";
 import Header from "./components/Header/Header";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "./utils/api";
@@ -439,6 +440,15 @@ function App() {
           path="/spot"
           element={
             <SpotPage
+              isLoggedIn={isLoggedIn}
+              savedTopics={savedTopics}
+            />
+          }
+        />
+        <Route
+          path="/hear"
+          element={
+            <HearPage
               isLoggedIn={isLoggedIn}
               savedTopics={savedTopics}
             />

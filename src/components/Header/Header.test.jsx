@@ -26,9 +26,9 @@ describe("Header", () => {
     expect(games).toHaveAttribute("href", "/games");
   });
 
-  it("keeps Games active on Match and Spot the mistake", () => {
+  it("keeps Games active on Match, Spot the mistake, and Hear & pick", () => {
     render(
-      <MemoryRouter initialEntries={["/spot"]}>
+      <MemoryRouter initialEntries={["/hear"]}>
         <Header isLoggedIn onSignout={vi.fn()} />
       </MemoryRouter>,
     );

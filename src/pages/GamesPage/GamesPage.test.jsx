@@ -39,7 +39,7 @@ function renderGames(savedTopics = topics) {
 }
 
 describe("GamesPage", () => {
-  it("links to Match and Spot the mistake when enough cards are saved", () => {
+  it("links to Match, Spot the mistake, and Hear & pick when enough cards are saved", () => {
     renderGames();
 
     expect(screen.getByRole("link", { name: "Play Match" })).toHaveAttribute(
@@ -49,15 +49,21 @@ describe("GamesPage", () => {
     expect(
       screen.getByRole("link", { name: "Play Spot the mistake" }),
     ).toHaveAttribute("href", "/spot");
+    expect(
+      screen.getByRole("link", { name: "Play Hear & pick" }),
+    ).toHaveAttribute("href", "/hear");
   });
 
-  it("keeps both games locked until four playable cards are saved", () => {
+  it("keeps the games locked until four playable cards are saved", () => {
     renderGames(topics.slice(0, 2));
 
     expect(screen.queryByRole("link", { name: "Play Match" })).not.toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: "Play Spot the mistake" }),
     ).not.toBeInTheDocument();
-    expect(screen.getAllByText(/You have 2 ready/)).toHaveLength(2);
+    expect(
+      screen.queryByRole("link", { name: "Play Hear & pick" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByText(/You have 2 ready/)).toHaveLength(3);
   });
 });

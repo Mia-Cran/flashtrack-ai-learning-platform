@@ -1,14 +1,21 @@
 import { Link, Navigate } from "react-router";
-import { IconAlertTriangle, IconPuzzle } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconPuzzle,
+  IconVolume,
+} from "@tabler/icons-react";
 import { MATCH_UNLOCK_COUNT, playableMatchTopics } from "../../utils/matchGame";
 import { SPOT_UNLOCK_COUNT, playableSpotTopics } from "../../utils/spotGame";
+import { HEAR_UNLOCK_COUNT, playableHearTopics } from "../../utils/hearGame";
 import "./GamesPage.css";
 
 function GamesPage({ isLoggedIn, savedTopics = [] }) {
   const matchCount = playableMatchTopics(savedTopics).length;
   const spotCount = playableSpotTopics(savedTopics).length;
+  const hearCount = playableHearTopics(savedTopics).length;
   const matchUnlocked = matchCount >= MATCH_UNLOCK_COUNT;
   const spotUnlocked = spotCount >= SPOT_UNLOCK_COUNT;
+  const hearUnlocked = hearCount >= HEAR_UNLOCK_COUNT;
 
   if (!isLoggedIn) {
     return <Navigate to="/" replace />;
@@ -61,6 +68,26 @@ function GamesPage({ isLoggedIn, savedTopics = [] }) {
             <p className="games-page__locked">
               Save {SPOT_UNLOCK_COUNT} real flashcards to unlock. You have{" "}
               {spotCount} ready.
+            </p>
+          )}
+        </article>
+
+        <article className="games-page__card">
+          <h2 className="games-page__card-title">
+            <IconVolume size={22} stroke={1.75} aria-hidden="true" />
+            Hear & pick
+          </h2>
+          <p className="games-page__card-copy">
+            Hear a saved term, then tap its meaning.
+          </p>
+          {hearUnlocked ? (
+            <Link to="/hear" className="games-page__button">
+              Play Hear & pick
+            </Link>
+          ) : (
+            <p className="games-page__locked">
+              Save {HEAR_UNLOCK_COUNT} real flashcards to unlock. You have{" "}
+              {hearCount} ready.
             </p>
           )}
         </article>
