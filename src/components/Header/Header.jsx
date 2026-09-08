@@ -1,14 +1,17 @@
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router";
 import SubjectsNavDropdown from "../SubjectsNavDropdown/SubjectsNavDropdown";
 import "./Header.css";
 
-function HeaderNavLink({ to, disabled, children }) {
+function HeaderNavLink({ to, disabled, alsoActive = [], children }) {
+  const location = useLocation();
+  const extraActive = alsoActive.includes(location.pathname);
+
   return (
     <NavLink
       className={({ isActive }) => {
         const classes = ["header__link"];
 
-        if (isActive) {
+        if (isActive || extraActive) {
           classes.push("header__link--active");
         }
 
@@ -76,7 +79,11 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
                 Saved Topics
               </HeaderNavLink>
 
-              <HeaderNavLink to="/match" disabled={isSearchLoading}>
+              <HeaderNavLink
+                to="/games"
+                alsoActive={["/match", "/spot"]}
+                disabled={isSearchLoading}
+              >
                 Games
               </HeaderNavLink>
 

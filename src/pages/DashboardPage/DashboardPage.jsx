@@ -20,6 +20,10 @@ import {
   compactMeaning,
   playableSavedTopics,
 } from "../../utils/matchGame";
+import {
+  SPOT_UNLOCK_COUNT,
+  playableSpotTopics,
+} from "../../utils/spotGame";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
@@ -312,6 +316,8 @@ function DashboardPage({
   const quizzesUnlocked = playableCount >= QUIZ_UNLOCK_COUNT;
   const playableMatchCount = playableCount;
   const matchUnlocked = playableMatchCount >= MATCH_UNLOCK_COUNT;
+  const playableSpotCount = playableSpotTopics(savedTopics).length;
+  const spotUnlocked = playableSpotCount >= SPOT_UNLOCK_COUNT;
   const quizTopics = [...playableTopics].sort(
     (a, b) => (getSavedAt(b._id) ?? 0) - (getSavedAt(a._id) ?? 0),
   );
@@ -455,17 +461,18 @@ function DashboardPage({
         )}
       </section>
 
-      <section className="dashboard__games" aria-label="Match game">
+      <section className="dashboard__games" aria-label="Games">
         <h2 className="dashboard__section-heading">
           <IconPuzzle size={20} stroke={1.75} aria-hidden="true" />
-          Play Match
+          Games
         </h2>
 
-        {!matchUnlocked ? (
+        {!matchUnlocked && !spotUnlocked ? (
           <div className="dashboard__quiz-locked">
             <p className="dashboard__quiz-locked-text">
-              Save {MATCH_UNLOCK_COUNT} real flashcards, then pair each term
-              with its meaning. Test cards don’t count. Short round, no timer.
+              Save {MATCH_UNLOCK_COUNT} real flashcards, then play Match or
+              Spot the mistake. Test cards don’t count. Short rounds, no
+              timer.
             </p>
             <div
               className="dashboard__quiz-progress"
@@ -473,7 +480,7 @@ function DashboardPage({
               aria-valuemin={0}
               aria-valuemax={MATCH_UNLOCK_COUNT}
               aria-valuenow={playableMatchCount}
-              aria-label={`${playableMatchCount} of ${MATCH_UNLOCK_COUNT} playable cards for Match`}
+              aria-label={`${playableMatchCount} of ${MATCH_UNLOCK_COUNT} playable cards for Games`}
             >
               <div
                 className="dashboard__quiz-progress-fill"
@@ -487,17 +494,48 @@ function DashboardPage({
             </p>
           </div>
         ) : (
-          <div className="dashboard__review-cta">
-            <p className="dashboard__quiz-intro">
-              Match four of your saved terms to their meanings. One pair at a
-              time — no timer, and a miss just means try another pair.
-            </p>
-            <Link
-              to="/match"
-              className="dashboard__quiz-button dashboard__quiz-button--review"
-            >
-              Play Match
-            </Link>
+          <div className="dashboard__games-grid">
+            <div className="dashboard__review-cta">
+              <h3 className="dashboard__quiz-subheading">Match</h3>
+              <p className="dashboard__quiz-intro">
+                Pair four of your saved terms to their meanings. One pair at
+                a time — a miss just means try another pair.
+              </p>
+              {matchUnlocked ? (
+                <Link
+                  to="/match"
+                  className="dashboard__quiz-button dashboard__quiz-button--review"
+                >
+                  Play Match
+                </Link>
+              ) : (
+                <p className="dashboard__quiz-locked-text">
+                  Save {MATCH_UNLOCK_COUNT} real flashcards to unlock.{" "}
+                  {playableMatchCount} ready.
+                </p>
+              )}
+            </div>
+
+            <div className="dashboard__review-cta">
+              <h3 className="dashboard__quiz-subheading">Spot the mistake</h3>
+              <p className="dashboard__quiz-intro">
+                See a term and two statements. Tap the common mix-up — no
+                timer, and a miss just means try the other one.
+              </p>
+              {spotUnlocked ? (
+                <Link
+                  to="/spot"
+                  className="dashboard__quiz-button dashboard__quiz-button--review"
+                >
+                  Play Spot the mistake
+                </Link>
+              ) : (
+                <p className="dashboard__quiz-locked-text">
+                  Save {SPOT_UNLOCK_COUNT} real flashcards to unlock.{" "}
+                  {playableSpotCount} ready.
+                </p>
+              )}
+            </div>
           </div>
         )}
       </section>

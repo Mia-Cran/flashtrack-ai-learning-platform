@@ -23,7 +23,19 @@ describe("Header", () => {
     renderHeader({ isLoggedIn: true });
 
     const games = screen.getByRole("link", { name: "Games" });
-    expect(games).toHaveAttribute("href", "/match");
+    expect(games).toHaveAttribute("href", "/games");
+  });
+
+  it("keeps Games active on Match and Spot the mistake", () => {
+    render(
+      <MemoryRouter initialEntries={["/spot"]}>
+        <Header isLoggedIn onSignout={vi.fn()} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: "Games" })).toHaveClass(
+      "header__link--active",
+    );
   });
 
   it("hides Games when logged out", () => {

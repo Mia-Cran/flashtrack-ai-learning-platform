@@ -406,6 +406,16 @@
   flex-direction: column;
 }
 
+.dashboard__games-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard__games-grid .dashboard__review-cta {
+  margin-bottom: 0;
+}
+
 .dashboard__quizzes {
   display: flex;
   flex-direction: column;
@@ -578,6 +588,10 @@
   }
 
   .dashboard__recent-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard__games-grid {
     grid-template-columns: 1fr;
   }
 

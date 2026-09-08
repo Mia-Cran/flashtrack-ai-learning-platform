@@ -112,6 +112,9 @@ function MatchPage({
         <p className="match-page__lede">
           Pair each term with its meaning. One pair at a time — no timer.
         </p>
+        <Link to="/games" className="match-page__hub-link">
+          All games
+        </Link>
       </header>
 
       {!round ? (
