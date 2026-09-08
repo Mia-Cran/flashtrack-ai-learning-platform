@@ -30,11 +30,7 @@ const topics = [
 function renderMatch(savedTopics = topics) {
   return render(
     <MemoryRouter>
-      <MatchPage
-        isLoggedIn
-        savedTopics={savedTopics}
-        explanationStyle="straight"
-      />
+      <MatchPage isLoggedIn savedTopics={savedTopics} />
     </MemoryRouter>,
   );
 }
@@ -44,7 +40,7 @@ describe("MatchPage", () => {
     renderMatch(topics.slice(0, 2));
 
     expect(
-      screen.getByText(/Save 4 flashcards to play Match/),
+      screen.getByText(/Save 4 real flashcards to play Match/),
     ).toBeInTheDocument();
   });
 
@@ -81,5 +77,37 @@ describe("MatchPage", () => {
     expect(
       screen.getByRole("button", { name: "Term: Recursion" }),
     ).not.toBeDisabled();
+  });
+
+  it("starts a new round from New round without finishing first", async () => {
+    const user = userEvent.setup();
+    renderMatch();
+
+    await user.click(screen.getByRole("button", { name: "Term: Recursion" }));
+    await user.click(
+      screen.getByRole("button", {
+        name: "Meaning: A function that calls itself.",
+      }),
+    );
+
+    expect(screen.getByText("1 of 4 matched")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "New round" }));
+
+    expect(screen.getByText("0 of 4 matched")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Term: Recursion" }),
+    ).not.toBeDisabled();
+  });
+
+  it("does not put throwaway test cards on the board", () => {
+    renderMatch([
+      ...topics,
+      { _id: "t", term: "test", simpleDefinition: "Just checking the app." },
+    ]);
+
+    expect(
+      screen.queryByRole("button", { name: "Term: test" }),
+    ).not.toBeInTheDocument();
   });
 });

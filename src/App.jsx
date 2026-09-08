@@ -432,7 +432,6 @@ function App() {
             <MatchPage
               isLoggedIn={isLoggedIn}
               savedTopics={savedTopics}
-              explanationStyle={explanationStyle}
             />
           }
         />

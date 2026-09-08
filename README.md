@@ -33,7 +33,7 @@ Browser (React)  --HTTP/JSON-->  Express API  -->  MongoDB
 - **Regenerate** a saved card at a different difficulty
 - **Quizzes by topic** — after **5+** saved cards, take a multiple-choice quiz for any one flashcard
 - **Review quiz** — mixed MC quiz across recent cards (up to 10); topics you miss unlock a focused practice quiz
-- **Match game** — after **4+** saved cards, pair terms with their meanings (uses analogies or technical text when that’s the learner’s style; no timer)
+- **Match game** — after **4+** real saved cards (not throwaway “test” saves), pair terms with their short definitions. No timer.
 - **Learner profile** (Settings): preferred explanation style, question type, pacing, and which card sections open by default
 - **Subjects** browsing (23 seeded subjects), a daily quote, and a feedback form
 - Rate limiting on AI-backed endpoints to keep OpenAI costs predictable

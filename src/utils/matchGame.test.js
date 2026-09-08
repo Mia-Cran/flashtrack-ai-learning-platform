@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   MATCH_UNLOCK_COUNT,
   buildMatchRound,
+  compactMeaning,
+  isPlayableMatchTopic,
   promptForTopic,
   shuffleList,
 } from "./matchGame";
@@ -50,20 +52,30 @@ describe("matchGame", () => {
     expect(MATCH_UNLOCK_COUNT).toBe(4);
   });
 
-  it("uses analogy text when explanationStyle is analogies", () => {
-    expect(promptForTopic(topics[0], "analogies")).toBe(
-      "Like nested Russian dolls.",
-    );
+  it("uses the short simple definition, not the analogy", () => {
+    expect(promptForTopic(topics[0])).toBe("A function that calls itself.");
   });
 
-  it("uses the technical definition when explanationStyle is technical", () => {
-    expect(promptForTopic(topics[0], "technical")).toBe(
-      "A process defined in terms of itself.",
-    );
+  it("shortens a long meaning to one sentence", () => {
+    expect(
+      compactMeaning(
+        "A loop that calls itself again.\n\nIt keeps going until a base case stops it. Then it unwinds.",
+      ),
+    ).toBe("A loop that calls itself again.");
+  });
+
+  it("skips throwaway test cards", () => {
+    expect(
+      isPlayableMatchTopic({
+        _id: "t",
+        term: "test",
+        simpleDefinition: "Just checking the app.",
+      }),
+    ).toBe(false);
   });
 
   it("builds a four-pair round with matching ids on both sides", () => {
-    const round = buildMatchRound(topics, "straight", {
+    const round = buildMatchRound(topics, {
       random: sequentialRandom(),
     });
 
@@ -75,8 +87,20 @@ describe("matchGame", () => {
     expect(termIds).toEqual(promptIds);
   });
 
+  it("ignores test cards when picking a round", () => {
+    const round = buildMatchRound(
+      [
+        ...topics,
+        { _id: "t", term: "test", simpleDefinition: "A throwaway save." },
+      ],
+      { random: sequentialRandom() },
+    );
+
+    expect(round.terms.map((tile) => tile.label)).not.toContain("test");
+  });
+
   it("returns null when there are not enough cards", () => {
-    expect(buildMatchRound(topics.slice(0, 2), "straight")).toBeNull();
+    expect(buildMatchRound(topics.slice(0, 2))).toBeNull();
   });
 
   it("shuffles without dropping items", () => {

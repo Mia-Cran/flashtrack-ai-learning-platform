@@ -15,7 +15,7 @@ import {
   IconPuzzle,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
-import { MATCH_UNLOCK_COUNT } from "../../utils/matchGame";
+import { MATCH_UNLOCK_COUNT, playableMatchTopics } from "../../utils/matchGame";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
@@ -301,7 +301,8 @@ function DashboardPage({
   }
 
   const quizzesUnlocked = totalSaved >= QUIZ_UNLOCK_COUNT;
-  const matchUnlocked = totalSaved >= MATCH_UNLOCK_COUNT;
+  const playableMatchCount = playableMatchTopics(savedTopics).length;
+  const matchUnlocked = playableMatchCount >= MATCH_UNLOCK_COUNT;
   const quizTopics = [...savedTopics].sort(
     (a, b) => (getSavedAt(b._id) ?? 0) - (getSavedAt(a._id) ?? 0),
   );
@@ -454,26 +455,26 @@ function DashboardPage({
         {!matchUnlocked ? (
           <div className="dashboard__quiz-locked">
             <p className="dashboard__quiz-locked-text">
-              Save {MATCH_UNLOCK_COUNT} flashcards, then pair each term with
-              its meaning. Short round, no timer.
+              Save {MATCH_UNLOCK_COUNT} real flashcards, then pair each term
+              with its meaning. Test cards don’t count. Short round, no timer.
             </p>
             <div
               className="dashboard__quiz-progress"
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={MATCH_UNLOCK_COUNT}
-              aria-valuenow={totalSaved}
-              aria-label={`${totalSaved} of ${MATCH_UNLOCK_COUNT} topics saved for Match`}
+              aria-valuenow={playableMatchCount}
+              aria-label={`${playableMatchCount} of ${MATCH_UNLOCK_COUNT} playable cards for Match`}
             >
               <div
                 className="dashboard__quiz-progress-fill"
                 style={{
-                  width: `${Math.min(100, (totalSaved / MATCH_UNLOCK_COUNT) * 100)}%`,
+                  width: `${Math.min(100, (playableMatchCount / MATCH_UNLOCK_COUNT) * 100)}%`,
                 }}
               />
             </div>
             <p className="dashboard__quiz-progress-label">
-              {totalSaved} / {MATCH_UNLOCK_COUNT} saved
+              {playableMatchCount} / {MATCH_UNLOCK_COUNT} ready
             </p>
           </div>
         ) : (

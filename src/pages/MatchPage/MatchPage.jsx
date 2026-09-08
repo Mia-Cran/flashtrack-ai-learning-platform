@@ -4,13 +4,13 @@ import { IconPuzzle } from "@tabler/icons-react";
 import {
   MATCH_UNLOCK_COUNT,
   buildMatchRound,
+  playableMatchTopics,
 } from "../../utils/matchGame";
 import "./MatchPage.css";
 
 function MatchPage({
   isLoggedIn,
   savedTopics = [],
-  explanationStyle = "analogies",
 }) {
   const [pinnedRound, setPinnedRound] = useState(null);
   const [selectedTermId, setSelectedTermId] = useState(null);
@@ -18,7 +18,8 @@ function MatchPage({
   const [matchedIds, setMatchedIds] = useState(() => new Set());
   const [status, setStatus] = useState("Tap a term, then tap its meaning.");
 
-  const round = pinnedRound ?? buildMatchRound(savedTopics, explanationStyle);
+  const playableCount = playableMatchTopics(savedTopics).length;
+  const round = pinnedRound ?? buildMatchRound(savedTopics);
   if (pinnedRound === null && round) {
     setPinnedRound(round);
   }
@@ -98,7 +99,7 @@ function MatchPage({
     setMatchedIds(new Set());
     resetSelection();
     setStatus("Tap a term, then tap its meaning.");
-    setPinnedRound(buildMatchRound(savedTopics, explanationStyle));
+    setPinnedRound(buildMatchRound(savedTopics));
   }
 
   return (
@@ -116,8 +117,8 @@ function MatchPage({
       {!round ? (
         <div className="match-page__empty">
           <p>
-            Save {MATCH_UNLOCK_COUNT} flashcards to play Match. You have{" "}
-            {savedTopics.length}.
+            Save {MATCH_UNLOCK_COUNT} real flashcards to play Match. Test
+            cards don’t count. You have {playableCount} ready.
           </p>
           <Link to="/search" className="match-page__button match-page__button--primary">
             Search a topic
@@ -190,22 +191,23 @@ function MatchPage({
             </div>
           </div>
 
+          <div className="match-page__actions">
+            <button
+              type="button"
+              className="match-page__button match-page__button--primary"
+              onClick={handlePlayAgain}
+            >
+              {isComplete ? "Play again" : "New round"}
+            </button>
+            {isComplete && (
+              <Link to="/home" className="match-page__button match-page__button--secondary">
+                Back to dashboard
+              </Link>
+            )}
+          </div>
+
           {isComplete && (
-            <div className="match-page__complete">
-              <p>You matched every pair.</p>
-              <div className="match-page__actions">
-                <button
-                  type="button"
-                  className="match-page__button match-page__button--primary"
-                  onClick={handlePlayAgain}
-                >
-                  Play again
-                </button>
-                <Link to="/home" className="match-page__button match-page__button--secondary">
-                  Back to dashboard
-                </Link>
-              </div>
-            </div>
+            <p className="match-page__complete-note">You matched every pair.</p>
           )}
         </>
       )}

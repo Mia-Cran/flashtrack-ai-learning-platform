@@ -47,8 +47,7 @@
   color: #1c1b19;
 }
 
-.match-page__empty,
-.match-page__complete {
+.match-page__empty {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -59,7 +58,7 @@
 }
 
 .match-page__empty p,
-.match-page__complete p {
+.match-page__complete-note {
   margin: 0;
   font-size: 16px;
   line-height: 1.5;
@@ -80,7 +79,8 @@
 
 .match-page__tile {
   width: 100%;
-  min-height: 72px;
+  min-height: 92px;
+  height: 92px;
   padding: 14px 16px;
   border: 2px solid #e4dcc8;
   border-radius: 12px;
@@ -96,9 +96,9 @@
 .match-page__tile--prompt {
   font-weight: 500;
   font-size: 15px;
-  line-height: 1.45;
+  line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

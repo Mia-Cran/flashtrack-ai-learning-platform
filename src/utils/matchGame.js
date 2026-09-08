@@ -1,16 +1,69 @@
 export const MATCH_UNLOCK_COUNT = 4;
 export const MATCH_PAIR_COUNT = 4;
 
-export function promptForTopic(topic, explanationStyle) {
-  if (explanationStyle === "technical" && topic.technicalDefinition) {
-    return topic.technicalDefinition;
+const THROWAWAY_TERMS = new Set([
+  "test",
+  "testing",
+  "asdf",
+  "foo",
+  "bar",
+  "hello",
+  "hi",
+  "n/a",
+  "placeholder",
+]);
+
+function oneLine(text) {
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Match tiles need a short meaning, not a paragraph. Analogies and
+// technical definitions made the board look like cut-off essays.
+export function compactMeaning(text) {
+  const cleaned = oneLine(text);
+
+  if (!cleaned) {
+    return "";
   }
 
-  if (explanationStyle === "analogies" && topic.analogy) {
-    return topic.analogy;
+  const sentence = cleaned.match(/^.+?[.!?](?:\s|$)/);
+  const short = (sentence ? sentence[0] : cleaned).trim();
+
+  if (short.length <= 140) {
+    return short;
   }
 
-  return topic.simpleDefinition || "";
+  return `${short.slice(0, 137).trim()}…`;
+}
+
+export function promptForTopic(topic) {
+  return compactMeaning(topic?.simpleDefinition);
+}
+
+export function isPlayableMatchTopic(topic) {
+  const term = oneLine(topic?.term);
+
+  if (!topic?._id || !term) {
+    return false;
+  }
+
+  if (THROWAWAY_TERMS.has(term.toLowerCase())) {
+    return false;
+  }
+
+  const meaning = promptForTopic(topic);
+
+  if (!meaning || /may refer to:/i.test(meaning)) {
+    return false;
+  }
+
+  return true;
+}
+
+export function playableMatchTopics(topics) {
+  return (topics || []).filter(isPlayableMatchTopic);
 }
 
 export function shuffleList(items, random = Math.random) {
@@ -26,15 +79,13 @@ export function shuffleList(items, random = Math.random) {
   return next;
 }
 
-// One round is four saved cards: terms in one column, matching prompts in
-// the other. Prompt text follows explanationStyle so analogical learners
-// match analogies and technical learners match technical definitions.
-export function buildMatchRound(topics, explanationStyle, options = {}) {
+// One round is four saved cards: terms in one column, matching short
+// definitions in the other. Throwaway "test" saves are skipped so they
+// don't show up as weird options.
+export function buildMatchRound(topics, options = {}) {
   const pairCount = options.pairCount ?? MATCH_PAIR_COUNT;
   const random = options.random ?? Math.random;
-  const usable = (topics || []).filter(
-    (topic) => topic?._id && topic.term && promptForTopic(topic, explanationStyle),
-  );
+  const usable = playableMatchTopics(topics);
 
   if (usable.length < pairCount) {
     return null;
@@ -50,7 +101,7 @@ export function buildMatchRound(topics, explanationStyle, options = {}) {
     prompts: shuffleList(
       picked.map((topic) => ({
         id: String(topic._id),
-        label: promptForTopic(topic, explanationStyle),
+        label: promptForTopic(topic),
       })),
       random,
     ),
