@@ -5,6 +5,7 @@ const {
   REVIEW_MAX_TOPICS,
   generateReviewQuestions,
 } = require("../utils/reviewQuizGeneration");
+const { playableReviewTopics } = require("../utils/playableTopics");
 
 const withoutAnswers = (question) => {
   const publicQuestion =
@@ -18,14 +19,15 @@ const withoutAnswers = (question) => {
 // Builds a fresh mixed MC quiz from the learner's most recent saved cards.
 const generateReviewQuiz = async (req, res) => {
   try {
-    const topics = await Topic.find({ owner: req.user._id })
+    const recent = await Topic.find({ owner: req.user._id })
       .sort({ _id: -1 })
-      .limit(REVIEW_MAX_TOPICS)
+      .limit(40)
       .select("_id term");
+    const topics = playableReviewTopics(recent).slice(0, REVIEW_MAX_TOPICS);
 
     if (topics.length < REVIEW_MIN_TOPICS) {
       return res.status(400).send({
-        message: `Save at least ${REVIEW_MIN_TOPICS} flashcards before starting a review quiz.`,
+        message: `Save at least ${REVIEW_MIN_TOPICS} real flashcards before starting a review quiz. Test cards don’t count.`,
         savedCount: topics.length,
         requiredCount: REVIEW_MIN_TOPICS,
       });

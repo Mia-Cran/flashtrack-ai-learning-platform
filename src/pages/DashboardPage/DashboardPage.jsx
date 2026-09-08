@@ -15,7 +15,11 @@ import {
   IconPuzzle,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
-import { MATCH_UNLOCK_COUNT, playableMatchTopics } from "../../utils/matchGame";
+import {
+  MATCH_UNLOCK_COUNT,
+  compactMeaning,
+  playableSavedTopics,
+} from "../../utils/matchGame";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
@@ -64,7 +68,7 @@ function getDayStreak(savedTopics) {
 }
 
 function getRecentTopics(savedTopics) {
-  return [...savedTopics]
+  return playableSavedTopics(savedTopics)
     .sort((a, b) => (getSavedAt(b._id) ?? 0) - (getSavedAt(a._id) ?? 0))
     .slice(0, RECENT_TOPICS_LIMIT);
 }
@@ -195,6 +199,8 @@ function DashboardPage({
   }
 
   const totalSaved = savedTopics.length;
+  const playableTopics = playableSavedTopics(savedTopics);
+  const playableCount = playableTopics.length;
   const dayStreak = getDayStreak(savedTopics);
   const recentTopics = getRecentTopics(savedTopics);
   const subjectCount = getSubjectNames(savedTopics).size;
@@ -300,10 +306,10 @@ function DashboardPage({
     }
   }
 
-  const quizzesUnlocked = totalSaved >= QUIZ_UNLOCK_COUNT;
-  const playableMatchCount = playableMatchTopics(savedTopics).length;
+  const quizzesUnlocked = playableCount >= QUIZ_UNLOCK_COUNT;
+  const playableMatchCount = playableCount;
   const matchUnlocked = playableMatchCount >= MATCH_UNLOCK_COUNT;
-  const quizTopics = [...savedTopics].sort(
+  const quizTopics = [...playableTopics].sort(
     (a, b) => (getSavedAt(b._id) ?? 0) - (getSavedAt(a._id) ?? 0),
   );
 
@@ -438,7 +444,7 @@ function DashboardPage({
               <div className="dashboard__recent-card" key={topic._id}>
                 <span className="dashboard__recent-title">{topic.term}</span>
                 <span className="dashboard__recent-simple">
-                  {topic.simpleDefinition}
+                  {compactMeaning(topic.simpleDefinition)}
                 </span>
               </div>
             ))}
@@ -502,26 +508,27 @@ function DashboardPage({
         {!quizzesUnlocked ? (
           <div className="dashboard__quiz-locked">
             <p className="dashboard__quiz-locked-text">
-              Save {QUIZ_UNLOCK_COUNT} flashcards to unlock a review quiz across
-              those cards. Missed topics get a focused practice quiz next.
+              Save {QUIZ_UNLOCK_COUNT} real flashcards to unlock a review quiz
+              across those cards. Test cards don’t count. Missed topics get a
+              focused practice quiz next.
             </p>
             <div
               className="dashboard__quiz-progress"
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={QUIZ_UNLOCK_COUNT}
-              aria-valuenow={totalSaved}
-              aria-label={`${totalSaved} of ${QUIZ_UNLOCK_COUNT} topics saved`}
+              aria-valuenow={playableCount}
+              aria-label={`${playableCount} of ${QUIZ_UNLOCK_COUNT} playable cards saved`}
             >
               <div
                 className="dashboard__quiz-progress-fill"
                 style={{
-                  width: `${Math.min(100, (totalSaved / QUIZ_UNLOCK_COUNT) * 100)}%`,
+                  width: `${Math.min(100, (playableCount / QUIZ_UNLOCK_COUNT) * 100)}%`,
                 }}
               />
             </div>
             <p className="dashboard__quiz-progress-label">
-              {totalSaved} / {QUIZ_UNLOCK_COUNT} saved
+              {playableCount} / {QUIZ_UNLOCK_COUNT} ready
             </p>
             <Link to="/search" className="dashboard__link dashboard__link--primary">
               <IconSearch size={18} stroke={2} aria-hidden="true" />

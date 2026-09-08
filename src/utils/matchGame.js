@@ -66,6 +66,8 @@ export function playableMatchTopics(topics) {
   return (topics || []).filter(isPlayableMatchTopic);
 }
 
+export const playableSavedTopics = playableMatchTopics;
+
 export function shuffleList(items, random = Math.random) {
   const next = [...items];
 

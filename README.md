@@ -31,7 +31,7 @@ Browser (React)  --HTTP/JSON-->  Express API  -->  MongoDB
 - **Accounts** with signup and login (passwords are bcrypt-hashed; sessions use a JWT that expires in 7 days)
 - **Saved topics** stored in MongoDB per user
 - **Regenerate** a saved card at a different difficulty
-- **Quizzes by topic** — after **5+** saved cards, take a multiple-choice quiz for any one flashcard
+- **Quizzes by topic** — after **5+** real saved cards (not throwaway “test” saves), take a multiple-choice quiz for any one flashcard
 - **Review quiz** — mixed MC quiz across recent cards (up to 10); topics you miss unlock a focused practice quiz
 - **Match game** — after **4+** real saved cards (not throwaway “test” saves), pair terms with their short definitions. No timer.
 - **Learner profile** (Settings): preferred explanation style, question type, pacing, and which card sections open by default

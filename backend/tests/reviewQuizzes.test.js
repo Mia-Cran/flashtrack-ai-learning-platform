@@ -51,6 +51,48 @@ test("review quiz needs at least 5 saved topics", async () => {
   assert.match(res.body.message, /at least 5/i);
 });
 
+test("review quiz ignores throwaway test cards", async () => {
+  const { authHeader } = await createUser();
+  await saveTopics(authHeader, 5);
+  await request(app)
+    .post("/topics")
+    .set(authHeader)
+    .send({
+      term: "test",
+      simpleDefinition: "Just checking the app.",
+      beginnerDefinition: "Beginner.",
+      technicalDefinition: "Technical.",
+      analogy: "Analogy.",
+      commonMistake: "Mistake.",
+      relatedTopics: ["Related"],
+      category: "Programming",
+      difficulty: "Beginner",
+    });
+
+  fakeOpenAI({
+    responsesByName: {
+      review_quiz_questions: {
+        questions: [1, 2, 3, 4, 5].map((n) => ({
+          topicTerm: `Topic ${n}`,
+          text: `Question about Topic ${n}?`,
+          options: ["A", "B", "C", "D"],
+          correctAnswer: "A",
+          explanation: "Because A.",
+        })),
+      },
+    },
+  });
+
+  const created = await request(app)
+    .post("/quizzes/review/generate")
+    .set(authHeader);
+
+  assert.equal(created.status, 201);
+  assert.equal(created.body.questions.length, 5);
+  const terms = created.body.questions.map((question) => question.term);
+  assert.equal(terms.includes("test"), false);
+});
+
 test("review quiz grades misses by topic", async () => {
   const { authHeader } = await createUser();
   const topicIds = await saveTopics(authHeader, 5);
