@@ -252,7 +252,10 @@ function DashboardPage({
       const res = await fetch(`${API_BASE_URL}/quizzes/${topicId}/generate`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ questionType: "multipleChoice" }),
+        body: JSON.stringify({
+          questionType: "multipleChoice",
+          regenerate: true,
+        }),
       });
 
       if (!res.ok && res.status !== 409) {

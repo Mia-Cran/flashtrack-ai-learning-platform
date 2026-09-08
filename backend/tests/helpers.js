@@ -95,8 +95,8 @@ const sampleStudyGuide = {
 
 const sampleQuizLevel = {
   questions: [1, 2, 3, 4, 5].map((n) => ({
-    text: `Question ${n}?`,
-    options: ["A", "B", "C", "D"],
+    text: `What is a true statement about recursion (${n})?`,
+    options: ["A function that calls itself", "A database index", "A CSS selector", "A Git command"],
     correctAnswer: "A",
     explanation: "Because A.",
   })),

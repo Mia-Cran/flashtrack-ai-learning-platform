@@ -67,6 +67,37 @@ test("generating again returns the existing quiz without calling the model", asy
   assert.equal(calls.length, 3);
 });
 
+test("regenerate replaces the stored quiz", async () => {
+  const { authHeader } = await createUser();
+  const topicId = await savedTopic(authHeader);
+  const calls = fakeOpenAI({ responsesByName: { quiz_questions: sampleQuizLevel } });
+
+  const first = await request(app).post(`/quizzes/${topicId}/generate`).set(authHeader);
+  const second = await request(app)
+    .post(`/quizzes/${topicId}/generate`)
+    .set(authHeader)
+    .send({ regenerate: true });
+
+  assert.equal(first.status, 201);
+  assert.equal(second.status, 201);
+  assert.notEqual(second.body._id, first.body._id);
+  assert.equal(calls.length, 6);
+});
+
+test("throwaway test cards cannot get a quiz", async () => {
+  const { authHeader } = await createUser();
+  const created = await request(app).post("/topics").set(authHeader).send({
+    ...topicBody,
+    term: "test",
+  });
+  const res = await request(app)
+    .post(`/quizzes/${created.body._id}/generate`)
+    .set(authHeader);
+
+  assert.equal(res.status, 400);
+  assert.match(res.body.message, /test card/i);
+});
+
 test("the learner's preferred question type is used", async () => {
   const { user, authHeader } = await createUser();
   await LearnerProfile.create({ user: user._id, learningPreferences: { questionType: "trueFalse" } });

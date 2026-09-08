@@ -22,7 +22,7 @@ const generateReviewQuiz = async (req, res) => {
     const recent = await Topic.find({ owner: req.user._id })
       .sort({ _id: -1 })
       .limit(40)
-      .select("_id term");
+      .select("_id term simpleDefinition");
     const topics = playableReviewTopics(recent).slice(0, REVIEW_MAX_TOPICS);
 
     if (topics.length < REVIEW_MIN_TOPICS) {

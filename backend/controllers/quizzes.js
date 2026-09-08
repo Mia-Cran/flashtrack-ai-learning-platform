@@ -5,12 +5,14 @@ const LearnerProfile = require("../models/learnerProfile");
 const { generateQuizQuestions } = require("../utils/quizGeneration");
 const { DIFFICULTY_LEVELS } = require("../utils/studyGuide");
 const { refreshStrengthsAndStruggles } = require("../utils/progress");
+const { isThrowawayTerm } = require("../utils/playableTopics");
 
 // POST /quizzes/:topicId/generate (signed in)
 //
-// Creates the quiz for one of the caller's saved topics. A topic only ever
-// has one quiz, so a second call returns the existing one with 200 instead
-// of generating again (generation costs three OpenAI calls).
+// Creates the quiz for one of the caller's saved topics. A second call
+// returns the existing one unless the body has regenerate: true — then
+// the old quiz is replaced. Dashboard Take Quiz sends regenerate so a
+// bad first generation (test card, letter-only options) doesn't stick.
 const generateQuiz = async (req, res) => {
   const { topicId } = req.params;
 
@@ -20,9 +22,21 @@ const generateQuiz = async (req, res) => {
       return res.status(404).send({ message: "Topic not found" });
     }
 
+    if (isThrowawayTerm(topic.term)) {
+      return res.status(400).send({
+        message: "That looks like a test card. Save a real topic, then quiz on it.",
+      });
+    }
+
     const existingQuiz = await Quiz.findOne({ topic: topicId });
-    if (existingQuiz) {
+    const regenerate = Boolean(req.body?.regenerate);
+
+    if (existingQuiz && !regenerate) {
       return res.status(200).send(existingQuiz);
+    }
+
+    if (existingQuiz && regenerate) {
+      await Quiz.deleteOne({ _id: existingQuiz._id });
     }
 
     // Use an explicit type from the request when provided (e.g. dashboard
@@ -38,7 +52,9 @@ const generateQuiz = async (req, res) => {
       ? requestedType
       : profile?.learningPreferences?.questionType || "multipleChoice";
 
-    const questions = await generateQuizQuestions(topic.term, questionType);
+    const questions = await generateQuizQuestions(topic.term, questionType, {
+      simpleDefinition: topic.simpleDefinition,
+    });
 
     const quiz = await Quiz.create({ topic: topicId, questions });
     return res.status(201).send(quiz);

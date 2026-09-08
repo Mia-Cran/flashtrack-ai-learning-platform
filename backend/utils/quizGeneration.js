@@ -8,6 +8,7 @@
 
 const openai = require("./openai");
 const { MODEL, DIFFICULTY_LEVELS } = require("./studyGuide");
+const { normalizeMcOptions, optionsLookLikeLettersOnly } = require("./quizOptions");
 
 const QUESTIONS_PER_LEVEL = 5;
 
@@ -51,20 +52,26 @@ const QUESTIONS_SCHEMA = {
   additionalProperties: false,
 };
 
-function buildInstructions(term, questionType, level) {
-  return `You are an expert quiz writer for educational content.
+function buildInstructions(term, questionType, level, simpleDefinition) {
+  const meaning = simpleDefinition
+    ? `The student saved this flashcard. Term: "${term}". Meaning: "${simpleDefinition}". Write questions that test that meaning — not a generic word, and not a made-up placeholder.`
+    : `Write questions about the topic "${term}".`;
 
-Write exactly ${QUESTIONS_PER_LEVEL} ${questionType} questions about the topic "${term}" at ${level} level. ${LEVEL_FOCUS[level]}
+  return `You are an expert quiz writer for educational flashcards.
+
+${meaning}
+
+Write exactly ${QUESTIONS_PER_LEVEL} ${questionType} questions at ${level} level. ${LEVEL_FOCUS[level]}
 
 Rules for ${questionType} questions: ${TYPE_RULES[questionType]}
 
-Every question needs: text, options, correctAnswer, and a one- or two-sentence explanation of why the answer is correct. Questions must be answerable from general knowledge of the topic and must not depend on each other.`;
+Every question needs: text, options, correctAnswer, and a one- or two-sentence explanation of why the answer is correct. Questions must be answerable from the flashcard meaning above. Do not number the questions "Question 1". Do not use options that are only the letters A, B, C, or D — each option must be a real answer.`;
 }
 
-async function generateLevel(term, questionType, level) {
+async function requestLevel(term, questionType, level, simpleDefinition) {
   const response = await openai.responses.create({
     model: MODEL,
-    instructions: buildInstructions(term, questionType, level),
+    instructions: buildInstructions(term, questionType, level, simpleDefinition),
     input: `Write the ${level} quiz for: ${term}`,
     text: {
       format: {
@@ -81,24 +88,70 @@ async function generateLevel(term, questionType, level) {
   // Stamp the type on every question so the frontend can render the right
   // control, and keep true/false answers as strings so grading compares
   // like with like (the quiz page sends booleans; grading stringifies both).
-  return questions.slice(0, QUESTIONS_PER_LEVEL).map((question) => ({
-    text: question.text,
-    type: questionType,
-    options: questionType === "shortAnswer" ? [] : question.options,
-    correctAnswer: String(question.correctAnswer),
-    explanation: question.explanation,
-  }));
+  return questions.slice(0, QUESTIONS_PER_LEVEL).map((question) => {
+    const options =
+      questionType === "shortAnswer"
+        ? []
+        : questionType === "multipleChoice"
+          ? normalizeMcOptions(question.options)
+          : question.options;
+
+    return {
+      text: question.text,
+      type: questionType,
+      options,
+      correctAnswer: String(question.correctAnswer),
+      explanation: question.explanation,
+    };
+  });
+}
+
+async function generateLevel(term, questionType, level, simpleDefinition) {
+  const mapped = await requestLevel(term, questionType, level, simpleDefinition);
+
+  // The model sometimes returns options ["A","B","C","D"] because
+  // correctAnswer is a letter. That's not a quiz — ask once more.
+  if (
+    questionType === "multipleChoice" &&
+    mapped.some((question) => optionsLookLikeLettersOnly(question.options))
+  ) {
+    return requestLevel(term, questionType, level, simpleDefinition);
+  }
+
+  return mapped;
 }
 
 // Returns { Beginner: [...], Intermediate: [...], Advanced: [...] }.
-async function generateQuizQuestions(term, questionType = "multipleChoice") {
+async function generateQuizQuestions(
+  term,
+  questionType = "multipleChoice",
+  { simpleDefinition } = {},
+) {
   const type = QUESTION_TYPES.includes(questionType) ? questionType : "multipleChoice";
 
   const levels = await Promise.all(
-    DIFFICULTY_LEVELS.map((level) => generateLevel(term, type, level)),
+    DIFFICULTY_LEVELS.map((level) =>
+      generateLevel(term, type, level, simpleDefinition),
+    ),
   );
 
-  return Object.fromEntries(DIFFICULTY_LEVELS.map((level, i) => [level, levels[i]]));
+  const questions = Object.fromEntries(
+    DIFFICULTY_LEVELS.map((level, i) => [level, levels[i]]),
+  );
+
+  if (type === "multipleChoice") {
+    for (const level of DIFFICULTY_LEVELS) {
+      if (
+        (questions[level] || []).some((question) =>
+          optionsLookLikeLettersOnly(question.options),
+        )
+      ) {
+        throw new Error(`${level} quiz came back with letter-only options`);
+      }
+    }
+  }
+
+  return questions;
 }
 
 module.exports = {
