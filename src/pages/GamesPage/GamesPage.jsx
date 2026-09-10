@@ -8,8 +8,10 @@ import { MATCH_UNLOCK_COUNT, playableMatchTopics } from "../../utils/matchGame";
 import { SPOT_UNLOCK_COUNT, playableSpotTopics } from "../../utils/spotGame";
 import { HEAR_UNLOCK_COUNT, playableHearTopics } from "../../utils/hearGame";
 import "./GamesPage.css";
+import { useT } from "../../i18n";
 
 function GamesPage({ isLoggedIn, savedTopics = [] }) {
+  const t = useT();
   const matchCount = playableMatchTopics(savedTopics).length;
   const spotCount = playableSpotTopics(savedTopics).length;
   const hearCount = playableHearTopics(savedTopics).length;
@@ -24,30 +26,27 @@ function GamesPage({ isLoggedIn, savedTopics = [] }) {
   return (
     <section className="games-page">
       <header className="games-page__header">
-        <h1 className="games-page__title">Games</h1>
-        <p className="games-page__lede">
-          Short rounds from your saved cards. One choice at a time — no
-          timer, and a miss just means try again.
-        </p>
+        <h1 className="games-page__title">{t("games.title")}</h1>
+        <p className="games-page__lede">{t("games.lede")}</p>
       </header>
 
       <div className="games-page__grid">
         <article className="games-page__card">
           <h2 className="games-page__card-title">
             <IconPuzzle size={22} stroke={1.75} aria-hidden="true" />
-            Match
+            {t("games.match")}
           </h2>
-          <p className="games-page__card-copy">
-            Pair four saved terms with their meanings.
-          </p>
+          <p className="games-page__card-copy">{t("games.matchCopy")}</p>
           {matchUnlocked ? (
             <Link to="/match" className="games-page__button">
-              Play Match
+              {t("games.playMatch")}
             </Link>
           ) : (
             <p className="games-page__locked">
-              Save {MATCH_UNLOCK_COUNT} real flashcards to unlock. You have{" "}
-              {matchCount} ready.
+              {t("games.locked", {
+                need: MATCH_UNLOCK_COUNT,
+                have: matchCount,
+              })}
             </p>
           )}
         </article>
@@ -55,19 +54,19 @@ function GamesPage({ isLoggedIn, savedTopics = [] }) {
         <article className="games-page__card">
           <h2 className="games-page__card-title">
             <IconAlertTriangle size={22} stroke={1.75} aria-hidden="true" />
-            Spot the mistake
+            {t("games.spot")}
           </h2>
-          <p className="games-page__card-copy">
-            See a term and two statements. Tap the common mix-up.
-          </p>
+          <p className="games-page__card-copy">{t("games.spotCopy")}</p>
           {spotUnlocked ? (
             <Link to="/spot" className="games-page__button">
-              Play Spot the mistake
+              {t("games.playSpot")}
             </Link>
           ) : (
             <p className="games-page__locked">
-              Save {SPOT_UNLOCK_COUNT} real flashcards to unlock. You have{" "}
-              {spotCount} ready.
+              {t("games.locked", {
+                need: SPOT_UNLOCK_COUNT,
+                have: spotCount,
+              })}
             </p>
           )}
         </article>
@@ -75,19 +74,19 @@ function GamesPage({ isLoggedIn, savedTopics = [] }) {
         <article className="games-page__card">
           <h2 className="games-page__card-title">
             <IconVolume size={22} stroke={1.75} aria-hidden="true" />
-            Hear & pick
+            {t("games.hear")}
           </h2>
-          <p className="games-page__card-copy">
-            Hear a saved term, then tap its meaning.
-          </p>
+          <p className="games-page__card-copy">{t("games.hearCopy")}</p>
           {hearUnlocked ? (
             <Link to="/hear" className="games-page__button">
-              Play Hear & pick
+              {t("games.playHear")}
             </Link>
           ) : (
             <p className="games-page__locked">
-              Save {HEAR_UNLOCK_COUNT} real flashcards to unlock. You have{" "}
-              {hearCount} ready.
+              {t("games.locked", {
+                need: HEAR_UNLOCK_COUNT,
+                have: hearCount,
+              })}
             </p>
           )}
         </article>

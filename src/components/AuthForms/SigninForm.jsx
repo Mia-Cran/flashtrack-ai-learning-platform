@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "./AuthForms.css";
+import { useT } from "../../i18n";
 
 function SigninForm({ onSignin, onSuccess }) {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,7 +20,7 @@ function SigninForm({ onSignin, onSuccess }) {
       })
       .catch((err) => {
         console.error(err);
-        setError("Incorrect email or password. Please try again.");
+        setError(t("auth.signinError"));
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -32,7 +34,7 @@ function SigninForm({ onSignin, onSuccess }) {
         type="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
-        placeholder="Email"
+        placeholder={t("auth.email")}
         required
       />
 
@@ -41,7 +43,7 @@ function SigninForm({ onSignin, onSuccess }) {
         type="password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
-        placeholder="Password"
+        placeholder={t("auth.password")}
         required
       />
 
@@ -52,7 +54,7 @@ function SigninForm({ onSignin, onSuccess }) {
         aria-busy={isSubmitting}
       >
         {isSubmitting && <span className="auth-form__spinner" aria-hidden="true" />}
-        {isSubmitting ? "Signing In..." : "Sign In"}
+        {isSubmitting ? t("auth.signingIn") : t("auth.signIn")}
       </button>
 
       {error && (

@@ -21,6 +21,7 @@ const getLearnerProfile = (req, res) => {
 const updateLearnerProfile = (req, res) => {
   const {
     preferredDifficulty,
+    preferredLanguage,
     learningPreferences,
     accessibilityPreferences,
     studentStage,
@@ -31,6 +32,10 @@ const updateLearnerProfile = (req, res) => {
 
   if (preferredDifficulty !== undefined) {
     update.preferredDifficulty = preferredDifficulty;
+  }
+
+  if (preferredLanguage !== undefined) {
+    update.preferredLanguage = preferredLanguage;
   }
 
   if (learningPreferences !== undefined) {

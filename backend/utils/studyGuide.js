@@ -104,6 +104,12 @@ function buildPersonalizationInstructions(profile) {
     lines.push(`- Explanation style: ${styleInstruction}`);
   }
 
+  if (profile.preferredLanguage === "es") {
+    lines.push(
+      "- Language (Spanish): Write EVERY learner-facing text field in Spanish: title, simpleDefinition, beginnerExplanation, technicalDefinition, analogy, commonMistake, category, and relatedTopics. Code in codeExample may stay in its programming language; any comments or surrounding prose must be Spanish. Keep suggestedSubject as the exact English name from the subject list. Keep difficulty as exactly Beginner, Intermediate, or Advanced (English enum values).",
+    );
+  }
+
   if (lines.length === 0) {
     return "";
   }
@@ -132,7 +138,7 @@ Accept all other terms, including food items, everyday objects, or niche topics 
 
 If the search term is invalid gibberish, respond with "INVALID_TOPIC" as a single word in the title field and null for every other field.
 
-Teach beginners in clear, plain English.
+Teach beginners in clear, plain English (unless a language preference below says otherwise).
 
 Do not assume the student already understands specialized or technical language.
 

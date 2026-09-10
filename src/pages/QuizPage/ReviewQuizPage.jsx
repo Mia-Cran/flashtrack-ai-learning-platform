@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { API_BASE_URL } from "../../utils/api";
+import { useI18n } from "../../i18n";
 import "./QuizPage.css";
 
 function ReviewQuizPage() {
   const { reviewQuizId } = useParams();
   const navigate = useNavigate();
+  const { t } = useI18n();
+  const hasToken = Boolean(localStorage.getItem("jwt"));
   const [quiz, setQuiz] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(hasToken);
+  const [error, setError] = useState(
+    hasToken ? "" : t("quiz.mustLoginReview"),
+  );
   const [practiceLoadingId, setPracticeLoadingId] = useState(null);
 
   useEffect(() => {
@@ -20,8 +25,6 @@ function ReviewQuizPage() {
     const token = localStorage.getItem("jwt");
 
     if (!token) {
-      setError("You must be logged in to take a review quiz");
-      setIsLoading(false);
       return undefined;
     }
 
@@ -36,7 +39,7 @@ function ReviewQuizPage() {
       })
       .then((res) => {
         if (cancelled || res === null) return null;
-        if (!res.ok) throw new Error("Review quiz not found");
+        if (!res.ok) throw new Error(t("quiz.reviewNotFound"));
         return res.json();
       })
       .then((data) => {
@@ -57,7 +60,7 @@ function ReviewQuizPage() {
     return () => {
       cancelled = true;
     };
-  }, [reviewQuizId]);
+  }, [reviewQuizId, t]);
 
   async function handlePracticeTopic(topicId) {
     setPracticeLoadingId(topicId);
@@ -79,23 +82,27 @@ function ReviewQuizPage() {
 
       if (!res.ok && res.status !== 409) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Could not start practice quiz");
+        throw new Error(data.message || t("quiz.practiceError"));
       }
 
       navigate(`/quiz/${topicId}`);
     } catch (err) {
-      setError(err.message || "Could not start practice quiz");
+      setError(err.message || t("quiz.practiceError"));
     } finally {
       setPracticeLoadingId(null);
     }
   }
 
   if (isLoading) {
-    return <div className="quiz-page">Loading review quiz...</div>;
+    return <div className="quiz-page">{t("quiz.loadingReview")}</div>;
   }
 
   if (error && !quiz) {
-    return <div className="quiz-page">Error: {error}</div>;
+    return (
+      <div className="quiz-page">
+        {t("quiz.error", { message: error })}
+      </div>
+    );
   }
 
   const questions = quiz?.questions ?? [];
@@ -126,7 +133,7 @@ function ReviewQuizPage() {
   function handleSubmit() {
     const token = localStorage.getItem("jwt");
     if (!token) {
-      setError("You must be logged in to submit quizzes");
+      setError(t("quiz.mustLogin"));
       return;
     }
 
@@ -141,7 +148,7 @@ function ReviewQuizPage() {
       }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to submit review quiz");
+        if (!res.ok) throw new Error(t("quiz.failedSubmitReview"));
         return res.json();
       })
       .then((data) => {
@@ -159,7 +166,7 @@ function ReviewQuizPage() {
     return (
       <section className="quiz-page">
         <div className="quiz-result">
-          <h2>Review Complete!</h2>
+          <h2>{t("quiz.reviewComplete")}</h2>
           <div className="quiz-score">
             <div className="score-number">
               {result.score}/{result.maxScore}
@@ -174,14 +181,14 @@ function ReviewQuizPage() {
 
           {missedTopics.length === 0 ? (
             <p className="score-message">
-              Nice work — you got every topic right. Keep saving cards and
-              review again later.
+              {t("quiz.reviewNice")}
             </p>
           ) : (
             <>
               <p className="score-message">
-                You missed {missedTopics.length === 1 ? "this topic" : "these topics"}.
-                Practice each one with a focused quiz:
+                {missedTopics.length === 1
+                  ? t("quiz.missedOne")
+                  : t("quiz.missedMany")}
               </p>
               <ul className="quiz-missed-list">
                 {missedTopics.map((topic) => (
@@ -194,8 +201,8 @@ function ReviewQuizPage() {
                       disabled={practiceLoadingId === topic._id}
                     >
                       {practiceLoadingId === topic._id
-                        ? "Writing quiz..."
-                        : "Practice this topic"}
+                        ? t("quiz.writingQuiz")
+                        : t("quiz.practiceTopic")}
                     </button>
                   </li>
                 ))}
@@ -211,7 +218,7 @@ function ReviewQuizPage() {
 
           <div className="quiz-result-actions">
             <Link to="/home" className="quiz-restart-button">
-              Back to Dashboard
+              {t("quiz.backDashboard")}
             </Link>
           </div>
         </div>
@@ -222,10 +229,8 @@ function ReviewQuizPage() {
   return (
     <section className="quiz-page">
       <div className="quiz-header">
-        <h1>Review Quiz</h1>
-        <p className="quiz-subtitle">
-          One question from each of your recent flashcards
-        </p>
+        <h1>{t("quiz.reviewTitle")}</h1>
+        <p className="quiz-subtitle">{t("quiz.reviewSubtitle")}</p>
       </div>
 
       {error && (
@@ -245,7 +250,10 @@ function ReviewQuizPage() {
             />
           </div>
           <p className="progress-text">
-            Question {currentQuestionIndex + 1} of {total}
+            {t("quiz.questionOf", {
+              current: currentQuestionIndex + 1,
+              total,
+            })}
             {currentQuestion?.term ? ` · ${currentQuestion.term}` : ""}
           </p>
         </div>
@@ -286,7 +294,7 @@ function ReviewQuizPage() {
               onClick={handlePrevious}
               disabled={currentQuestionIndex === 0}
             >
-              ← Previous
+              {t("quiz.previous")}
             </button>
 
             <button
@@ -294,7 +302,7 @@ function ReviewQuizPage() {
               onClick={handleNext}
               disabled={responses[currentQuestionIndex] === null}
             >
-              {isLastQuestion ? "Submit" : "Next →"}
+              {isLastQuestion ? t("quiz.submit") : t("quiz.next")}
             </button>
           </div>
         </div>

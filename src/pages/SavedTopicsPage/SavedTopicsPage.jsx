@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import StudyCard from "../../components/StudyCard/StudyCard";
 import SubjectPicker from "../../components/SubjectPicker/SubjectPicker";
 import "./SavedTopicsPage.css";
+import { useT } from "../../i18n";
 
 function SavedTopicsPage({
   savedTopics,
@@ -15,6 +16,7 @@ function SavedTopicsPage({
   const [assigningTopicId, setAssigningTopicId] = useState(null);
   const [isAssigning, setIsAssigning] = useState(false);
   const navigate = useNavigate();
+  const t = useT();
 
   function handleRelatedTopicClick(term) {
     navigate("/search", { state: { searchTerm: term } });
@@ -39,12 +41,10 @@ function SavedTopicsPage({
 
   return (
     <section className="saved">
-      <h1 className="saved__title">Saved Topics</h1>
-      <p className="saved__description">
-        View and review your saved software engineering concepts.
-      </p>
+      <h1 className="saved__title">{t("saved.title")}</h1>
+      <p className="saved__description">{t("saved.description")}</p>
       {savedTopics.length === 0 ? (
-        <p className="saved__empty">No saved topics yet.</p>
+        <p className="saved__empty">{t("saved.empty")}</p>
       ) : (
         <div className="saved__topics">
           {savedTopics.map((topic) => (
@@ -52,7 +52,7 @@ function SavedTopicsPage({
               {!topic.subject && (
                 <div className="saved__uncategorized">
                   <span className="saved__uncategorized-pill">
-                    Uncategorized
+                    {t("subjects.uncategorized")}
                   </span>
 
                   {assigningTopicId === topic._id ? (
@@ -69,7 +69,7 @@ function SavedTopicsPage({
                       onClick={() => setAssigningTopicId(topic._id)}
                       disabled={isAssigning}
                     >
-                      Assign subject
+                      {t("saved.assignSubject")}
                     </button>
                   )}
                 </div>

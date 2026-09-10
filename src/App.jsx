@@ -15,8 +15,10 @@ import GamesPage from "./pages/GamesPage/GamesPage";
 import SpotPage from "./pages/SpotPage/SpotPage";
 import HearPage from "./pages/HearPage/HearPage";
 import Header from "./components/Header/Header";
+import LanguagePickerModal from "./components/LanguagePickerModal/LanguagePickerModal";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "./utils/api";
+import { LanguageProvider, normalizeLanguage } from "./i18n";
 
 function App() {
   const [savedTopics, setSavedTopics] = useState([]);
@@ -28,7 +30,9 @@ function App() {
   );
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [learnerProfile, setLearnerProfile] = useState(null);
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
 
+  const language = normalizeLanguage(learnerProfile?.preferredLanguage);
   const sectionsCollapsedByDefault =
     learnerProfile?.accessibilityPreferences?.sectionsCollapsedByDefault ??
     true;
@@ -37,6 +41,10 @@ function App() {
     learnerProfile?.accessibilityPreferences?.reduceMotion ?? false;
   const explanationStyle =
     learnerProfile?.learningPreferences?.explanationStyle ?? "analogies";
+
+  useEffect(() => {
+    document.documentElement.lang = language === "es" ? "es" : "en";
+  }, [language]);
 
   function loadTopics(token) {
     return fetch(`${API_BASE_URL}/topics`, {
@@ -175,6 +183,10 @@ function App() {
       })
       .then(() => {
         return handleSignin(email, password);
+      })
+      .then((token) => {
+        setShowLanguagePicker(true);
+        return token;
       });
   }
 
@@ -185,6 +197,7 @@ function App() {
     setIsLoggedIn(false);
     setUserName("");
     setLearnerProfile(null);
+    setShowLanguagePicker(false);
   }
 
   function handleSaveTopic(topic) {
@@ -335,6 +348,7 @@ function App() {
       });
   }
   return (
+    <LanguageProvider language={language}>
     <main
       className={`app${hasLargerText ? " app--larger-text" : ""}${
         hasReducedMotion ? " app--reduce-motion" : ""
@@ -463,7 +477,17 @@ function App() {
           element={<QuizPage />}
         />
       </Routes>
+      {showLanguagePicker && (
+        <LanguagePickerModal
+          onChoose={(preferredLanguage) =>
+            handleUpdateLearnerProfile({ preferredLanguage }).then(() => {
+              setShowLanguagePicker(false);
+            })
+          }
+        />
+      )}
     </main>
+    </LanguageProvider>
   );
 }
 

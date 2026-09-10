@@ -55,10 +55,21 @@ const QUESTIONS_SCHEMA = {
   additionalProperties: false,
 };
 
-function buildInstructions(term, questionType, level, simpleDefinition) {
+function buildInstructions(
+  term,
+  questionType,
+  level,
+  simpleDefinition,
+  preferredLanguage,
+) {
   const meaning = simpleDefinition
     ? `The student saved this flashcard. Term: "${term}". Meaning: "${simpleDefinition}". Write questions that test that meaning — not a generic word, and not a made-up placeholder.`
     : `Write questions about the topic "${term}".`;
+
+  const languageBlock =
+    preferredLanguage === "es"
+      ? `\n\nWrite every question text, option, short-answer correctAnswer, and explanation in Spanish. For true/false questions, keep options as ["true", "false"] and correctAnswer as "true" or "false" so grading still works.`
+      : "";
 
   return `You are an expert quiz writer for educational flashcards.
 
@@ -68,13 +79,25 @@ Write exactly ${QUESTIONS_PER_LEVEL} ${questionType} questions at ${level} level
 
 Rules for ${questionType} questions: ${TYPE_RULES[questionType]}
 
-Every question needs: text, options, correctAnswer, and a one- or two-sentence explanation of why the answer is correct. Questions must be answerable from the flashcard meaning above. Never write "Q1?" or "Question 1". Never use options that are only the letters A, B, C, or D.`;
+Every question needs: text, options, correctAnswer, and a one- or two-sentence explanation of why the answer is correct. Questions must be answerable from the flashcard meaning above. Never write "Q1?" or "Question 1". Never use options that are only the letters A, B, C, or D.${languageBlock}`;
 }
 
-async function requestLevel(term, questionType, level, simpleDefinition) {
+async function requestLevel(
+  term,
+  questionType,
+  level,
+  simpleDefinition,
+  preferredLanguage,
+) {
   const response = await openai.responses.create({
     model: MODEL,
-    instructions: buildInstructions(term, questionType, level, simpleDefinition),
+    instructions: buildInstructions(
+      term,
+      questionType,
+      level,
+      simpleDefinition,
+      preferredLanguage,
+    ),
     input: `Write the ${level} quiz for: ${term}`,
     text: {
       format: {
@@ -112,8 +135,20 @@ async function requestLevel(term, questionType, level, simpleDefinition) {
   });
 }
 
-async function generateLevel(term, questionType, level, simpleDefinition) {
-  const mapped = await requestLevel(term, questionType, level, simpleDefinition);
+async function generateLevel(
+  term,
+  questionType,
+  level,
+  simpleDefinition,
+  preferredLanguage,
+) {
+  const mapped = await requestLevel(
+    term,
+    questionType,
+    level,
+    simpleDefinition,
+    preferredLanguage,
+  );
 
   // The model sometimes returns options ["A","B","C","D"] because
   // correctAnswer is a letter. That's not a quiz — ask once more.
@@ -121,7 +156,13 @@ async function generateLevel(term, questionType, level, simpleDefinition) {
     questionType === "multipleChoice" &&
     mapped.some((question) => isUnusableMcQuestion(question))
   ) {
-    return requestLevel(term, questionType, level, simpleDefinition);
+    return requestLevel(
+      term,
+      questionType,
+      level,
+      simpleDefinition,
+      preferredLanguage,
+    );
   }
 
   return mapped;
@@ -131,13 +172,13 @@ async function generateLevel(term, questionType, level, simpleDefinition) {
 async function generateQuizQuestions(
   term,
   questionType = "multipleChoice",
-  { simpleDefinition } = {},
+  { simpleDefinition, preferredLanguage } = {},
 ) {
   const type = QUESTION_TYPES.includes(questionType) ? questionType : "multipleChoice";
 
   const levels = await Promise.all(
     DIFFICULTY_LEVELS.map((level) =>
-      generateLevel(term, type, level, simpleDefinition),
+      generateLevel(term, type, level, simpleDefinition, preferredLanguage),
     ),
   );
 

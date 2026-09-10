@@ -11,6 +11,13 @@ const learnerProfileSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  // App + newly generated cards. "en" is the default for anyone who never
+  // picked; existing testers keep English until they change Settings.
+  preferredLanguage: {
+    type: String,
+    enum: ["en", "es"],
+    default: "en",
+  },
   learningPreferences: {
     type: new mongoose.Schema(
       {

@@ -7,12 +7,14 @@ import {
   playableSpotTopics,
 } from "../../utils/spotGame";
 import "./SpotPage.css";
+import { useT } from "../../i18n";
 
 function SpotPage({ isLoggedIn, savedTopics = [] }) {
+  const t = useT();
   const [pinnedRound, setPinnedRound] = useState(null);
   const [cardIndex, setCardIndex] = useState(0);
   const [spotted, setSpotted] = useState(false);
-  const [status, setStatus] = useState("Tap the common mix-up.");
+  const [status, setStatus] = useState("");
 
   const playableCount = playableSpotTopics(savedTopics).length;
   const round = pinnedRound ?? buildSpotRound(savedTopics);
@@ -32,7 +34,7 @@ function SpotPage({ isLoggedIn, savedTopics = [] }) {
   function startNewRound() {
     setCardIndex(0);
     setSpotted(false);
-    setStatus("Tap the common mix-up.");
+    setStatus(t("spot.tapMixup"));
     setPinnedRound(buildSpotRound(savedTopics));
   }
 
@@ -45,13 +47,13 @@ function SpotPage({ isLoggedIn, savedTopics = [] }) {
       setSpotted(true);
       setStatus(
         cardIndex === totalCards - 1
-          ? "Spotted it. That's the last one."
-          : "Spotted it.",
+          ? t("spot.spottedLast")
+          : t("spot.spotted"),
       );
       return;
     }
 
-    setStatus("That's the real meaning. Try the other one.");
+    setStatus(t("spot.notThat"));
   }
 
   function handleNext() {
@@ -61,7 +63,7 @@ function SpotPage({ isLoggedIn, savedTopics = [] }) {
 
     setCardIndex((index) => index + 1);
     setSpotted(false);
-    setStatus("Tap the common mix-up.");
+    setStatus(t("spot.tapMixup"));
   }
 
   return (
@@ -69,44 +71,43 @@ function SpotPage({ isLoggedIn, savedTopics = [] }) {
       <header className="spot-page__header">
         <h1 className="spot-page__title">
           <IconAlertTriangle size={28} stroke={1.75} aria-hidden="true" />
-          Spot the mistake
+          {t("games.spot")}
         </h1>
-        <p className="spot-page__lede">
-          Two statements. One is the real meaning. Tap the common mix-up.
-          No timer.
-        </p>
+        <p className="spot-page__lede">{t("spot.lede")}</p>
         <Link to="/games" className="spot-page__hub-link">
-          All games
+          {t("spot.back")}
         </Link>
       </header>
 
       {!round ? (
         <div className="spot-page__empty">
           <p>
-            Save {SPOT_UNLOCK_COUNT} real flashcards to play Spot the
-            mistake. Test cards don’t count. You have {playableCount} ready.
+            {t("spot.needMore", {
+              need: SPOT_UNLOCK_COUNT,
+              have: playableCount,
+            })}
           </p>
           <Link
             to="/search"
             className="spot-page__button spot-page__button--primary"
           >
-            Search a topic
+            {t("common.searchTopic")}
           </Link>
         </div>
       ) : (
         <>
           <p className="spot-page__progress" aria-live="polite">
-            {spottedCount} of {totalCards} spotted
+            {t("spot.progress", { done: spottedCount, total: totalCards })}
           </p>
           <p className="spot-page__status" role="status" aria-live="polite">
-            {status}
+            {status || t("spot.tapMixup")}
           </p>
 
           <div className="spot-page__card">
             <p className="spot-page__term">{card.term}</p>
-            <p className="spot-page__prompt">Which one is the common mix-up?</p>
+            <p className="spot-page__prompt">{t("spot.prompt")}</p>
 
-            <div className="spot-page__options" aria-label="Statements">
+            <div className="spot-page__options" aria-label={t("spot.statementsAria")}>
               {card.options.map((option) => {
                 const isPickedMistake =
                   spotted && option.kind === "mistake";
@@ -126,7 +127,7 @@ function SpotPage({ isLoggedIn, savedTopics = [] }) {
                       .join(" ")}
                     onClick={() => handleOptionClick(option.kind)}
                     disabled={spotted}
-                    aria-label={`Option: ${option.label}`}
+                    aria-label={t("spot.optionAria", { label: option.label })}
                   >
                     {option.label}
                   </button>
@@ -142,7 +143,7 @@ function SpotPage({ isLoggedIn, savedTopics = [] }) {
                 className="spot-page__button spot-page__button--primary"
                 onClick={handleNext}
               >
-                Next term
+                {t("spot.next")}
               </button>
             )}
             <button
@@ -154,22 +155,20 @@ function SpotPage({ isLoggedIn, savedTopics = [] }) {
               }
               onClick={startNewRound}
             >
-              {isComplete ? "Play again" : "New round"}
+              {isComplete ? t("common.playAgain") : t("spot.newRound")}
             </button>
             {isComplete && (
               <Link
                 to="/home"
                 className="spot-page__button spot-page__button--secondary"
               >
-                Back to dashboard
+                {t("common.backDashboard")}
               </Link>
             )}
           </div>
 
           {isComplete && (
-            <p className="spot-page__complete-note">
-              You spotted every mix-up.
-            </p>
+            <p className="spot-page__complete-note">{t("spot.complete")}</p>
           )}
         </>
       )}

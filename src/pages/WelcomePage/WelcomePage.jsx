@@ -10,6 +10,7 @@ import {
 import SigninForm from "../../components/AuthForms/SigninForm";
 import SignupForm from "../../components/AuthForms/SignupForm";
 import { getSavedAt } from "../../utils/topicTimestamps";
+import { useT } from "../../i18n";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -22,13 +23,14 @@ function countSavedThisWeek(savedTopics) {
   }).length;
 }
 
-function getStreakText(count) {
+function getStreakText(count, t) {
   if (count === 0) {
-    return "No topics saved this week yet — let's fix that.";
+    return t("welcome.streakZero");
   }
 
-  const label = count === 1 ? "topic" : "topics";
-  return `${count} ${label} saved this week — nice streak`;
+  return count === 1
+    ? t("welcome.streakOne", { count })
+    : t("welcome.streakMany", { count });
 }
 
 function WelcomePage({
@@ -39,6 +41,7 @@ function WelcomePage({
   savedTopics = [],
 }) {
   const navigate = useNavigate();
+  const t = useT();
   const [activeForm, setActiveForm] = useState(null);
 
   function handlePrimaryCta() {
@@ -77,20 +80,18 @@ function WelcomePage({
 
             <h1 className="welcome__heading">
               {isReturning
-                ? `Welcome back, ${userName}!`
-                : "Welcome to FlashTrack!"}
+                ? t("welcome.back", { name: userName })
+                : t("welcome.hello")}
             </h1>
 
             <p className="welcome__subtext">
-              {isReturning
-                ? "Great to see you again. Ready to keep the momentum going?"
-                : "Let's find something worth learning today. Search any topic and watch a full study card come to life in seconds."}
+              {isReturning ? t("welcome.subtextBack") : t("welcome.subtextNew")}
             </p>
 
             {isReturning && (
               <span className="welcome__streak-badge">
                 <IconFlame size={16} stroke={2} aria-hidden="true" />
-                {getStreakText(savedThisWeek)}
+                {getStreakText(savedThisWeek, t)}
               </span>
             )}
 
@@ -99,30 +100,30 @@ function WelcomePage({
               className="welcome__cta"
               onClick={handlePrimaryCta}
             >
-              {isReturning ? "Continue learning" : "Start exploring"}
+              {isReturning ? t("welcome.ctaBack") : t("welcome.ctaNew")}
               <IconArrowRight size={18} stroke={2} aria-hidden="true" />
             </button>
 
             {!isReturning && (
               <div className="welcome__badges">
                 <span className="welcome__badge welcome__badge--pink">
-                  Any topic
+                  {t("welcome.badgeTopic")}
                 </span>
                 <span className="welcome__badge welcome__badge--green">
-                  AI-powered
+                  {t("welcome.badgeAi")}
                 </span>
               </div>
             )}
 
             {!isLoggedIn && (
               <p className="welcome__signup-prompt">
-                Don&rsquo;t have an account?{" "}
+                {t("welcome.noAccount")}{" "}
                 <button
                   type="button"
                   className="welcome__inline-link"
                   onClick={() => setActiveForm("signup")}
                 >
-                  Create one
+                  {t("welcome.createAccount")}
                 </button>
               </p>
             )}
@@ -133,7 +134,7 @@ function WelcomePage({
                 className="app__auth-link welcome__signin-link"
                 onClick={() => setActiveForm("signin")}
               >
-                Already have an account? Sign in
+                {t("welcome.alreadyAccount")}
               </button>
             )}
           </>

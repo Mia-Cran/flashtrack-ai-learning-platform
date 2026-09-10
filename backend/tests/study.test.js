@@ -58,6 +58,24 @@ test("a signed-in learner's preferences are added to the prompt", async () => {
   assert.match(calls[0].instructions, /Preferred difficulty \(Advanced\)/);
   assert.match(calls[0].instructions, /Pacing:/);
   assert.match(calls[0].instructions, /Explanation style:/);
+  assert.doesNotMatch(calls[0].instructions, /Language \(Spanish\)/);
+});
+
+test("a Spanish language preference is added to the study-card prompt", async () => {
+  await seedSubjects();
+  const { user, authHeader } = await createUser({
+    email: "spanish@example.com",
+  });
+  await LearnerProfile.create({
+    user: user._id,
+    preferredLanguage: "es",
+  });
+  const calls = fakeOpenAI({ responsesByName: { study_guide: sampleStudyGuide } });
+
+  await request(app).post("/study/generate").set(authHeader).send({ term: "recursion" });
+
+  assert.match(calls[0].instructions, /Language \(Spanish\)/);
+  assert.match(calls[0].instructions, /Write EVERY learner-facing text field in Spanish/);
 });
 
 test("an anonymous search gets no personalization block", async () => {

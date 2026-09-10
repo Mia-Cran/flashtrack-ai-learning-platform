@@ -8,7 +8,7 @@ export function stopSpeech() {
   }
 }
 
-export function speakText(text, { onStart, onEnd } = {}) {
+export function speakText(text, { onStart, onEnd, lang } = {}) {
   if (!canUseSpeech() || !String(text || "").trim()) {
     return false;
   }
@@ -17,6 +17,7 @@ export function speakText(text, { onStart, onEnd } = {}) {
 
   const utterance = new SpeechSynthesisUtterance(String(text).trim());
   utterance.rate = 0.95;
+  utterance.lang = lang || "en-US";
   utterance.onstart = () => onStart?.();
   utterance.onend = () => onEnd?.();
   utterance.onerror = () => onEnd?.();

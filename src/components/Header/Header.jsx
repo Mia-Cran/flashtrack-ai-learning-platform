@@ -1,6 +1,7 @@
 import { NavLink, useLocation, useNavigate } from "react-router";
 import SubjectsNavDropdown from "../SubjectsNavDropdown/SubjectsNavDropdown";
 import "./Header.css";
+import { useT } from "../../i18n";
 
 function HeaderNavLink({ to, disabled, alsoActive = [], children }) {
   const location = useLocation();
@@ -38,6 +39,7 @@ function HeaderNavLink({ to, disabled, alsoActive = [], children }) {
 
 function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
   const navigate = useNavigate();
+  const t = useT();
 
   function handleSignoutClick() {
     onSignout();
@@ -60,23 +62,23 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
 
         <div className="header__links">
           <HeaderNavLink to="/" disabled={isSearchLoading}>
-            Welcome
+            {t("header.welcome")}
           </HeaderNavLink>
 
           {isLoggedIn && (
             <HeaderNavLink to="/home" disabled={isSearchLoading}>
-              Home
+              {t("header.home")}
             </HeaderNavLink>
           )}
 
           <HeaderNavLink to="/search" disabled={isSearchLoading}>
-            Search
+            {t("header.search")}
           </HeaderNavLink>
 
           {isLoggedIn && (
             <>
               <HeaderNavLink to="/saved" disabled={isSearchLoading}>
-                Saved Topics
+                {t("header.saved")}
               </HeaderNavLink>
 
               <HeaderNavLink
@@ -84,15 +86,15 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
                 alsoActive={["/match", "/spot", "/hear"]}
                 disabled={isSearchLoading}
               >
-                Games
+                {t("header.games")}
               </HeaderNavLink>
 
               <HeaderNavLink to="/about" disabled={isSearchLoading}>
-                About
+                {t("header.about")}
               </HeaderNavLink>
 
               <HeaderNavLink to="/settings" disabled={isSearchLoading}>
-                Settings
+                {t("header.settings")}
               </HeaderNavLink>
             </>
           )}
@@ -102,7 +104,7 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
               something first" for logged-in users, while still being
               reachable on its own for anonymous visitors. */}
           <HeaderNavLink to="/feedback" disabled={isSearchLoading}>
-            Feedback
+            {t("header.feedback")}
           </HeaderNavLink>
 
           {isLoggedIn && (
@@ -112,7 +114,7 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
               onClick={handleSignoutClick}
               disabled={isSearchLoading}
             >
-              Sign Out
+              {t("header.signOut")}
             </button>
           )}
         </div>

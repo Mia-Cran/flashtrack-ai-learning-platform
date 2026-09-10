@@ -8,13 +8,16 @@ import {
 } from "../../utils/hearGame";
 import { canUseSpeech, speakText, stopSpeech } from "../../utils/speech";
 import "./HearPage.css";
+import { useLanguage, useT } from "../../i18n";
 
 function HearPage({ isLoggedIn, savedTopics = [] }) {
+  const t = useT();
+  const language = useLanguage();
   const [pinnedRound, setPinnedRound] = useState(null);
   const [cardIndex, setCardIndex] = useState(0);
   const [picked, setPicked] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [status, setStatus] = useState("Tap Hear, then pick the meaning.");
+  const [status, setStatus] = useState("");
   const speechAvailable = canUseSpeech();
 
   const playableCount = playableHearTopics(savedTopics).length;
@@ -48,7 +51,7 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
     quiet();
     setCardIndex(0);
     setPicked(false);
-    setStatus("Tap Hear, then pick the meaning.");
+    setStatus(t("hear.tapHear"));
     setPinnedRound(buildHearRound(savedTopics));
   }
 
@@ -63,6 +66,7 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
     }
 
     speakText(card.spoken, {
+      lang: language === "es" ? "es-ES" : "en-US",
       onStart: () => setIsSpeaking(true),
       onEnd: () => setIsSpeaking(false),
     });
@@ -78,13 +82,13 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
       setPicked(true);
       setStatus(
         cardIndex === totalCards - 1
-          ? `That's ${card.term}. Last one.`
-          : `That's ${card.term}.`,
+          ? t("hear.gotItLast", { term: card.term })
+          : t("hear.gotIt", { term: card.term }),
       );
       return;
     }
 
-    setStatus("Not that one. Hear it again, or try another meaning.");
+    setStatus(t("hear.notThat"));
   }
 
   function handleNext() {
@@ -95,7 +99,7 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
     quiet();
     setCardIndex((index) => index + 1);
     setPicked(false);
-    setStatus("Tap Hear, then pick the meaning.");
+    setStatus(t("hear.tapHear"));
   }
 
   return (
@@ -103,45 +107,44 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
       <header className="hear-page__header">
         <h1 className="hear-page__title">
           <IconVolume size={28} stroke={1.75} aria-hidden="true" />
-          Hear & pick
+          {t("games.hear")}
         </h1>
-        <p className="hear-page__lede">
-          Hear a saved term, then tap its meaning. Same voice as Hear it.
-          No timer.
-        </p>
+        <p className="hear-page__lede">{t("hear.lede")}</p>
         <Link to="/games" className="hear-page__hub-link">
-          All games
+          {t("hear.back")}
         </Link>
       </header>
 
       {!round ? (
         <div className="hear-page__empty">
           <p>
-            Save {HEAR_UNLOCK_COUNT} real flashcards to play Hear & pick.
-            Test cards don’t count. You have {playableCount} ready.
+            {t("hear.needMore", {
+              need: HEAR_UNLOCK_COUNT,
+              have: playableCount,
+            })}
           </p>
           <Link
             to="/search"
             className="hear-page__button hear-page__button--primary"
           >
-            Search a topic
+            {t("common.searchTopic")}
           </Link>
         </div>
       ) : (
         <>
           <p className="hear-page__progress" aria-live="polite">
-            {pickedCount} of {totalCards} picked
+            {t("hear.progress", { done: pickedCount, total: totalCards })}
           </p>
           <p className="hear-page__status" role="status" aria-live="polite">
-            {status}
+            {status || t("hear.tapHear")}
           </p>
 
           <div className="hear-page__card">
             {showTerm && <p className="hear-page__term">{card.term}</p>}
             <p className="hear-page__prompt">
               {speechAvailable
-                ? "Which meaning matches the term you heard?"
-                : "This browser can’t speak, so the term is on the screen. Tap its meaning."}
+                ? t("hear.tapHear")
+                : t("hear.noSpeech")}
             </p>
 
             {speechAvailable && (
@@ -151,14 +154,14 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
                 onClick={handleHear}
                 aria-pressed={isSpeaking}
                 aria-label={
-                  isSpeaking ? "Stop the term" : "Hear the term"
+                  isSpeaking ? t("card.stop") : t("hear.hearTerm")
                 }
               >
-                {isSpeaking ? "Stop" : "Hear the term"}
+                {isSpeaking ? t("card.stop") : t("hear.hearTerm")}
               </button>
             )}
 
-            <div className="hear-page__options" aria-label="Meanings">
+            <div className="hear-page__options" aria-label={t("hear.meaningsAria")}>
               {card.options.map((option) => {
                 const isCorrect = picked && option.id === card.id;
                 const isOther = picked && option.id !== card.id;
@@ -176,7 +179,7 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
                       .join(" ")}
                     onClick={() => handleOptionClick(option.id)}
                     disabled={picked}
-                    aria-label={`Meaning: ${option.label}`}
+                    aria-label={t("hear.meaningAria", { label: option.label })}
                   >
                     {option.label}
                   </button>
@@ -192,7 +195,7 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
                 className="hear-page__button hear-page__button--primary"
                 onClick={handleNext}
               >
-                Next term
+                {t("hear.next")}
               </button>
             )}
             <button
@@ -204,22 +207,20 @@ function HearPage({ isLoggedIn, savedTopics = [] }) {
               }
               onClick={startNewRound}
             >
-              {isComplete ? "Play again" : "New round"}
+              {isComplete ? t("common.playAgain") : t("hear.newRound")}
             </button>
             {isComplete && (
               <Link
                 to="/home"
                 className="hear-page__button hear-page__button--secondary"
               >
-                Back to dashboard
+                {t("common.backDashboard")}
               </Link>
             )}
           </div>
 
           {isComplete && (
-            <p className="hear-page__complete-note">
-              You picked every meaning.
-            </p>
+            <p className="hear-page__complete-note">{t("hear.complete")}</p>
           )}
         </>
       )}

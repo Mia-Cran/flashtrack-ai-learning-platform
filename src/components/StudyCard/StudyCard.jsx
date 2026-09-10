@@ -1,5 +1,6 @@
 import "./StudyCard.css";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useI18n, useLanguage, useT } from "../../i18n";
 
 const SECTION_KEYS = ["beginner", "technical", "analogy", "code", "mistake"];
 
@@ -84,7 +85,7 @@ function stopSpeech() {
   }
 }
 
-function speakText(text, { onStart, onEnd } = {}) {
+function speakText(text, { onStart, onEnd, lang } = {}) {
   if (!canUseSpeech || !text?.trim()) {
     return false;
   }
@@ -93,6 +94,7 @@ function speakText(text, { onStart, onEnd } = {}) {
 
   const utterance = new SpeechSynthesisUtterance(text.trim());
   utterance.rate = 0.95;
+  utterance.lang = lang || "en-US";
   utterance.onstart = () => onStart?.();
   utterance.onend = () => onEnd?.();
   utterance.onerror = () => onEnd?.();
@@ -107,6 +109,8 @@ function HearButton({
   className = "",
 }) {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const t = useT();
+  const language = useLanguage();
 
   useEffect(() => {
     return () => {
@@ -132,6 +136,7 @@ function HearButton({
     }
 
     speakText(text, {
+      lang: language === "es" ? "es-ES" : "en-US",
       onStart: () => setIsSpeaking(true),
       onEnd: () => setIsSpeaking(false),
     });
@@ -144,14 +149,18 @@ function HearButton({
       onClick={handleClick}
       disabled={disabled || !text?.trim()}
       aria-pressed={isSpeaking}
-      aria-label={isSpeaking ? `Stop pronunciation of ${label}` : `Hear pronunciation of ${label}`}
-      title={isSpeaking ? "Stop" : `Hear “${label}”`}
+      aria-label={
+        isSpeaking
+          ? t("card.stopLabel", { label })
+          : t("card.hearLabel", { label })
+      }
+      title={isSpeaking ? t("card.stop") : t("card.hearIt")}
     >
       <Icon
         name={isSpeaking ? "speakerOff" : "speaker"}
         className="study-card__hear-icon"
       />
-      <span>{isSpeaking ? "Stop" : "Hear it"}</span>
+      <span>{isSpeaking ? t("card.stop") : t("card.hearIt")}</span>
     </button>
   );
 }
@@ -169,41 +178,41 @@ function renderParagraphs(text) {
     .map((paragraph, index) => <p key={index}>{paragraph}</p>);
 }
 
-function getLearningSections(topic) {
+function getLearningSections(topic, t) {
   return [
     {
       key: "simple",
-      label: "Simple Definition",
+      label: t("card.simple"),
       content: topic.simpleDefinition,
       isCode: false,
     },
     {
       key: "beginner",
-      label: "Beginner-Friendly Explanation",
+      label: t("card.beginner"),
       content: topic.beginnerExplanation,
       isCode: false,
     },
     {
       key: "technical",
-      label: "Technical Definition",
+      label: t("card.technical"),
       content: topic.technicalDefinition,
       isCode: false,
     },
     {
       key: "analogy",
-      label: "Real-World Analogy",
+      label: t("card.analogy"),
       content: topic.analogy,
       isCode: false,
     },
     {
       key: "code",
-      label: "Code Example",
+      label: t("card.code"),
       content: topic.codeExample,
       isCode: true,
     },
     {
       key: "mistake",
-      label: "Common Beginner Mistake",
+      label: t("card.mistake"),
       content: topic.commonMistake,
       isCode: false,
     },
@@ -218,11 +227,12 @@ function FlipStudyDeck({
   isFlipped,
   onFlip,
 }) {
+  const t = useT();
   const [openSections, setOpenSections] = useState(() =>
     getInitialFlipOpenSections(sectionsCollapsedByDefault, explanationStyle),
   );
   const hasUserToggledRef = useRef(false);
-  const learningSections = useMemo(() => getLearningSections(topic), [topic]);
+  const learningSections = useMemo(() => getLearningSections(topic, t), [topic, t]);
   const baseId = useId();
 
   useLayoutEffect(() => {
@@ -268,8 +278,8 @@ function FlipStudyDeck({
           aria-pressed={isFlipped}
           aria-label={
             isFlipped
-              ? `${topic.title} learning guide. Press to show the term again.`
-              : `${topic.title}. Press to flip and see ways to learn it.`
+              ? t("card.flipAriaBack", { title: topic.title })
+              : t("card.flipAriaFront", { title: topic.title })
           }
         >
           <div className="study-card__flip-inner">
@@ -281,7 +291,7 @@ function FlipStudyDeck({
                   text={topic.title}
                   disabled={disabled}
                 />
-                <p className="study-card__flip-hint">Tap to flip</p>
+                <p className="study-card__flip-hint">{t("card.tapFlip")}</p>
               </div>
             </div>
 
@@ -291,14 +301,14 @@ function FlipStudyDeck({
               onKeyDown={(event) => event.stopPropagation()}
             >
               <div className="study-card__flip-back-header">
-                <p className="study-card__flip-kicker">Ways to learn it</p>
+                <p className="study-card__flip-kicker">{t("card.waysToLearn")}</p>
                 <button
                   type="button"
                   className="study-card__flip-back-button"
                   onClick={flip}
                   disabled={disabled}
                 >
-                  Flip
+                  {t("card.flip")}
                 </button>
               </div>
 
@@ -368,6 +378,17 @@ function FlipStudyDeck({
 }
 
 function TopicBadges({ topic }) {
+  const t = useT();
+  const { subjectName } = useI18n();
+  const difficultyLabel =
+    topic.difficulty === "Intermediate"
+      ? t("card.intermediateLevel")
+      : topic.difficulty === "Advanced"
+        ? t("card.advancedLevel")
+        : topic.difficulty === "Beginner"
+          ? t("card.beginnerLevel")
+          : topic.difficulty;
+
   if (!(topic.subject?.name || topic.difficulty || topic.category)) {
     return null;
   }
@@ -376,19 +397,19 @@ function TopicBadges({ topic }) {
     <div className="study-card__badges">
       {topic.subject?.name && (
         <span className="study-card__pill study-card__pill--category">
-          <span className="sr-only">Subject: </span>
-          {topic.subject.name}
+          <span className="sr-only">{t("card.subject")}</span>
+          {subjectName(topic.subject.name)}
         </span>
       )}
       {topic.difficulty && (
         <span className="study-card__pill study-card__pill--difficulty">
-          <span className="sr-only">Difficulty: </span>
-          {topic.difficulty}
+          <span className="sr-only">{t("card.difficulty")}</span>
+          {difficultyLabel}
         </span>
       )}
       {topic.category && (
         <span className="study-card__pill study-card__pill--category">
-          <span className="sr-only">Category: </span>
+          <span className="sr-only">{t("card.category")}</span>
           {topic.category}
         </span>
       )}
@@ -407,22 +428,24 @@ function StudyCard({
   sectionsCollapsedByDefault = true,
   explanationStyle = "analogies",
 }) {
+  const topicKey = topic._id || topic.searchTerm || topic.title || topic.term;
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [cardTopicKey, setCardTopicKey] = useState(topicKey);
   const baseId = useId();
-
-  const topicKey = topic._id || topic.searchTerm || topic.title || topic.term;
+  const t = useT();
 
   // A new search reuses this component with different topic data. Reset
   // local saved/flipped UI so the previous card's state does not stick.
-  useEffect(() => {
+  if (cardTopicKey !== topicKey) {
+    setCardTopicKey(topicKey);
     setIsSaved(false);
     setIsFlipped(false);
     setIsSaving(false);
     setIsRegenerating(false);
-  }, [topicKey]);
+  }
 
   const effectivelySaved = isSaved || isSavedExternally;
 
@@ -474,7 +497,7 @@ function StudyCard({
             disabled={disabled}
             aria-pressed={isFlipped}
           >
-            Flip
+            {t("card.flip")}
           </button>
         </div>
 
@@ -491,7 +514,7 @@ function StudyCard({
 
         {relatedTopics.length > 0 && (
           <div className="study-card__related">
-            <h3 className="study-card__related-label">Related Topics</h3>
+            <h3 className="study-card__related-label">{t("card.related")}</h3>
             <ul className="study-card__related-list">
               {relatedTopics.map((relatedTopic) =>
                 onRelatedTopicClick ? (
@@ -527,17 +550,17 @@ function StudyCard({
                 disabled={isSaving || effectivelySaved || disabled}
               >
                 {isSaving
-                  ? "Saving..."
+                  ? t("card.saving")
                   : effectivelySaved
-                    ? "Saved ✓"
-                    : "Save Topic"}
+                    ? t("card.saved")
+                    : t("card.save")}
               </button>
             )}
 
             {effectivelySaved && onRegenerateTopic && (
               <div className="study-card__difficulty-selector">
                 <label htmlFor={`difficulty-${baseId}`} className="study-card__difficulty-label">
-                  View at:
+                  {t("card.viewAt")}
                 </label>
                 <select
                   id={`difficulty-${baseId}`}
@@ -546,11 +569,11 @@ function StudyCard({
                   onChange={(e) => handleRegenerateTopic(e.target.value)}
                   disabled={isRegenerating || disabled}
                 >
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
+                  <option value="Beginner">{t("card.beginnerLevel")}</option>
+                  <option value="Intermediate">{t("card.intermediateLevel")}</option>
+                  <option value="Advanced">{t("card.advancedLevel")}</option>
                 </select>
-                {isRegenerating && <span className="study-card__regenerating">Regenerating...</span>}
+                {isRegenerating && <span className="study-card__regenerating">{t("card.regenerating")}</span>}
               </div>
             )}
 
@@ -561,7 +584,7 @@ function StudyCard({
                 onClick={() => onDeleteTopic(topic._id)}
                 disabled={disabled}
               >
-                Delete Topic
+                {t("card.delete")}
               </button>
             )}
           </div>

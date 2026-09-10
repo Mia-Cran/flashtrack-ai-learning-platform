@@ -2,10 +2,12 @@ import "./AuthPromptModal.css";
 import { useEffect, useRef, useState } from "react";
 import SigninForm from "../AuthForms/SigninForm";
 import SignupForm from "../AuthForms/SignupForm";
+import { useT } from "../../i18n";
 
 function AuthPromptModal({ onSignup, onSignin, onSuccess, onClose }) {
   const [mode, setMode] = useState("signup");
   const closeButtonRef = useRef(null);
+  const t = useT();
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -34,21 +36,21 @@ function AuthPromptModal({ onSignup, onSignin, onSuccess, onClose }) {
           type="button"
           className="auth-modal__close"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("auth.close")}
         >
           ×
         </button>
 
         <h2 id="auth-modal-heading" className="auth-modal__heading">
           {mode === "signup"
-            ? "Create an account to save this topic"
-            : "Sign in to save this topic"}
+            ? t("auth.saveSignupTitle")
+            : t("auth.saveSigninTitle")}
         </h2>
 
         <p className="auth-modal__subtext">
           {mode === "signup"
-            ? "Your study card is ready — create an account and we'll save it for you automatically."
-            : "Welcome back — sign in and we'll save this topic for you automatically."}
+            ? t("auth.saveSignupBody")
+            : t("auth.saveSigninBody")}
         </p>
 
         {mode === "signup" ? (
@@ -63,8 +65,8 @@ function AuthPromptModal({ onSignup, onSignin, onSuccess, onClose }) {
           onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
         >
           {mode === "signup"
-            ? "Already have an account? Sign in"
-            : "Don't have an account? Create one"}
+            ? t("auth.toggleSignin")
+            : t("auth.toggleSignup")}
         </button>
       </div>
     </div>

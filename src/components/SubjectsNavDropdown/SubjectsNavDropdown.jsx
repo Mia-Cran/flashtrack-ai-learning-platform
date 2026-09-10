@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../../utils/api";
 import { useNavigate } from "react-router";
+import { useI18n } from "../../i18n";
 import "./SubjectsNavDropdown.css";
 
 // Session 10, entry point 2: for a student who knows the subject they want
@@ -12,6 +13,7 @@ function SubjectsNavDropdown({ disabled = false }) {
   const [subjects, setSubjects] = useState([]);
   const [selectedValue, setSelectedValue] = useState("");
   const navigate = useNavigate();
+  const { t, subjectName } = useI18n();
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/subjects`)
@@ -62,12 +64,12 @@ function SubjectsNavDropdown({ disabled = false }) {
       value={selectedValue}
       onChange={handleChange}
       disabled={disabled || subjects.length === 0}
-      aria-label="Browse by subject"
+      aria-label={t("header.browseAria")}
     >
-      <option value="">Browse Subjects</option>
+      <option value="">{t("header.browseSubjects")}</option>
       {subjects.map((subject) => (
         <option key={subject._id} value={subject._id}>
-          {subject.name}
+          {subjectName(subject.name)}
         </option>
       ))}
     </select>

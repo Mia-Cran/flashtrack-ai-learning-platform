@@ -2,8 +2,10 @@ import "./FeedbackPage.css";
 import { useEffect, useState } from "react";
 import { IconMessage2, IconSend } from "@tabler/icons-react";
 import { API_BASE_URL } from "../../utils/api";
+import { useT } from "../../i18n";
 
 function FeedbackPage({ isLoggedIn }) {
+  const t = useT();
   const [feedbackList, setFeedbackList] = useState([]);
   const [isLoadingList, setIsLoadingList] = useState(true);
   const [listError, setListError] = useState(false);
@@ -97,16 +99,12 @@ function FeedbackPage({ isLoggedIn }) {
 
   return (
     <section className="feedback">
-      <h1 className="feedback__title">Feedback</h1>
-      <p className="feedback__subtitle">
-        Tell me what's working, what's broken, or what you want to see next.
-        No account needed — your message is shown publicly, but who sent it
-        stays private.
-      </p>
+      <h1 className="feedback__title">{t("feedback.title")}</h1>
+      <p className="feedback__subtitle">{t("feedback.subtitle")}</p>
 
       <form className="feedback__form" onSubmit={handleSubmit}>
         <label className="feedback__label" htmlFor="feedback-message">
-          Your feedback
+          {t("feedback.label")}
         </label>
         <textarea
           id="feedback-message"
@@ -115,14 +113,14 @@ function FeedbackPage({ isLoggedIn }) {
           onChange={(event) => setMessage(event.target.value)}
           rows={4}
           maxLength={1000}
-          placeholder="What did you notice?"
+          placeholder={t("feedback.placeholder")}
           required
         />
 
         {!isLoggedIn && (
           <>
             <label className="feedback__label" htmlFor="feedback-email">
-              Email (optional — only I can see this)
+              {t("feedback.email")}
             </label>
             <input
               id="feedback-email"
@@ -142,22 +140,22 @@ function FeedbackPage({ isLoggedIn }) {
             disabled={isSubmitting || !message.trim()}
           >
             <IconSend size={18} stroke={2} aria-hidden="true" />
-            {isSubmitting ? "Sending..." : "Send Feedback"}
+            {isSubmitting ? t("feedback.sending") : t("feedback.send")}
           </button>
 
           {submitState === "sent" && (
-            <span className="feedback__confirmation">Thanks — got it!</span>
+            <span className="feedback__confirmation">{t("feedback.thanks")}</span>
           )}
 
           {submitState === "blocked" && (
             <span className="feedback__error">
-              That message couldn't be posted. Please rephrase and try again.
+              {t("feedback.blocked")}
             </span>
           )}
 
           {submitState === "error" && (
             <span className="feedback__error">
-              Something went wrong — try again.
+              {t("feedback.error")}
             </span>
           )}
         </div>
@@ -166,22 +164,22 @@ function FeedbackPage({ isLoggedIn }) {
       <div className="feedback__list">
         <h2 className="feedback__list-title">
           <IconMessage2 size={20} stroke={1.75} aria-hidden="true" />
-          What people are saying
+          {t("feedback.listTitle")}
         </h2>
 
         {isLoadingList && (
-          <p className="feedback__list-status">Loading feedback...</p>
+          <p className="feedback__list-status">{t("feedback.loading")}</p>
         )}
 
         {!isLoadingList && listError && (
           <p className="feedback__list-status">
-            Couldn't load feedback right now.
+            {t("feedback.loadError")}
           </p>
         )}
 
         {!isLoadingList && !listError && feedbackList.length === 0 && (
           <p className="feedback__list-status">
-            No feedback yet — be the first!
+            {t("feedback.empty")}
           </p>
         )}
 

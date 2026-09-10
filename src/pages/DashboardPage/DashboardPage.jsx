@@ -13,6 +13,7 @@ import {
   IconBulb,
   IconSchool,
   IconPuzzle,
+  IconLanguage,
 } from "@tabler/icons-react";
 import { getSavedAt } from "../../utils/topicTimestamps";
 import {
@@ -28,6 +29,7 @@ import {
   HEAR_UNLOCK_COUNT,
   playableHearTopics,
 } from "../../utils/hearGame";
+import { useI18n } from "../../i18n";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_TOPICS_LIMIT = 4;
@@ -35,11 +37,11 @@ const RECOMMENDATIONS_LIMIT = 4;
 const QUIZ_UNLOCK_COUNT = 5;
 
 const STAGE_OPTIONS = [
-  { value: "k12", label: "K-12 Student" },
-  { value: "college", label: "College Student" },
-  { value: "trade", label: "Trade / Vocational Program" },
-  { value: "testPrep", label: "Studying for a Test" },
-  { value: "exploring", label: "Just Exploring" },
+  { value: "k12", labelKey: "dashboard.stageK12" },
+  { value: "college", labelKey: "dashboard.stageCollege" },
+  { value: "trade", labelKey: "dashboard.stageTrade" },
+  { value: "testPrep", labelKey: "dashboard.stageTest" },
+  { value: "exploring", labelKey: "dashboard.stageExplore" },
 ];
 
 function toDateKey(ms) {
@@ -153,8 +155,11 @@ function DashboardPage({
   const [quizLoadingId, setQuizLoadingId] = useState(null);
   const [quizError, setQuizError] = useState("");
   const [isStartingReview, setIsStartingReview] = useState(false);
+  const [isSavingLanguage, setIsSavingLanguage] = useState(false);
+  const [languageError, setLanguageError] = useState("");
   const [progress, setProgress] = useState(null);
   const navigate = useNavigate();
+  const { t, subjectName } = useI18n();
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -213,6 +218,26 @@ function DashboardPage({
   const recentTopics = getRecentTopics(savedTopics);
   const subjectCount = getSubjectNames(savedTopics).size;
   const recommendations = getRecommendations(savedTopics);
+  const currentLanguage =
+    learnerProfile?.preferredLanguage === "es" ? "es" : "en";
+
+  function handleLanguageSelect(preferredLanguage) {
+    if (isSavingLanguage || currentLanguage === preferredLanguage) {
+      return;
+    }
+
+    setIsSavingLanguage(true);
+    setLanguageError("");
+
+    onUpdateLearnerProfile({ preferredLanguage })
+      .catch((err) => {
+        console.error(err);
+        setLanguageError(t("dashboard.languageError"));
+      })
+      .finally(() => {
+        setIsSavingLanguage(false);
+      });
+  }
 
   function handleStageSelect(stage) {
     setIsSavingProfile(true);
@@ -276,7 +301,7 @@ function DashboardPage({
       navigate(`/quiz/${topicId}`);
     } catch (err) {
       console.error(err);
-      setQuizError(err.message || "Could not start that quiz. Please try again.");
+      setQuizError(err.message || t("dashboard.quizError"));
     } finally {
       setQuizLoadingId(null);
     }
@@ -309,9 +334,7 @@ function DashboardPage({
       navigate(`/quiz/review/${data._id}`);
     } catch (err) {
       console.error(err);
-      setQuizError(
-        err.message || "Could not start the review quiz. Please try again.",
-      );
+      setQuizError(err.message || t("dashboard.reviewError"));
     } finally {
       setIsStartingReview(false);
     }
@@ -330,10 +353,49 @@ function DashboardPage({
 
   return (
     <section className="dashboard">
-      <h1 className="dashboard__title">Your Dashboard</h1>
+      <h1 className="dashboard__title">{t("dashboard.title")}</h1>
       <p className="dashboard__subtitle">
-        {userName ? `Here's where things stand, ${userName}.` : "Here's where things stand."}
+        {userName
+          ? t("dashboard.subtitleName", { name: userName })
+          : t("dashboard.subtitle")}
       </p>
+
+      <section className="dashboard__language" aria-label={t("dashboard.language")}>
+        <h2 className="dashboard__language-title">
+          <IconLanguage size={20} stroke={1.75} aria-hidden="true" />
+          {t("dashboard.language")}
+        </h2>
+        <p className="dashboard__language-hint">{t("dashboard.languageHint")}</p>
+        <div className="dashboard__language-options" role="radiogroup" aria-label={t("dashboard.language")}>
+          <label className="dashboard__language-option">
+            <input
+              type="radio"
+              name="dashboardLanguage"
+              value="en"
+              checked={currentLanguage === "en"}
+              disabled={isSavingLanguage}
+              onChange={() => handleLanguageSelect("en")}
+            />
+            {t("language.english")}
+          </label>
+          <label className="dashboard__language-option">
+            <input
+              type="radio"
+              name="dashboardLanguage"
+              value="es"
+              checked={currentLanguage === "es"}
+              disabled={isSavingLanguage}
+              onChange={() => handleLanguageSelect("es")}
+            />
+            {t("language.spanish")}
+          </label>
+        </div>
+        {languageError && (
+          <p className="dashboard__language-error" role="alert">
+            {languageError}
+          </p>
+        )}
+      </section>
 
       {!isQuoteLoading && quote && (
         <div className="dashboard__quote">
@@ -357,7 +419,9 @@ function DashboardPage({
           />
           <span className="dashboard__stat-value">{totalSaved}</span>
           <span className="dashboard__stat-label">
-            {totalSaved === 1 ? "Topic saved" : "Topics saved"}
+            {totalSaved === 1
+              ? t("dashboard.topicSaved")
+              : t("dashboard.topicsSaved")}
           </span>
         </div>
 
@@ -370,7 +434,7 @@ function DashboardPage({
           />
           <span className="dashboard__stat-value">{dayStreak}</span>
           <span className="dashboard__stat-label">
-            {dayStreak === 1 ? "Day streak" : "Day streak"}
+            {t("dashboard.dayStreak")}
           </span>
         </div>
 
@@ -384,7 +448,9 @@ function DashboardPage({
             />
             <span className="dashboard__stat-value">{subjectCount}</span>
             <span className="dashboard__stat-label">
-              {subjectCount === 1 ? "Subject" : "Subjects"}
+              {subjectCount === 1
+                ? t("dashboard.subject")
+                : t("dashboard.subjects")}
             </span>
           </Link>
         )}
@@ -393,28 +459,32 @@ function DashboardPage({
       {(progress?.totals?.attemptCount > 0 ||
         progress?.strengths?.length > 0 ||
         progress?.areasOfStruggle?.length > 0) && (
-        <section className="dashboard__progress" aria-label="Your quiz progress">
-          <h2 className="dashboard__section-heading">Your Progress</h2>
+        <section className="dashboard__progress" aria-label={t("dashboard.progressAria")}>
+          <h2 className="dashboard__section-heading">{t("dashboard.progress")}</h2>
 
           {(progress.strengths.length > 0 ||
             progress.areasOfStruggle.length > 0) && (
             <div className="dashboard__progress-signals">
               {progress.strengths.length > 0 && (
                 <div className="dashboard__progress-signal dashboard__progress-signal--strength">
-                  <h3 className="dashboard__progress-signal-title">Strengths</h3>
+                  <h3 className="dashboard__progress-signal-title">
+                    {t("dashboard.strengths")}
+                  </h3>
                   <p className="dashboard__progress-signal-list">
-                    {progress.strengths.map((subject) => subject.name).join(", ")}
+                    {progress.strengths
+                      .map((subject) => subjectName(subject.name))
+                      .join(", ")}
                   </p>
                 </div>
               )}
               {progress.areasOfStruggle.length > 0 && (
                 <div className="dashboard__progress-signal dashboard__progress-signal--struggle">
                   <h3 className="dashboard__progress-signal-title">
-                    Needs practice
+                    {t("dashboard.needsPractice")}
                   </h3>
                   <p className="dashboard__progress-signal-list">
                     {progress.areasOfStruggle
-                      .map((subject) => subject.name)
+                      .map((subject) => subjectName(subject.name))
                       .join(", ")}
                   </p>
                 </div>
@@ -431,12 +501,17 @@ function DashboardPage({
                       {topic.term}
                     </span>
                     <span className="dashboard__progress-item-meta">
-                      Last {topic.lastScore}/{topic.lastMaxScore} (
-                      {topic.lastPercent}%)
-                      {topic.trend === "improving" && " · improving"}
-                      {topic.trend === "slipping" && " · slipping"}
+                      {t("dashboard.lastScore", {
+                        score: topic.lastScore,
+                        max: topic.lastMaxScore,
+                        percent: topic.lastPercent,
+                      })}
+                      {topic.trend === "improving" &&
+                        ` · ${t("dashboard.improving")}`}
+                      {topic.trend === "slipping" &&
+                        ` · ${t("dashboard.slipping")}`}
                       {topic.attemptCount > 1 &&
-                        ` · ${topic.attemptCount} tries`}
+                        ` · ${t("dashboard.tries", { count: topic.attemptCount })}`}
                     </span>
                   </div>
                 </li>
@@ -446,13 +521,11 @@ function DashboardPage({
         </section>
       )}
 
-      <section className="dashboard__recent" aria-label="Recently saved topics">
-        <h2 className="dashboard__section-heading">Recently Saved</h2>
+      <section className="dashboard__recent" aria-label={t("dashboard.recentAria")}>
+        <h2 className="dashboard__section-heading">{t("dashboard.recent")}</h2>
 
         {recentTopics.length === 0 ? (
-          <p className="dashboard__empty">
-            No saved topics yet — search for something to get started.
-          </p>
+          <p className="dashboard__empty">{t("dashboard.recentEmpty")}</p>
         ) : (
           <div className="dashboard__recent-grid">
             {recentTopics.map((topic) => (
@@ -467,18 +540,16 @@ function DashboardPage({
         )}
       </section>
 
-      <section className="dashboard__games" aria-label="Games">
+      <section className="dashboard__games" aria-label={t("dashboard.gamesAria")}>
         <h2 className="dashboard__section-heading">
           <IconPuzzle size={20} stroke={1.75} aria-hidden="true" />
-          Games
+          {t("dashboard.gamesHeading")}
         </h2>
 
         {!matchUnlocked && !spotUnlocked && !hearUnlocked ? (
           <div className="dashboard__quiz-locked">
             <p className="dashboard__quiz-locked-text">
-              Save {MATCH_UNLOCK_COUNT} real flashcards, then play Match,
-              Spot the mistake, or Hear & pick. Test cards don’t count.
-              Short rounds, no timer.
+              {t("dashboard.gamesLocked", { need: MATCH_UNLOCK_COUNT })}
             </p>
             <div
               className="dashboard__quiz-progress"
@@ -486,7 +557,10 @@ function DashboardPage({
               aria-valuemin={0}
               aria-valuemax={MATCH_UNLOCK_COUNT}
               aria-valuenow={playableMatchCount}
-              aria-label={`${playableMatchCount} of ${MATCH_UNLOCK_COUNT} playable cards for Games`}
+              aria-label={t("dashboard.gamesProgressAria", {
+                have: playableMatchCount,
+                need: MATCH_UNLOCK_COUNT,
+              })}
             >
               <div
                 className="dashboard__quiz-progress-fill"
@@ -496,70 +570,70 @@ function DashboardPage({
               />
             </div>
             <p className="dashboard__quiz-progress-label">
-              {playableMatchCount} / {MATCH_UNLOCK_COUNT} ready
+              {t("dashboard.readyCount", {
+                have: playableMatchCount,
+                need: MATCH_UNLOCK_COUNT,
+              })}
             </p>
           </div>
         ) : (
           <div className="dashboard__games-grid">
             <div className="dashboard__review-cta">
-              <h3 className="dashboard__quiz-subheading">Match</h3>
-              <p className="dashboard__quiz-intro">
-                Pair four of your saved terms to their meanings. One pair at
-                a time — a miss just means try another pair.
-              </p>
+              <h3 className="dashboard__quiz-subheading">{t("games.match")}</h3>
+              <p className="dashboard__quiz-intro">{t("dashboard.matchIntro")}</p>
               {matchUnlocked ? (
                 <Link
                   to="/match"
                   className="dashboard__quiz-button dashboard__quiz-button--review"
                 >
-                  Play Match
+                  {t("dashboard.playMatch")}
                 </Link>
               ) : (
                 <p className="dashboard__quiz-locked-text">
-                  Save {MATCH_UNLOCK_COUNT} real flashcards to unlock.{" "}
-                  {playableMatchCount} ready.
+                  {t("dashboard.unlockNeed", {
+                    need: MATCH_UNLOCK_COUNT,
+                    have: playableMatchCount,
+                  })}
                 </p>
               )}
             </div>
 
             <div className="dashboard__review-cta">
-              <h3 className="dashboard__quiz-subheading">Spot the mistake</h3>
-              <p className="dashboard__quiz-intro">
-                See a term and two statements. Tap the common mix-up — no
-                timer, and a miss just means try the other one.
-              </p>
+              <h3 className="dashboard__quiz-subheading">{t("games.spot")}</h3>
+              <p className="dashboard__quiz-intro">{t("dashboard.spotIntro")}</p>
               {spotUnlocked ? (
                 <Link
                   to="/spot"
                   className="dashboard__quiz-button dashboard__quiz-button--review"
                 >
-                  Play Spot the mistake
+                  {t("dashboard.playSpot")}
                 </Link>
               ) : (
                 <p className="dashboard__quiz-locked-text">
-                  Save {SPOT_UNLOCK_COUNT} real flashcards to unlock.{" "}
-                  {playableSpotCount} ready.
+                  {t("dashboard.unlockNeed", {
+                    need: SPOT_UNLOCK_COUNT,
+                    have: playableSpotCount,
+                  })}
                 </p>
               )}
             </div>
 
             <div className="dashboard__review-cta">
-              <h3 className="dashboard__quiz-subheading">Hear & pick</h3>
-              <p className="dashboard__quiz-intro">
-                Hear a saved term, then tap its meaning. Same voice as Hear
-                it — no timer, and a miss just means try another meaning.
-              </p>
+              <h3 className="dashboard__quiz-subheading">{t("games.hear")}</h3>
+              <p className="dashboard__quiz-intro">{t("dashboard.hearIntro")}</p>
               {hearUnlocked ? (
                 <Link
                   to="/hear"
                   className="dashboard__quiz-button dashboard__quiz-button--review"
                 >
-                  Play Hear & pick
+                  {t("dashboard.playHear")}
                 </Link>
               ) : (
                 <p className="dashboard__quiz-locked-text">
-                  Save {HEAR_UNLOCK_COUNT} real flashcards to unlock.{" "}
-                  {playableHearCount} ready.
+                  {t("dashboard.unlockNeed", {
+                    need: HEAR_UNLOCK_COUNT,
+                    have: playableHearCount,
+                  })}
                 </p>
               )}
             </div>
@@ -567,18 +641,16 @@ function DashboardPage({
         )}
       </section>
 
-      <section className="dashboard__quizzes" aria-label="Quizzes by topic">
+      <section className="dashboard__quizzes" aria-label={t("dashboard.quizzesAria")}>
         <h2 className="dashboard__section-heading">
           <IconSchool size={20} stroke={1.75} aria-hidden="true" />
-          Quizzes by Topic
+          {t("dashboard.quizzesByTopic")}
         </h2>
 
         {!quizzesUnlocked ? (
           <div className="dashboard__quiz-locked">
             <p className="dashboard__quiz-locked-text">
-              Save {QUIZ_UNLOCK_COUNT} real flashcards to unlock a review quiz
-              across those cards. Test cards don’t count. Missed topics get a
-              focused practice quiz next.
+              {t("dashboard.quizLocked", { need: QUIZ_UNLOCK_COUNT })}
             </p>
             <div
               className="dashboard__quiz-progress"
@@ -586,7 +658,10 @@ function DashboardPage({
               aria-valuemin={0}
               aria-valuemax={QUIZ_UNLOCK_COUNT}
               aria-valuenow={playableCount}
-              aria-label={`${playableCount} of ${QUIZ_UNLOCK_COUNT} playable cards saved`}
+              aria-label={t("dashboard.quizProgressAria", {
+                have: playableCount,
+                need: QUIZ_UNLOCK_COUNT,
+              })}
             >
               <div
                 className="dashboard__quiz-progress-fill"
@@ -596,20 +671,21 @@ function DashboardPage({
               />
             </div>
             <p className="dashboard__quiz-progress-label">
-              {playableCount} / {QUIZ_UNLOCK_COUNT} ready
+              {t("dashboard.readyCount", {
+                have: playableCount,
+                need: QUIZ_UNLOCK_COUNT,
+              })}
             </p>
             <Link to="/search" className="dashboard__link dashboard__link--primary">
               <IconSearch size={18} stroke={2} aria-hidden="true" />
-              Save more topics
+              {t("dashboard.saveMore")}
             </Link>
           </div>
         ) : (
           <>
             <div className="dashboard__review-cta">
               <p className="dashboard__quiz-intro">
-                Ready for a mixed review? We&apos;ll ask one multiple-choice
-                question from each of your recent cards (up to 10). Topics you
-                miss unlock a focused practice quiz.
+                {t("dashboard.reviewIntro")}
               </p>
               <button
                 type="button"
@@ -619,8 +695,8 @@ function DashboardPage({
                 aria-busy={isStartingReview}
               >
                 {isStartingReview
-                  ? "Building your review..."
-                  : "Start review quiz"}
+                  ? t("dashboard.buildingReview")
+                  : t("dashboard.startReview")}
               </button>
             </div>
 
@@ -631,7 +707,7 @@ function DashboardPage({
             )}
 
             <h3 className="dashboard__quiz-subheading">
-              Or practice one topic
+              {t("dashboard.practiceOne")}
             </h3>
             <ul className="dashboard__quiz-list">
               {quizTopics.map((topic) => (
@@ -642,7 +718,9 @@ function DashboardPage({
                     </span>
                     {(topic.subject?.name || topic.category) && (
                       <span className="dashboard__quiz-item-meta">
-                        {topic.subject?.name || topic.category}
+                        {topic.subject?.name
+                          ? subjectName(topic.subject.name)
+                          : topic.category}
                       </span>
                     )}
                   </div>
@@ -654,8 +732,8 @@ function DashboardPage({
                     aria-busy={quizLoadingId === topic._id}
                   >
                     {quizLoadingId === topic._id
-                      ? "Writing quiz..."
-                      : "Take Quiz"}
+                      ? t("dashboard.writingQuiz")
+                      : t("dashboard.takeQuiz")}
                   </button>
                 </li>
               ))}
@@ -664,10 +742,10 @@ function DashboardPage({
         )}
       </section>
 
-      <section className="dashboard__recommended" aria-label="Recommended for you">
+      <section className="dashboard__recommended" aria-label={t("dashboard.recommendedAria")}>
         <h2 className="dashboard__section-heading">
           <IconSparkles size={20} stroke={1.75} aria-hidden="true" />
-          Recommended for You
+          {t("dashboard.recommended")}
         </h2>
 
         {recommendations.length > 0 ? (
@@ -686,7 +764,9 @@ function DashboardPage({
         ) : learnerProfile?.primaryInterest ? (
           <div className="dashboard__recommend-cta">
             <p className="dashboard__recommend-text">
-              Ready to keep going with {learnerProfile.primaryInterest}?
+              {t("dashboard.keepGoing", {
+                interest: learnerProfile.primaryInterest,
+              })}
             </p>
             <Link
               to="/search"
@@ -694,7 +774,9 @@ function DashboardPage({
               className="dashboard__link dashboard__link--primary"
             >
               <IconSearch size={18} stroke={2} aria-hidden="true" />
-              Explore {learnerProfile.primaryInterest}
+              {t("dashboard.explore", {
+                interest: learnerProfile.primaryInterest,
+              })}
             </Link>
           </div>
         ) : learnerProfile?.studentStage && !skippedInterestPrompt ? (
@@ -706,14 +788,14 @@ function DashboardPage({
               htmlFor="dashboard-interest-input"
               className="dashboard__recommend-label"
             >
-              What are you focused on studying right now?
+              {t("dashboard.interestLabel")}
             </label>
             <div className="dashboard__recommend-form-row">
               <input
                 id="dashboard-interest-input"
                 type="text"
                 className="dashboard__recommend-input"
-                placeholder='Try "React" or "Cellular Biology"'
+                placeholder={t("dashboard.searchPlaceholder")}
                 value={interestInput}
                 onChange={(e) => setInterestInput(e.target.value)}
                 disabled={isSavingProfile}
@@ -723,7 +805,7 @@ function DashboardPage({
                 className="dashboard__link dashboard__link--primary"
                 disabled={isSavingProfile || !interestInput.trim()}
               >
-                Save
+                {t("dashboard.saveInterest")}
               </button>
             </div>
             <button
@@ -731,15 +813,14 @@ function DashboardPage({
               className="dashboard__recommend-skip"
               onClick={() => setSkippedInterestPrompt(true)}
             >
-              Skip for now
+              {t("dashboard.skip")}
             </button>
           </form>
         ) : !learnerProfile?.studentStage ? (
           <div className="dashboard__recommend-stage">
             <p className="dashboard__recommend-text">
               <IconBulb size={18} stroke={1.75} aria-hidden="true" />
-              Tell us a bit about yourself so we can point you in the right
-              direction.
+              {t("dashboard.stagePrompt")}
             </p>
             <div className="dashboard__recommend-stage-options">
               {STAGE_OPTIONS.map((option) => (
@@ -750,15 +831,14 @@ function DashboardPage({
                   onClick={() => handleStageSelect(option.value)}
                   disabled={isSavingProfile}
                 >
-                  {option.label}
+                  {t(option.labelKey)}
                 </button>
               ))}
             </div>
           </div>
         ) : (
           <p className="dashboard__empty">
-            Keep saving topics and we&apos;ll start recommending related ones
-            here.
+            {t("dashboard.recommendEmpty")}
           </p>
         )}
       </section>
@@ -766,12 +846,12 @@ function DashboardPage({
       <div className="dashboard__links">
         <Link to="/search" className="dashboard__link dashboard__link--primary">
           <IconSearch size={18} stroke={2} aria-hidden="true" />
-          Search a New Topic
+          {t("dashboard.searchNew")}
         </Link>
 
         <Link to="/saved" className="dashboard__link dashboard__link--secondary">
           <IconBookmarks size={18} stroke={2} aria-hidden="true" />
-          View Saved Topics
+          {t("dashboard.viewSaved")}
         </Link>
       </div>
     </section>

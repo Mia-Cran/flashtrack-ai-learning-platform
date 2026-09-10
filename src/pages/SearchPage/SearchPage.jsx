@@ -5,6 +5,7 @@ import "./SearchPage.css";
 import StudyCard from "../../components/StudyCard/StudyCard";
 import AuthPromptModal from "../../components/AuthPromptModal/AuthPromptModal";
 import SubjectPicker from "../../components/SubjectPicker/SubjectPicker";
+import { useI18n } from "../../i18n";
 
 const exampleTopics = [
   {
@@ -35,6 +36,7 @@ function SearchPage({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, subjectName } = useI18n();
   const [searchQuery, setSearchQuery] = useState(
     () => location.state?.searchTerm ?? "",
   );
@@ -66,7 +68,7 @@ function SearchPage({
     const cleanedQuery = rawQuery.trim().replace(/[.,!?]+$/, "");
 
     if (!cleanedQuery) {
-      setError("Please enter a topic to search.");
+      setError(t("search.emptyQuery"));
       setTopicResult(null);
       return;
     }
@@ -105,8 +107,7 @@ function SearchPage({
       if (!response.ok) {
         if (response.status === 429) {
           throw new Error(
-            data?.message ||
-              "You've hit the search limit for now. Please wait a few minutes and try again.",
+            data?.message || t("search.rateLimit"),
           );
         }
 
@@ -204,15 +205,13 @@ function SearchPage({
 
   return (
     <section className="home">
-      <h1 className="home__title">Search Topics</h1>
-      <p className="home__description">
-        Search for any topic you want to learn and turn it into a study card.
-      </p>
+      <h1 className="home__title">{t("search.title")}</h1>
+      <p className="home__description">{t("search.description")}</p>
       <form className="home__form" onSubmit={handleSearchSubmit}>
         <input
           className="home__input"
           type="text"
-          placeholder='Try "React", "Photosynthesis", or "The French Revolution"'
+          placeholder={t("search.placeholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           disabled={isLoading}
@@ -226,14 +225,14 @@ function SearchPage({
           {isLoading && (
             <span className="home__button-spinner" aria-hidden="true" />
           )}
-          {isLoading ? "Searching..." : "Search"}
+          {isLoading ? t("search.searching") : t("search.search")}
         </button>
       </form>
 
       {isLoading && (
         <div className="home__loading" role="status">
           <span className="home__loading-spinner" aria-hidden="true" />
-          <p className="home__loading-text">Generating your study card...</p>
+          <p className="home__loading-text">{t("search.generating")}</p>
         </div>
       )}
 
@@ -245,7 +244,7 @@ function SearchPage({
             htmlFor="search-subject-picker"
             className="home__subject-confirm-label"
           >
-            Subject
+            {t("search.subject")}
           </label>
           <SubjectPicker
             id="search-subject-picker"
@@ -279,9 +278,9 @@ function SearchPage({
       )}
 
       {!topicResult && !isLoading && browseSubject && (
-        <section className="home__examples" aria-label={`Example topics in ${browseSubject.name}`}>
+        <section className="home__examples" aria-label={t("search.examplesAria", { name: subjectName(browseSubject.name) })}>
           <p className="home__examples-label">
-            Browsing {browseSubject.name} — try one, or search anything:
+            {t("search.examplesLabel", { name: subjectName(browseSubject.name) })}
           </p>
           {browseSubject.exampleTopics.length > 0 ? (
             <div className="home__browse-chips">
@@ -298,9 +297,7 @@ function SearchPage({
             </div>
           ) : (
             <p className="home__empty">
-              No example topics for this subject yet — search anything and
-              it'll be classified into {browseSubject.name} automatically if
-              that's the best fit.
+              {t("search.noExamples", { name: subjectName(browseSubject.name) })}
             </p>
           )}
           <button
@@ -308,16 +305,14 @@ function SearchPage({
             className="home__browse-clear"
             onClick={() => setBrowseSubject(null)}
           >
-            ← Or see general example topics instead
+            {t("search.clearBrowse")}
           </button>
         </section>
       )}
 
       {!topicResult && !isLoading && !browseSubject && (
-        <section className="home__examples" aria-label="Example topics">
-          <p className="home__examples-label">
-            See what a study card looks like — try one:
-          </p>
+        <section className="home__examples" aria-label={t("search.tryThese")}>
+          <p className="home__examples-label">{t("search.tryThese")}</p>
           <div className="home__examples-grid">
             {exampleTopics.map((topic) => (
               <button
@@ -329,7 +324,7 @@ function SearchPage({
                 <span className="home__example-title">{topic.title}</span>
                 <span className="home__example-simple">
                   <span className="home__example-simple-label">
-                    Simple Definition
+                    {t("card.simple")}
                   </span>
                   <span className="home__example-simple-text">
                     {topic.simpleDefinition}

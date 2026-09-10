@@ -7,10 +7,13 @@ import {
   IconAccessible,
   IconDeviceFloppy,
   IconCheck,
+  IconLanguage,
 } from "@tabler/icons-react";
+import { useT } from "../../i18n";
 
 function buildFormState(profile) {
   return {
+    preferredLanguage: profile?.preferredLanguage === "es" ? "es" : "en",
     preferredDifficulty: profile?.preferredDifficulty || "",
     pacing: profile?.learningPreferences?.pacing || "",
     explanationStyle: profile?.learningPreferences?.explanationStyle || "",
@@ -56,6 +59,7 @@ function RadioOption({ name, value, label, currentValue, onChange }) {
 }
 
 function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
+  const t = useT();
   const [form, setForm] = useState(() => buildFormState(learnerProfile));
   const [isSaving, setIsSaving] = useState(false);
   const [saveState, setSaveState] = useState("idle");
@@ -98,6 +102,7 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
     }
 
     onUpdateLearnerProfile({
+      preferredLanguage: form.preferredLanguage || "en",
       preferredDifficulty: form.preferredDifficulty,
       learningPreferences,
       accessibilityPreferences: {
@@ -120,29 +125,51 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
   if (!learnerProfile) {
     return (
       <section className="settings">
-        <h1 className="settings__title">Settings</h1>
-        <p className="settings__loading">Loading your settings...</p>
+        <h1 className="settings__title">{t("settings.title")}</h1>
+        <p className="settings__loading">{t("settings.loading")}</p>
       </section>
     );
   }
 
   return (
     <section className="settings">
-      <h1 className="settings__title">Settings</h1>
-      <p className="settings__subtitle">
-        Tell FlashTrack how you like to learn — these shape how study cards
-        look and behave for you.
-      </p>
+      <h1 className="settings__title">{t("settings.title")}</h1>
+      <p className="settings__subtitle">{t("settings.subtitle")}</p>
 
       <form className="settings__form" onSubmit={handleSubmit}>
         <div className="settings__group">
           <h2 className="settings__group-title">
-            <IconGauge size={20} stroke={1.75} aria-hidden="true" />
-            Preferred Difficulty
+            <IconLanguage size={20} stroke={1.75} aria-hidden="true" />
+            {t("language.title")}
           </h2>
-          <p className="settings__group-hint">
-            Shapes how much background knowledge new study cards assume when you're signed in.
-          </p>
+          <p className="settings__group-hint">{t("language.hint")}</p>
+          <fieldset className="settings__fieldset">
+            <legend className="settings__legend">{t("language.title")}</legend>
+            <div className="settings__radio-row">
+              <RadioOption
+                name="preferredLanguage"
+                value="en"
+                label={t("language.english")}
+                currentValue={form.preferredLanguage}
+                onChange={(value) => updateField("preferredLanguage", value)}
+              />
+              <RadioOption
+                name="preferredLanguage"
+                value="es"
+                label={t("language.spanish")}
+                currentValue={form.preferredLanguage}
+                onChange={(value) => updateField("preferredLanguage", value)}
+              />
+            </div>
+          </fieldset>
+        </div>
+
+        <div className="settings__group">
+          <h2 className="settings__group-title">
+            <IconGauge size={20} stroke={1.75} aria-hidden="true" />
+            {t("settings.difficulty")}
+          </h2>
+          <p className="settings__group-hint">{t("settings.difficultyHint")}</p>
           <select
             className="settings__select"
             value={form.preferredDifficulty}
@@ -150,40 +177,40 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
               updateField("preferredDifficulty", event.target.value)
             }
           >
-            <option value="">No preference</option>
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
+            <option value="">{t("settings.noPreference")}</option>
+            <option value="Beginner">{t("card.beginnerLevel")}</option>
+            <option value="Intermediate">{t("card.intermediateLevel")}</option>
+            <option value="Advanced">{t("card.advancedLevel")}</option>
           </select>
         </div>
 
         <div className="settings__group">
           <h2 className="settings__group-title">
             <IconBulb size={20} stroke={1.75} aria-hidden="true" />
-            Learning Style
+            {t("settings.learningStyle")}
           </h2>
 
           <fieldset className="settings__fieldset">
-            <legend className="settings__legend">Pacing</legend>
+            <legend className="settings__legend">{t("settings.pacing")}</legend>
             <div className="settings__radio-row">
               <RadioOption
                 name="pacing"
                 value=""
-                label="No preference"
+                label={t("settings.noPreference")}
                 currentValue={form.pacing}
                 onChange={(value) => updateField("pacing", value)}
               />
               <RadioOption
                 name="pacing"
                 value="keyPointsOnly"
-                label="Key Points Only"
+                label={t("settings.keyPoints")}
                 currentValue={form.pacing}
                 onChange={(value) => updateField("pacing", value)}
               />
               <RadioOption
                 name="pacing"
                 value="stepByStep"
-                label="Step-by-Step"
+                label={t("settings.stepByStep")}
                 currentValue={form.pacing}
                 onChange={(value) => updateField("pacing", value)}
               />
@@ -191,26 +218,26 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
           </fieldset>
 
           <fieldset className="settings__fieldset">
-            <legend className="settings__legend">Explanation Style</legend>
+            <legend className="settings__legend">{t("settings.explanationStyle")}</legend>
             <div className="settings__radio-row">
               <RadioOption
                 name="explanationStyle"
                 value=""
-                label="No preference"
+                label={t("settings.noPreference")}
                 currentValue={form.explanationStyle}
                 onChange={(value) => updateField("explanationStyle", value)}
               />
               <RadioOption
                 name="explanationStyle"
                 value="analogies"
-                label="Real-world analogies"
+                label={t("settings.analogies")}
                 currentValue={form.explanationStyle}
                 onChange={(value) => updateField("explanationStyle", value)}
               />
               <RadioOption
                 name="explanationStyle"
                 value="technical"
-                label="Technical depth"
+                label={t("settings.technical")}
                 currentValue={form.explanationStyle}
                 onChange={(value) => updateField("explanationStyle", value)}
               />
@@ -221,26 +248,26 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
         <div className="settings__group">
           <h2 className="settings__group-title">
             <IconAccessible size={20} stroke={1.75} aria-hidden="true" />
-            Accessibility
+            {t("settings.accessibility")}
           </h2>
 
           <ToggleRow
-            title="Sections collapsed by default"
-            hint="Study card sections stay tucked away until you tap to open them."
+            title={t("settings.collapsedTitle")}
+            hint={t("settings.collapsedHint")}
             checked={form.sectionsCollapsedByDefault}
             onChange={(value) => updateField("sectionsCollapsedByDefault", value)}
           />
 
           <ToggleRow
-            title="Larger text"
-            hint="Increases text size across the app."
+            title={t("settings.largerTitle")}
+            hint={t("settings.largerHint")}
             checked={form.largerText}
             onChange={(value) => updateField("largerText", value)}
           />
 
           <ToggleRow
-            title="Reduce motion"
-            hint="Limits animations and transitions across the app."
+            title={t("settings.motionTitle")}
+            hint={t("settings.motionHint")}
             checked={form.reduceMotion}
             onChange={(value) => updateField("reduceMotion", value)}
           />
@@ -253,11 +280,11 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
             disabled={isSaving}
           >
             {isSaving ? (
-              "Saving..."
+              t("settings.saving")
             ) : (
               <>
                 <IconDeviceFloppy size={18} stroke={2} aria-hidden="true" />
-                Save Settings
+                {t("settings.save")}
               </>
             )}
           </button>
@@ -265,13 +292,13 @@ function SettingsPage({ isLoggedIn, learnerProfile, onUpdateLearnerProfile }) {
           {saveState === "saved" && (
             <span className="settings__save-confirmation">
               <IconCheck size={18} stroke={2} aria-hidden="true" />
-              Saved
+              {t("settings.saved")}
             </span>
           )}
 
           {saveState === "error" && (
             <span className="settings__save-error">
-              Something went wrong — try again.
+              {t("settings.error")}
             </span>
           )}
         </div>

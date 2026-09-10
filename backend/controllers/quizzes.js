@@ -54,6 +54,7 @@ const generateQuiz = async (req, res) => {
 
     const questions = await generateQuizQuestions(topic.term, questionType, {
       simpleDefinition: topic.simpleDefinition,
+      preferredLanguage: profile?.preferredLanguage,
     });
 
     const quiz = await Quiz.create({ topic: topicId, questions });

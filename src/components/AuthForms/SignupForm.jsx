@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "./AuthForms.css";
+import { useT } from "../../i18n";
 
 function SignupForm({ onSignup, onSuccess }) {
+  const t = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +25,7 @@ function SignupForm({ onSignup, onSuccess }) {
         // (offline, backend down). Anything else is the server's own message.
         setError(
           err instanceof TypeError || !err.message
-            ? "Couldn't create your account. Please try again."
+            ? t("auth.signupError")
             : err.message,
         );
       })
@@ -39,7 +41,7 @@ function SignupForm({ onSignup, onSuccess }) {
         type="text"
         value={name}
         onChange={(event) => setName(event.target.value)}
-        placeholder="Name"
+        placeholder={t("auth.name")}
         required
       />
 
@@ -48,7 +50,7 @@ function SignupForm({ onSignup, onSuccess }) {
         type="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
-        placeholder="Email"
+        placeholder={t("auth.email")}
         required
       />
 
@@ -57,7 +59,7 @@ function SignupForm({ onSignup, onSuccess }) {
         type="password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
-        placeholder="Password"
+        placeholder={t("auth.password")}
         required
       />
 
@@ -68,7 +70,7 @@ function SignupForm({ onSignup, onSuccess }) {
         aria-busy={isSubmitting}
       >
         {isSubmitting && <span className="auth-form__spinner" aria-hidden="true" />}
-        {isSubmitting ? "Creating account..." : "Create Account"}
+        {isSubmitting ? t("auth.creating") : t("auth.createAccount")}
       </button>
 
       {error && (

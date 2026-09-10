@@ -7,16 +7,18 @@ import {
   playableMatchTopics,
 } from "../../utils/matchGame";
 import "./MatchPage.css";
+import { useT } from "../../i18n";
 
 function MatchPage({
   isLoggedIn,
   savedTopics = [],
 }) {
+  const t = useT();
   const [pinnedRound, setPinnedRound] = useState(null);
   const [selectedTermId, setSelectedTermId] = useState(null);
   const [selectedPromptId, setSelectedPromptId] = useState(null);
   const [matchedIds, setMatchedIds] = useState(() => new Set());
-  const [status, setStatus] = useState("Tap a term, then tap its meaning.");
+  const [status, setStatus] = useState("");
 
   const playableCount = playableMatchTopics(savedTopics).length;
   const round = pinnedRound ?? buildMatchRound(savedTopics);
@@ -49,14 +51,14 @@ function MatchPage({
       resetSelection();
       setStatus(
         nextMatched.size === totalPairs
-          ? "All matched. Nice work."
-          : "Matched. Pick another pair.",
+          ? t("match.allMatched")
+          : t("match.matched"),
       );
       return;
     }
 
     resetSelection();
-    setStatus("Not a match. Try a different pair.");
+    setStatus(t("match.notPair"));
   }
 
   function handleTermClick(id) {
@@ -98,7 +100,7 @@ function MatchPage({
   function handlePlayAgain() {
     setMatchedIds(new Set());
     resetSelection();
-    setStatus("Tap a term, then tap its meaning.");
+    setStatus(t("match.tapTerm"));
     setPinnedRound(buildMatchRound(savedTopics));
   }
 
@@ -107,37 +109,37 @@ function MatchPage({
       <header className="match-page__header">
         <h1 className="match-page__title">
           <IconPuzzle size={28} stroke={1.75} aria-hidden="true" />
-          Match
+          {t("games.match")}
         </h1>
-        <p className="match-page__lede">
-          Pair each term with its meaning. One pair at a time — no timer.
-        </p>
+        <p className="match-page__lede">{t("match.lede")}</p>
         <Link to="/games" className="match-page__hub-link">
-          All games
+          {t("match.back")}
         </Link>
       </header>
 
       {!round ? (
         <div className="match-page__empty">
           <p>
-            Save {MATCH_UNLOCK_COUNT} real flashcards to play Match. Test
-            cards don’t count. You have {playableCount} ready.
+            {t("match.needMore", {
+              need: MATCH_UNLOCK_COUNT,
+              have: playableCount,
+            })}
           </p>
           <Link to="/search" className="match-page__button match-page__button--primary">
-            Search a topic
+            {t("common.searchTopic")}
           </Link>
         </div>
       ) : (
         <>
           <p className="match-page__progress" aria-live="polite">
-            {matchedCount} of {totalPairs} matched
+            {t("match.progress", { matched: matchedCount, total: totalPairs })}
           </p>
           <p className="match-page__status" role="status" aria-live="polite">
-            {status}
+            {status || t("match.tapTerm")}
           </p>
 
           <div className="match-page__board">
-            <div className="match-page__column" aria-label="Terms">
+            <div className="match-page__column" aria-label={t("match.termsColumn")}>
               {round.terms.map((tile) => {
                 const isMatched = matchedIds.has(tile.id);
                 const isSelected = selectedTermId === tile.id;
@@ -156,7 +158,7 @@ function MatchPage({
                     onClick={() => handleTermClick(tile.id)}
                     disabled={isMatched}
                     aria-pressed={isSelected}
-                    aria-label={`Term: ${tile.label}`}
+                    aria-label={t("match.termAria", { label: tile.label })}
                   >
                     {tile.label}
                   </button>
@@ -164,7 +166,7 @@ function MatchPage({
               })}
             </div>
 
-            <div className="match-page__column" aria-label="Meanings">
+            <div className="match-page__column" aria-label={t("match.meaningsColumn")}>
               {round.prompts.map((tile) => {
                 const isMatched = matchedIds.has(tile.id);
                 const isSelected = selectedPromptId === tile.id;
@@ -184,7 +186,7 @@ function MatchPage({
                     onClick={() => handlePromptClick(tile.id)}
                     disabled={isMatched}
                     aria-pressed={isSelected}
-                    aria-label={`Meaning: ${tile.label}`}
+                    aria-label={t("match.meaningAria", { label: tile.label })}
                     title={tile.label}
                   >
                     {tile.label}
@@ -200,17 +202,17 @@ function MatchPage({
               className="match-page__button match-page__button--primary"
               onClick={handlePlayAgain}
             >
-              {isComplete ? "Play again" : "New round"}
+              {isComplete ? t("common.playAgain") : t("match.newRound")}
             </button>
             {isComplete && (
               <Link to="/home" className="match-page__button match-page__button--secondary">
-                Back to dashboard
+                {t("common.backDashboard")}
               </Link>
             )}
           </div>
 
           {isComplete && (
-            <p className="match-page__complete-note">You matched every pair.</p>
+            <p className="match-page__complete-note">{t("match.complete")}</p>
           )}
         </>
       )}

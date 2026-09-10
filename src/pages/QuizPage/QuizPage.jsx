@@ -3,11 +3,12 @@ import { useParams } from "react-router";
 import { API_BASE_URL } from "../../utils/api";
 import StudyCard from "../../components/StudyCard/StudyCard";
 import { quizHasUnusableQuestions } from "../../utils/quizQuality";
+import { useI18n } from "../../i18n";
 import "./QuizPage.css";
 
-function formatAttemptDate(value) {
+function formatAttemptDate(value, locale) {
   try {
-    return new Date(value).toLocaleDateString(undefined, {
+    return new Date(value).toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -17,14 +18,23 @@ function formatAttemptDate(value) {
   }
 }
 
+function difficultyLabel(t, difficulty) {
+  if (difficulty === "Beginner") return t("quiz.beginner");
+  if (difficulty === "Intermediate") return t("quiz.intermediate");
+  if (difficulty === "Advanced") return t("quiz.advanced");
+  return difficulty;
+}
+
 function PastAttempts({ attempts }) {
+  const { t, locale } = useI18n();
+
   if (!attempts?.length) {
     return null;
   }
 
   return (
     <div className="quiz-past-attempts">
-      <h3 className="quiz-past-attempts__title">Your past scores</h3>
+      <h3 className="quiz-past-attempts__title">{t("quiz.pastScores")}</h3>
       <ul className="quiz-past-attempts__list">
         {attempts.map((attempt) => (
           <li key={attempt._id} className="quiz-past-attempts__item">
@@ -32,7 +42,8 @@ function PastAttempts({ attempts }) {
               {attempt.score}/{attempt.maxScore} ({attempt.percent}%)
             </span>
             <span className="quiz-past-attempts__meta">
-              {attempt.difficulty} · {formatAttemptDate(attempt.completedAt)}
+              {difficultyLabel(t, attempt.difficulty)} ·{" "}
+              {formatAttemptDate(attempt.completedAt, locale)}
             </span>
           </li>
         ))}
@@ -43,6 +54,7 @@ function PastAttempts({ attempts }) {
 
 function QuizPage() {
   const { topicId } = useParams();
+  const { t } = useI18n();
   const [quiz, setQuiz] = useState(null);
   const [difficulty, setDifficulty] = useState("Beginner");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -93,7 +105,7 @@ function QuizPage() {
       })
       .then((res) => {
         if (cancelled || res === null) return null;
-        if (!res.ok) throw new Error("Quiz not found");
+        if (!res.ok) throw new Error(t("quiz.notFound"));
         return res.json();
       })
       .then((data) => {
@@ -116,22 +128,25 @@ function QuizPage() {
     return () => {
       cancelled = true;
     };
-  }, [topicId]);
+  }, [topicId, t]);
 
   if (isLoading) {
-    return <div className="quiz-page">Loading quiz...</div>;
+    return <div className="quiz-page">{t("quiz.loading")}</div>;
   }
 
   if (error || !quiz) {
-    return <div className="quiz-page">Error: {error || "Quiz not found"}</div>;
+    return (
+      <div className="quiz-page">
+        {t("quiz.error", { message: error || t("quiz.notFound") })}
+      </div>
+    );
   }
 
   const questions = quiz.questions?.[difficulty] ?? [];
   if (quizHasUnusableQuestions(questions)) {
     return (
       <div className="quiz-page">
-        Error: Those questions didn&apos;t generate correctly. Go back to Home
-        and tap Take Quiz again.
+        {t("quiz.badQuestions")}
       </div>
     );
   }
@@ -162,7 +177,7 @@ function QuizPage() {
   function handleSubmit() {
     const token = localStorage.getItem("jwt");
     if (!token) {
-      setError("You must be logged in to submit quizzes");
+      setError(t("quiz.mustLogin"));
       return;
     }
 
@@ -178,7 +193,7 @@ function QuizPage() {
       }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to submit quiz");
+        if (!res.ok) throw new Error(t("quiz.failedSubmit"));
         return res.json();
       })
       .then((data) => {
@@ -206,7 +221,7 @@ function QuizPage() {
     return (
       <section className="quiz-page">
         <div className="quiz-result">
-          <h2>Quiz Complete!</h2>
+          <h2>{t("quiz.complete")}</h2>
           <div className="quiz-score">
             <div className="score-number">
               {score}/{total}
@@ -216,23 +231,27 @@ function QuizPage() {
             </div>
           </div>
           <p className="score-message">
-            {score === total && "Perfect score! 🎉"}
-            {score < total && score / total >= 0.8 && "Great job! 🌟"}
+            {score === total && t("quiz.perfect")}
+            {score < total && score / total >= 0.8 && t("quiz.great")}
             {score / total >= 0.6 &&
               score / total < 0.8 &&
-              "Good effort! Keep practicing."}
-            {score / total < 0.6 && "Review the material and try again."}
+              t("quiz.good")}
+            {score / total < 0.6 && t("quiz.reviewMaterial")}
           </p>
 
           {missedCount > 0 && studyTopic && (
             <div className="quiz-review-flashcard">
               <h3 className="quiz-review-flashcard__title">
-                Review this flashcard
+                {t("quiz.reviewCard")}
               </h3>
               <p className="quiz-review-flashcard__hint">
-                You missed {missedCount}{" "}
-                {missedCount === 1 ? "question" : "questions"}. Flip the same
-                study card to go straight back to the idea.
+                {t("quiz.missedHint", {
+                  count: missedCount,
+                  questions:
+                    missedCount === 1
+                      ? t("quiz.question")
+                      : t("quiz.questions"),
+                })}
               </p>
               <StudyCard topic={studyTopic} isSavedExternally />
             </div>
@@ -249,7 +268,7 @@ function QuizPage() {
               setReview([]);
             }}
           >
-            Try Again
+            {t("quiz.tryAgain")}
           </button>
         </div>
       </section>
@@ -259,10 +278,10 @@ function QuizPage() {
   return (
     <section className="quiz-page">
       <div className="quiz-header">
-        <h1>{quiz.topic?.term} Quiz</h1>
+        <h1>{t("quiz.title", { term: quiz.topic?.term })}</h1>
         <div className="quiz-controls">
           <label>
-            Difficulty:
+            {t("quiz.difficulty")}
             <select
               value={difficulty}
               onChange={(e) => {
@@ -276,9 +295,9 @@ function QuizPage() {
               }}
               disabled={submitted}
             >
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
+              <option value="Beginner">{t("quiz.beginner")}</option>
+              <option value="Intermediate">{t("quiz.intermediate")}</option>
+              <option value="Advanced">{t("quiz.advanced")}</option>
             </select>
           </label>
         </div>
@@ -288,7 +307,9 @@ function QuizPage() {
 
       {total === 0 && (
         <p className="quiz-empty">
-          No {difficulty} questions yet for this topic. Try another difficulty.
+          {t("quiz.emptyLevel", {
+            difficulty: difficultyLabel(t, difficulty),
+          })}
         </p>
       )}
 
@@ -303,7 +324,10 @@ function QuizPage() {
           />
         </div>
         <p className="progress-text">
-          Question {currentQuestionIndex + 1} of {total}
+          {t("quiz.questionOf", {
+            current: currentQuestionIndex + 1,
+            total,
+          })}
         </p>
       </div>
       )}
@@ -346,7 +370,7 @@ function QuizPage() {
                     checked={responses[currentQuestionIndex] === (option === "true")}
                     onChange={() => handleAnswerChange(option === "true")}
                   />
-                  <span>{option === "true" ? "True" : "False"}</span>
+                  <span>{option === "true" ? t("quiz.true") : t("quiz.false")}</span>
                 </label>
               ))}
             </div>
@@ -356,7 +380,7 @@ function QuizPage() {
             <input
               type="text"
               className="answer-input"
-              placeholder="Type your answer..."
+              placeholder={t("quiz.placeholder")}
               value={responses[currentQuestionIndex] || ""}
               onChange={(e) => handleAnswerChange(e.target.value)}
             />
@@ -369,7 +393,7 @@ function QuizPage() {
             onClick={handlePrevious}
             disabled={currentQuestionIndex === 0}
           >
-            ← Previous
+            {t("quiz.previous")}
           </button>
 
           <button
@@ -377,7 +401,7 @@ function QuizPage() {
             onClick={handleNext}
             disabled={responses[currentQuestionIndex] === null}
           >
-            {isLastQuestion ? "Submit" : "Next →"}
+            {isLastQuestion ? t("quiz.submit") : t("quiz.next")}
           </button>
         </div>
       </div>
