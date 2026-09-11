@@ -1,0 +1,66 @@
+.app-tour {
+  position: fixed;
+  z-index: 40;
+  width: min(300px, calc(100vw - 24px));
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid #e4dcc8;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(28, 27, 25, 0.16);
+}
+
+.app-tour__progress {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5b574d;
+}
+
+.app-tour__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #1c1b19;
+}
+
+.app-tour__body {
+  margin: 0 0 14px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #5b574d;
+}
+
+.app-tour__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.app-tour__skip,
+.app-tour__next {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.app-tour__skip {
+  border: none;
+  background: transparent;
+  color: #5b574d;
+}
+
+.app-tour__next {
+  border: none;
+  background: #993556;
+  color: #ffffff;
+}
+
+.app-tour__skip:focus-visible,
+.app-tour__next:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}

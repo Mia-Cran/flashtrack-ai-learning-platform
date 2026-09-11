@@ -1,0 +1,88 @@
+.games-page {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.games-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.games-page__title {
+  margin: 0;
+  font-size: 32px;
+  color: #1c1b19;
+}
+
+.games-page__lede {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5b574d;
+}
+
+.games-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.games-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: linear-gradient(180deg, #fbeaf0, #f7f3ec);
+  border: 1px solid rgba(153, 53, 86, 0.25);
+  border-radius: 14px;
+}
+
+.games-page__card-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  color: #1c1b19;
+}
+
+.games-page__card-copy,
+.games-page__locked {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #5b574d;
+}
+
+.games-page__button {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid #993556;
+  background: #993556;
+  color: #ffffff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.games-page__button:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
+
+@media screen and (max-width: 700px) {
+  .games-page__grid {
+    grid-template-columns: 1fr;
+  }
+}

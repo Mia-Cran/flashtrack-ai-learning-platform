@@ -1,0 +1,546 @@
+import "./App.css";
+import { Routes, Route, Link } from "react-router";
+import WelcomePage from "./pages/WelcomePage/WelcomePage";
+import DashboardPage from "./pages/DashboardPage/DashboardPage";
+import SearchPage from "./pages/SearchPage/SearchPage";
+import SavedTopicsPage from "./pages/SavedTopicsPage/SavedTopicsPage";
+import AboutPage from "./pages/AboutPage/AboutPage";
+import LegalPage from "./pages/LegalPage/LegalPage";
+import VoicePage from "./pages/VoicePage/VoicePage";
+import SettingsPage from "./pages/SettingsPage/SettingsPage";
+import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
+import SubjectsPage from "./pages/SubjectsPage/SubjectsPage";
+import QuizPage from "./pages/QuizPage/QuizPage";
+import ReviewQuizPage from "./pages/QuizPage/ReviewQuizPage";
+import MatchPage from "./pages/MatchPage/MatchPage";
+import GamesPage from "./pages/GamesPage/GamesPage";
+import SpotPage from "./pages/SpotPage/SpotPage";
+import HearPage from "./pages/HearPage/HearPage";
+import Header from "./components/Header/Header";
+import AppTour from "./components/AppTour/AppTour";
+import { getTourSteps } from "./components/AppTour/tourSteps";
+import LanguagePickerModal from "./components/LanguagePickerModal/LanguagePickerModal";
+import { useEffect, useState } from "react";
+import { API_BASE_URL } from "./utils/api";
+import { LanguageProvider, normalizeLanguage, useT } from "./i18n";
+
+function SiteFooter() {
+  const t = useT();
+
+  return (
+    <footer className="app__footer">
+      <Link to="/voice">{t("header.voice")}</Link>
+      <Link to="/legal">{t("header.legal")}</Link>
+    </footer>
+  );
+}
+
+function App() {
+  const [savedTopics, setSavedTopics] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    Boolean(localStorage.getItem("jwt")),
+  );
+  const [userName, setUserName] = useState(
+    localStorage.getItem("name") || "",
+  );
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [learnerProfile, setLearnerProfile] = useState(null);
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [tourStepIndex, setTourStepIndex] = useState(null);
+
+  const language = normalizeLanguage(learnerProfile?.preferredLanguage);
+  const sectionsCollapsedByDefault =
+    learnerProfile?.accessibilityPreferences?.sectionsCollapsedByDefault ??
+    true;
+  const hasLargerText = learnerProfile?.accessibilityPreferences?.largerText ?? false;
+  const hasReducedMotion =
+    learnerProfile?.accessibilityPreferences?.reduceMotion ?? false;
+  const explanationStyle =
+    learnerProfile?.learningPreferences?.explanationStyle ?? "analogies";
+  const tourSteps = getTourSteps(isLoggedIn);
+  const tourHighlightId =
+    tourStepIndex === null ? null : tourSteps[tourStepIndex]?.id ?? null;
+
+  useEffect(() => {
+    document.documentElement.lang = language === "es" ? "es" : "en";
+  }, [language]);
+
+  function loadTopics(token) {
+    return fetch(`${API_BASE_URL}/topics`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load topics");
+        }
+
+        return res.json();
+      })
+      .then((topics) => {
+        setSavedTopics(topics);
+        return topics;
+      });
+  }
+
+  function loadLearnerProfile(token) {
+    return fetch(`${API_BASE_URL}/learner-profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load learner profile");
+        }
+
+        return res.json();
+      })
+      .then((profile) => {
+        setLearnerProfile(profile);
+        return profile;
+      });
+  }
+
+  function handleUpdateLearnerProfile(updates) {
+    const token = localStorage.getItem("jwt");
+
+    return fetch(`${API_BASE_URL}/learner-profile`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to update learner profile");
+        }
+
+        return res.json();
+      })
+      .then((profile) => {
+        setLearnerProfile(profile);
+        return profile;
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+
+    if (!token) {
+      return;
+    }
+
+    loadTopics(token).catch((err) => {
+      console.error(err);
+    });
+
+    loadLearnerProfile(token).catch((err) => {
+      console.error(err);
+    });
+  }, []);
+
+  function handleSignin(email, password) {
+    return fetch(`${API_BASE_URL}/signin`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Signin failed");
+        }
+
+        return res.json();
+      })
+      .then((data) => {
+        localStorage.setItem("jwt", data.token);
+        localStorage.setItem("name", data.name || "");
+        setIsLoggedIn(true);
+        setUserName(data.name || "");
+
+        loadLearnerProfile(data.token).catch((err) => {
+          console.error(err);
+        });
+
+        return loadTopics(data.token).then(() => {
+          return data.token;
+        });
+      });
+  }
+
+  function handleSignup(name, email, password, is15OrOlder) {
+    return fetch(`${API_BASE_URL}/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, password, is15OrOlder }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          // Use the server's message (e.g. "An account with that email
+          // already exists") so the form can show the real reason.
+          return res
+            .json()
+            .catch(() => ({}))
+            .then((data) => {
+              throw new Error(data.message || "Signup failed");
+            });
+        }
+
+        return res.json();
+      })
+      .then(() => {
+        return handleSignin(email, password);
+      })
+      .then((token) => {
+        setShowLanguagePicker(true);
+        return token;
+      });
+  }
+
+  function handleSignout() {
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("name");
+    setSavedTopics([]);
+    setIsLoggedIn(false);
+    setUserName("");
+    setLearnerProfile(null);
+    setShowLanguagePicker(false);
+    setTourStepIndex(null);
+  }
+
+  function handleStartTour() {
+    setTourStepIndex(0);
+  }
+
+  function handleSkipTour() {
+    setTourStepIndex(null);
+  }
+
+  function handleNextTour() {
+    setTourStepIndex((current) => {
+      if (current === null || current >= tourSteps.length - 1) {
+        return null;
+      }
+
+      return current + 1;
+    });
+  }
+
+  function handleSaveTopic(topic) {
+    const token = localStorage.getItem("jwt");
+
+    const backendTopic = {
+      term: topic.title,
+      searchTerm: topic.searchTerm,
+      simpleDefinition: topic.simpleDefinition,
+      beginnerDefinition: topic.beginnerExplanation,
+      technicalDefinition: topic.technicalDefinition,
+      category: topic.category,
+      difficulty: topic.difficulty,
+      analogy: topic.analogy,
+      codeExample: topic.codeExample,
+      commonMistake: topic.commonMistake,
+      relatedTopics: topic.relatedTopics,
+      subject: topic.subject,
+    };
+
+    return fetch(`${API_BASE_URL}/topics`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(backendTopic),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to save topic");
+        }
+
+        return res.json();
+      })
+      .then((savedTopic) => {
+        setSavedTopics((prevTopics) => {
+          const without = prevTopics.filter(
+            (item) => item._id !== savedTopic._id,
+          );
+          return [...without, savedTopic];
+        });
+
+        return savedTopic;
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
+  }
+
+  function handleAssignSubject(topicId, subjectId) {
+    const token = localStorage.getItem("jwt");
+
+    return fetch(`${API_BASE_URL}/topics/${topicId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ subject: subjectId }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to update topic");
+        }
+
+        return res.json();
+      })
+      .then((updatedTopic) => {
+        setSavedTopics((prevTopics) =>
+          prevTopics.map((topic) =>
+            topic._id === updatedTopic._id ? updatedTopic : topic,
+          ),
+        );
+
+        return updatedTopic;
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
+  }
+
+  function handleDeleteTopic(topicId) {
+    const token = localStorage.getItem("jwt");
+
+    return fetch(`${API_BASE_URL}/topics/${topicId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete topic");
+        }
+
+        return res.json();
+      })
+      .then(() => {
+        setSavedTopics((prevTopics) =>
+          prevTopics.filter((topic) => topic._id !== topicId),
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
+  }
+
+  function handleRegenerateTopic(topicId, difficulty) {
+    const token = localStorage.getItem("jwt");
+
+    console.log("Regenerating topic:", topicId, "to difficulty:", difficulty);
+
+    return fetch(`${API_BASE_URL}/topics/${topicId}/regenerate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ difficulty }),
+    })
+      .then((res) => {
+        console.log("Response status:", res.status);
+        if (!res.ok) {
+          return res.text().then((text) => {
+            throw new Error(`Failed to regenerate topic: ${res.status} ${text}`);
+          });
+        }
+
+        return res.json();
+      })
+      .then((updatedTopic) => {
+        console.log("Topic regenerated successfully:", updatedTopic);
+        setSavedTopics((prevTopics) =>
+          prevTopics.map((topic) =>
+            topic._id === updatedTopic._id ? updatedTopic : topic,
+          ),
+        );
+
+        return updatedTopic;
+      })
+      .catch((err) => {
+        console.error("Regenerate error:", err);
+        throw err;
+      });
+  }
+  return (
+    <LanguageProvider language={language}>
+    <main
+      className={`app${hasLargerText ? " app--larger-text" : ""}${
+        hasReducedMotion ? " app--reduce-motion" : ""
+      }`}
+    >
+      <Header
+        isLoggedIn={isLoggedIn}
+        onSignout={handleSignout}
+        isSearchLoading={isSearchLoading}
+        tourHighlightId={tourHighlightId}
+      />
+      {tourStepIndex !== null && (
+        <AppTour
+          steps={tourSteps}
+          stepIndex={tourStepIndex}
+          onNext={handleNextTour}
+          onSkip={handleSkipTour}
+        />
+      )}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <WelcomePage
+              onSignin={handleSignin}
+              onSignup={handleSignup}
+              isLoggedIn={isLoggedIn}
+              userName={userName}
+              savedTopics={savedTopics}
+              onStartTour={handleStartTour}
+            />
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <DashboardPage
+              isLoggedIn={isLoggedIn}
+              userName={userName}
+              savedTopics={savedTopics}
+              learnerProfile={learnerProfile}
+              onUpdateLearnerProfile={handleUpdateLearnerProfile}
+              onStartTour={handleStartTour}
+            />
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <SearchPage
+              onSaveTopic={handleSaveTopic}
+              isLoggedIn={isLoggedIn}
+              onSignup={handleSignup}
+              onSignin={handleSignin}
+              onLoadingChange={setIsSearchLoading}
+              sectionsCollapsedByDefault={sectionsCollapsedByDefault}
+              explanationStyle={explanationStyle}
+            />
+          }
+        />
+        <Route
+          path="/saved"
+          element={
+            <SavedTopicsPage
+              savedTopics={savedTopics}
+              onDeleteTopic={handleDeleteTopic}
+              onAssignSubject={handleAssignSubject}
+              onRegenerateTopic={handleRegenerateTopic}
+              sectionsCollapsedByDefault={sectionsCollapsedByDefault}
+              explanationStyle={explanationStyle}
+            />
+          }
+        />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/voice" element={<VoicePage />} />
+        <Route path="/legal" element={<LegalPage />} />
+        <Route
+          path="/settings"
+          element={
+            <SettingsPage
+              isLoggedIn={isLoggedIn}
+              learnerProfile={learnerProfile}
+              onUpdateLearnerProfile={handleUpdateLearnerProfile}
+            />
+          }
+        />
+        <Route
+          path="/feedback"
+          element={<FeedbackPage isLoggedIn={isLoggedIn} />}
+        />
+        <Route
+          path="/subjects"
+          element={
+            <SubjectsPage isLoggedIn={isLoggedIn} savedTopics={savedTopics} />
+          }
+        />
+        <Route
+          path="/games"
+          element={
+            <GamesPage
+              isLoggedIn={isLoggedIn}
+              savedTopics={savedTopics}
+            />
+          }
+        />
+        <Route
+          path="/match"
+          element={
+            <MatchPage
+              isLoggedIn={isLoggedIn}
+              savedTopics={savedTopics}
+            />
+          }
+        />
+        <Route
+          path="/spot"
+          element={
+            <SpotPage
+              isLoggedIn={isLoggedIn}
+              savedTopics={savedTopics}
+            />
+          }
+        />
+        <Route
+          path="/hear"
+          element={
+            <HearPage
+              isLoggedIn={isLoggedIn}
+              savedTopics={savedTopics}
+            />
+          }
+        />
+        <Route
+          path="/quiz/review/:reviewQuizId"
+          element={<ReviewQuizPage />}
+        />
+        <Route
+          path="/quiz/:topicId"
+          element={<QuizPage />}
+        />
+      </Routes>
+      <SiteFooter />
+      {showLanguagePicker && (
+        <LanguagePickerModal
+          onChoose={(preferredLanguage) =>
+            handleUpdateLearnerProfile({ preferredLanguage }).then(() => {
+              setShowLanguagePicker(false);
+            })
+          }
+        />
+      )}
+    </main>
+    </LanguageProvider>
+  );
+}
+
+export default App;

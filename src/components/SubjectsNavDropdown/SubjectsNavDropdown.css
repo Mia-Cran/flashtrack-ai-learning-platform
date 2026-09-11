@@ -1,0 +1,30 @@
+.header__subjects-dropdown {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e4dcc8;
+  background: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1c1b19;
+  cursor: pointer;
+}
+
+.header__subjects-dropdown:hover:not(:disabled) {
+  border-color: #993556;
+}
+
+.header__subjects-dropdown:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
+
+.header__subjects-dropdown:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media screen and (max-width: 600px) {
+  .header__subjects-dropdown {
+    width: 100%;
+  }
+}

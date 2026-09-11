@@ -1,0 +1,198 @@
+.hear-page {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hear-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hear-page__title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 32px;
+  color: #1c1b19;
+}
+
+.hear-page__lede {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5b574d;
+}
+
+.hear-page__hub-link {
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 700;
+  color: #993556;
+  text-decoration: none;
+}
+
+.hear-page__hub-link:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
+
+.hear-page__progress {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #993556;
+}
+
+.hear-page__status {
+  margin: 0;
+  min-height: 1.5em;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #1c1b19;
+}
+
+.hear-page__empty {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: #f7f3ec;
+  border: 1px solid #e4dcc8;
+  border-radius: 14px;
+}
+
+.hear-page__empty p,
+.hear-page__complete-note {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5b574d;
+}
+
+.hear-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e4dcc8;
+  border-radius: 16px;
+}
+
+.hear-page__term {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1c1b19;
+}
+
+.hear-page__prompt {
+  margin: 0;
+  font-size: 16px;
+  color: #5b574d;
+}
+
+.hear-page__hear {
+  align-self: flex-start;
+  padding: 12px 18px;
+  border: 1px solid #993556;
+  border-radius: 10px;
+  background: #993556;
+  color: #ffffff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hear-page__hear:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
+
+.hear-page__options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hear-page__option {
+  width: 100%;
+  min-height: 72px;
+  padding: 16px 18px;
+  border: 2px solid #e4dcc8;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1c1b19;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hear-page__option--picked {
+  border-color: #3b6d11;
+  background: #eef6e6;
+  color: #3b6d11;
+  cursor: default;
+}
+
+.hear-page__option--other {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.hear-page__option:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
+
+.hear-page__option:disabled {
+  cursor: default;
+}
+
+.hear-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hear-page__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.hear-page__button--primary {
+  border: 1px solid #993556;
+  background: #993556;
+  color: #ffffff;
+}
+
+.hear-page__button--secondary {
+  border: 1px solid #e4dcc8;
+  background: #ffffff;
+  color: #1c1b19;
+}
+
+.hear-page__button:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+}
