@@ -3,7 +3,7 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
 const createUser = (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, is15OrOlder } = req.body;
 
   // Check for empty fields up front: bcrypt.hash throws on undefined, which
   // would otherwise turn "you forgot the password" into a 500.
@@ -11,6 +11,13 @@ const createUser = (req, res) => {
     return res
       .status(400)
       .send({ message: "Name, email, and password are all required" });
+  }
+
+  // Confirmed at signup, not stored. We do not collect a birth date.
+  if (is15OrOlder !== true) {
+    return res
+      .status(400)
+      .send({ message: "You must be 15 or older to create an account" });
   }
 
   return bcrypt

@@ -43,4 +43,19 @@ describe("Header", () => {
 
     expect(screen.queryByRole("link", { name: "Games" })).not.toBeInTheDocument();
   });
+
+  it("shows Legal when logged out", () => {
+    renderHeader({ isLoggedIn: false });
+
+    expect(screen.getByRole("link", { name: "Legal" })).toHaveAttribute(
+      "href",
+      "/legal",
+    );
+  });
+
+  it("shows a Voice button", () => {
+    renderHeader({ isLoggedIn: false });
+
+    expect(screen.getByRole("button", { name: "Voice" })).toBeInTheDocument();
+  });
 });

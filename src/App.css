@@ -66,3 +66,28 @@ button:hover {
   transition: none !important;
   animation: none !important;
 }
+
+.app__footer {
+  margin-top: auto;
+  padding: 28px 8px 8px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.app__footer a {
+  color: #5b574d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.app__footer a:hover {
+  color: #993556;
+}
+
+.app__footer a:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 3px;
+  border-radius: 4px;
+}

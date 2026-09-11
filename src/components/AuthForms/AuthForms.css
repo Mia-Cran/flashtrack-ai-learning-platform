@@ -20,6 +20,41 @@
   border-color: #3b6d11;
 }
 
+.auth-form__age {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #1c1b19;
+  cursor: pointer;
+}
+
+.auth-form__age input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  accent-color: #3b6d11;
+}
+
+.auth-form__legal {
+  margin: 0;
+  font-size: 13px;
+}
+
+.auth-form__legal a {
+  color: #993556;
+  font-weight: 600;
+}
+
+.auth-form__legal a:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .auth-form__submit {
   display: inline-flex;
   align-items: center;

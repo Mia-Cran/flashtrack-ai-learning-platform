@@ -1,5 +1,6 @@
 import { NavLink, useLocation, useNavigate } from "react-router";
 import SubjectsNavDropdown from "../SubjectsNavDropdown/SubjectsNavDropdown";
+import VoiceMic from "../VoiceMic/VoiceMic";
 import "./Header.css";
 import { useT } from "../../i18n";
 
@@ -148,6 +149,15 @@ function Header({
             </>
           )}
 
+          {/* Legal is public on purpose: you should be able to read the
+              rules before you make an account. */}
+          <HeaderNavLink
+            to="/legal"
+            disabled={isSearchLoading}
+          >
+            {t("header.legal")}
+          </HeaderNavLink>
+
           {/* Stays visible to every visitor, logged in or not -- positioned
               right next to Sign Out so it reads as "leave, but tell me
               something first" for logged-in users, while still being
@@ -173,6 +183,10 @@ function Header({
           )}
         </div>
       </nav>
+
+      {/* Fixed on the page, not in the header row — a mic in that flex
+          layout was wrapping Welcome / Home / Search onto a new line. */}
+      <VoiceMic disabled={isSearchLoading} />
     </header>
   );
 }

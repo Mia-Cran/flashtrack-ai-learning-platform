@@ -13,9 +13,12 @@ after(stopDatabase);
 beforeEach(clearDatabase);
 
 test("signup creates an account and never returns the password", async () => {
-  const res = await request(app)
-    .post("/signup")
-    .send({ name: "Maria", email: "maria@example.com", password: "secret123" });
+  const res = await request(app).post("/signup").send({
+    name: "Maria",
+    email: "maria@example.com",
+    password: "secret123",
+    is15OrOlder: true,
+  });
 
   assert.equal(res.status, 201);
   assert.equal(res.body.email, "maria@example.com");
@@ -28,17 +31,35 @@ test("signup rejects a missing field with 400, not a crash", async () => {
   assert.match(res.body.message, /required/i);
 });
 
+test("signup rejects an account when the 15+ confirmation is missing", async () => {
+  const res = await request(app).post("/signup").send({
+    name: "Maria",
+    email: "maria@example.com",
+    password: "secret123",
+  });
+  assert.equal(res.status, 400);
+  assert.match(res.body.message, /15 or older/i);
+});
+
 test("signup rejects a duplicate email with 409", async () => {
-  const body = { name: "A", email: "dup@example.com", password: "secret123" };
+  const body = {
+    name: "A",
+    email: "dup@example.com",
+    password: "secret123",
+    is15OrOlder: true,
+  };
   await request(app).post("/signup").send(body);
   const res = await request(app).post("/signup").send(body);
   assert.equal(res.status, 409);
 });
 
 test("signin returns a token that unlocks a protected route", async () => {
-  await request(app)
-    .post("/signup")
-    .send({ name: "Maria", email: "maria@example.com", password: "secret123" });
+  await request(app).post("/signup").send({
+    name: "Maria",
+    email: "maria@example.com",
+    password: "secret123",
+    is15OrOlder: true,
+  });
 
   const signin = await request(app)
     .post("/signin")
@@ -56,7 +77,7 @@ test("signin returns a token that unlocks a protected route", async () => {
 test("signin with the wrong password is 401", async () => {
   await request(app)
     .post("/signup")
-    .send({ name: "Maria", email: "maria@example.com", password: "secret123" });
+    .send({ name: "Maria", email: "maria@example.com", password: "secret123", is15OrOlder: true });
   const res = await request(app)
     .post("/signin")
     .send({ email: "maria@example.com", password: "nope" });

@@ -1,7 +1,7 @@
 {
   "name": "FlashTrack",
   "short_name": "FlashTrack",
-  "description": "FlashTrack — search any topic and turn it into a study card, powered by Adapt AI.",
+  "description": "FlashTrack — search a topic and turn it into a study card. For learners 15 and older.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

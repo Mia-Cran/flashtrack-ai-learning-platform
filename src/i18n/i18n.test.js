@@ -41,5 +41,17 @@ describe("i18n", () => {
       "The arrow clicks Flip.",
     );
     expect(translate("en", "welcome.hookSave")).toBe("Then save the card.");
+    expect(translate("en", "welcome.badgeTopic")).toBe("15+");
+    expect(translate("en", "auth.ageConfirm")).toBe("I am 15 or older");
+    expect(translate("en", "about.age")).toBe(
+      "FlashTrack is for learners 15 and older.",
+    );
+    expect(translate("en", "welcome.subtextNew")).not.toMatch(/any topic/i);
+    expect(translate("en", "about.p4")).not.toMatch(/adapts to you/i);
+    expect(translate("en", "legal.who")).toMatch(/15 and older/);
+    expect(translate("es", "legal.title")).toBe("Legal");
+    expect(translate("en", "voice.listen")).toBe("Voice");
+    expect(translate("es", "voice.listening")).toBe("Escuchando…");
+    expect(translate("en", "voicePage.title")).toBe("Voice");
   });
 });

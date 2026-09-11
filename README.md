@@ -1,6 +1,6 @@
 # FlashTrack — AI Learning Platform
 
-FlashTrack helps you learn any topic with AI study cards. Search a term, flip the card, hear the word out loud, save it to your account, and quiz yourself — either on one topic or in a mixed review across the cards you’ve studied.
+FlashTrack helps you learn with AI study cards. Search a term, flip the card, hear the word out loud, save it to your account, and quiz yourself — either on one topic or in a mixed review across the cards you’ve studied. For learners 15 and older.
 
 Project video: https://www.loom.com/share/f26ab3845b6343eaa4e1c6ee966c2527
 

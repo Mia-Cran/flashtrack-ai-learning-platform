@@ -1,10 +1,12 @@
 import "./App.css";
-import { Routes, Route } from "react-router";
+import { Routes, Route, Link } from "react-router";
 import WelcomePage from "./pages/WelcomePage/WelcomePage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import SearchPage from "./pages/SearchPage/SearchPage";
 import SavedTopicsPage from "./pages/SavedTopicsPage/SavedTopicsPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
+import LegalPage from "./pages/LegalPage/LegalPage";
+import VoicePage from "./pages/VoicePage/VoicePage";
 import SettingsPage from "./pages/SettingsPage/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
 import SubjectsPage from "./pages/SubjectsPage/SubjectsPage";
@@ -20,7 +22,18 @@ import { getTourSteps } from "./components/AppTour/tourSteps";
 import LanguagePickerModal from "./components/LanguagePickerModal/LanguagePickerModal";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "./utils/api";
-import { LanguageProvider, normalizeLanguage } from "./i18n";
+import { LanguageProvider, normalizeLanguage, useT } from "./i18n";
+
+function SiteFooter() {
+  const t = useT();
+
+  return (
+    <footer className="app__footer">
+      <Link to="/voice">{t("header.voice")}</Link>
+      <Link to="/legal">{t("header.legal")}</Link>
+    </footer>
+  );
+}
 
 function App() {
   const [savedTopics, setSavedTopics] = useState([]);
@@ -165,13 +178,13 @@ function App() {
       });
   }
 
-  function handleSignup(name, email, password) {
+  function handleSignup(name, email, password, is15OrOlder) {
     return fetch(`${API_BASE_URL}/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, is15OrOlder }),
     })
       .then((res) => {
         if (!res.ok) {
@@ -448,6 +461,8 @@ function App() {
           }
         />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/voice" element={<VoicePage />} />
+        <Route path="/legal" element={<LegalPage />} />
         <Route
           path="/settings"
           element={
@@ -513,6 +528,7 @@ function App() {
           element={<QuizPage />}
         />
       </Routes>
+      <SiteFooter />
       {showLanguagePicker && (
         <LanguagePickerModal
           onChoose={(preferredLanguage) =>

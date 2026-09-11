@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import "./AuthForms.css";
 import { useT } from "../../i18n";
 
@@ -7,15 +8,20 @@ function SignupForm({ onSignup, onSuccess }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [is15OrOlder, setIs15OrOlder] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
+    if (!is15OrOlder) {
+      setError(t("auth.ageConfirm"));
+      return;
+    }
     setIsSubmitting(true);
     setError("");
 
-    onSignup(name, email, password)
+    onSignup(name, email, password, true)
       .then(() => {
         onSuccess?.();
       })
@@ -62,6 +68,19 @@ function SignupForm({ onSignup, onSuccess }) {
         placeholder={t("auth.password")}
         required
       />
+
+      <label className="auth-form__age">
+        <input
+          type="checkbox"
+          checked={is15OrOlder}
+          onChange={(event) => setIs15OrOlder(event.target.checked)}
+          required
+        />
+        <span>{t("auth.ageConfirm")}</span>
+      </label>
+      <p className="auth-form__legal">
+        <Link to="/legal">{t("auth.legalLink")}</Link>
+      </p>
 
       <button
         type="submit"

@@ -63,7 +63,9 @@ function fakeOpenAI({ responsesByName = {}, blocked = false } = {}) {
 }
 
 async function createUser({ name = "Test User", email = "test@example.com", password = "pw123456" } = {}) {
-  const res = await request(app).post("/signup").send({ name, email, password });
+  const res = await request(app)
+    .post("/signup")
+    .send({ name, email, password, is15OrOlder: true });
   if (res.status !== 201) {
     throw new Error(`signup failed: ${res.status} ${JSON.stringify(res.body)}`);
   }

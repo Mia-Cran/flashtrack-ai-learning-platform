@@ -20,10 +20,8 @@ function AboutPage() {
         <p>{t("about.p1")}</p>
         <p>{t("about.p2")}</p>
         <p>{t("about.p3")}</p>
-        <p>
-          {t("about.p4a")} <strong>{t("about.p4b")}</strong> {t("about.p4c")}{" "}
-          <strong>{t("about.p4d")}</strong> {t("about.p4e")}
-        </p>
+        <p>{t("about.p4")}</p>
+        <p>{t("about.age")}</p>
       </div>
     </section>
   );
