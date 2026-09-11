@@ -1,6 +1,7 @@
 import "./StudyCard.css";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useI18n, useLanguage, useT } from "../../i18n";
+import { canUseSpeech, speakText, stopSpeech } from "../../utils/speech";
 
 const SECTION_KEYS = ["beginner", "technical", "analogy", "code", "mistake"];
 
@@ -76,32 +77,6 @@ function Icon({ name, className }) {
   return null;
 }
 
-const canUseSpeech =
-  typeof window !== "undefined" && "speechSynthesis" in window;
-
-function stopSpeech() {
-  if (canUseSpeech) {
-    window.speechSynthesis.cancel();
-  }
-}
-
-function speakText(text, { onStart, onEnd, lang } = {}) {
-  if (!canUseSpeech || !text?.trim()) {
-    return false;
-  }
-
-  stopSpeech();
-
-  const utterance = new SpeechSynthesisUtterance(text.trim());
-  utterance.rate = 0.95;
-  utterance.lang = lang || "en-US";
-  utterance.onstart = () => onStart?.();
-  utterance.onend = () => onEnd?.();
-  utterance.onerror = () => onEnd?.();
-  window.speechSynthesis.speak(utterance);
-  return true;
-}
-
 function HearButton({
   label,
   text,
@@ -118,7 +93,7 @@ function HearButton({
     };
   }, []);
 
-  if (!canUseSpeech) {
+  if (!canUseSpeech()) {
     return null;
   }
 

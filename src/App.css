@@ -29,8 +29,10 @@ body {
   flex-direction: column;
   display: flex;
   justify-content: center;
-  
- 
+}
+
+.app__intro--hook {
+  max-width: 860px;
 }
 button,
 input {

@@ -67,6 +67,14 @@
   text-decoration-thickness: 2px;
 }
 
+.header__link--spotlight {
+  outline: 3px solid #993556;
+  outline-offset: 3px;
+  background: #fbeaf0;
+  z-index: 41;
+  position: relative;
+}
+
 .header__link:focus-visible,
 .header__signout:focus-visible {
   outline: 3px solid #1c1b19;

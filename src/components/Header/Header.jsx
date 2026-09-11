@@ -3,7 +3,14 @@ import SubjectsNavDropdown from "../SubjectsNavDropdown/SubjectsNavDropdown";
 import "./Header.css";
 import { useT } from "../../i18n";
 
-function HeaderNavLink({ to, disabled, alsoActive = [], children }) {
+function HeaderNavLink({
+  to,
+  disabled,
+  alsoActive = [],
+  tourId,
+  isTourTarget,
+  children,
+}) {
   const location = useLocation();
   const extraActive = alsoActive.includes(location.pathname);
 
@@ -20,10 +27,15 @@ function HeaderNavLink({ to, disabled, alsoActive = [], children }) {
           classes.push("header__link--disabled");
         }
 
+        if (isTourTarget) {
+          classes.push("header__link--spotlight");
+        }
+
         return classes.join(" ");
       }}
       to={to}
       end
+      data-tour={tourId}
       aria-disabled={disabled}
       tabIndex={disabled ? -1 : undefined}
       onClick={(event) => {
@@ -37,7 +49,12 @@ function HeaderNavLink({ to, disabled, alsoActive = [], children }) {
   );
 }
 
-function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
+function Header({
+  isLoggedIn,
+  onSignout,
+  isSearchLoading = false,
+  tourHighlightId = null,
+}) {
   const navigate = useNavigate();
   const t = useT();
 
@@ -61,39 +78,71 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
         </div>
 
         <div className="header__links">
-          <HeaderNavLink to="/" disabled={isSearchLoading}>
+          <HeaderNavLink
+            to="/"
+            tourId="welcome"
+            isTourTarget={tourHighlightId === "welcome"}
+            disabled={isSearchLoading}
+          >
             {t("header.welcome")}
           </HeaderNavLink>
 
           {isLoggedIn && (
-            <HeaderNavLink to="/home" disabled={isSearchLoading}>
+            <HeaderNavLink
+              to="/home"
+              tourId="home"
+              isTourTarget={tourHighlightId === "home"}
+              disabled={isSearchLoading}
+            >
               {t("header.home")}
             </HeaderNavLink>
           )}
 
-          <HeaderNavLink to="/search" disabled={isSearchLoading}>
+          <HeaderNavLink
+            to="/search"
+            tourId="search"
+            isTourTarget={tourHighlightId === "search"}
+            disabled={isSearchLoading}
+          >
             {t("header.search")}
           </HeaderNavLink>
 
           {isLoggedIn && (
             <>
-              <HeaderNavLink to="/saved" disabled={isSearchLoading}>
+              <HeaderNavLink
+                to="/saved"
+                tourId="saved"
+                isTourTarget={tourHighlightId === "saved"}
+                disabled={isSearchLoading}
+              >
                 {t("header.saved")}
               </HeaderNavLink>
 
               <HeaderNavLink
                 to="/games"
+                tourId="games"
                 alsoActive={["/match", "/spot", "/hear"]}
+                isTourTarget={tourHighlightId === "games"}
                 disabled={isSearchLoading}
               >
                 {t("header.games")}
               </HeaderNavLink>
 
-              <HeaderNavLink to="/about" disabled={isSearchLoading}>
+              <HeaderNavLink
+                to="/about"
+                tourId="about"
+                isTourTarget={tourHighlightId === "about"}
+                disabled={isSearchLoading}
+              >
                 {t("header.about")}
               </HeaderNavLink>
 
-              <HeaderNavLink to="/settings" disabled={isSearchLoading}>
+              <HeaderNavLink
+                to="/settings"
+                tourId="settings"
+                isTourTarget={tourHighlightId === "settings"}
+                disabled={isSearchLoading}
+              >
                 {t("header.settings")}
               </HeaderNavLink>
             </>
@@ -103,7 +152,12 @@ function Header({ isLoggedIn, onSignout, isSearchLoading = false }) {
               right next to Sign Out so it reads as "leave, but tell me
               something first" for logged-in users, while still being
               reachable on its own for anonymous visitors. */}
-          <HeaderNavLink to="/feedback" disabled={isSearchLoading}>
+          <HeaderNavLink
+            to="/feedback"
+            tourId="feedback"
+            isTourTarget={tourHighlightId === "feedback"}
+            disabled={isSearchLoading}
+          >
             {t("header.feedback")}
           </HeaderNavLink>
 

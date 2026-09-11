@@ -27,4 +27,19 @@ describe("i18n", () => {
       translate("en", "hear.needMore", { need: 4, have: 1 }),
     ).toMatch(/Save 4 real flashcards to play Hear & pick/);
   });
+
+  it("has a Spanish tour string", () => {
+    expect(translate("es", "tour.skip")).toBe("Listo");
+    expect(translate("en", "welcome.takeTour")).toBe("Take a tour");
+    expect(translate("en", "welcome.hookSearch")).toBe(
+      "Type a topic, then tap Search.",
+    );
+    expect(translate("en", "welcome.hookSearchGo")).toBe(
+      "The arrow clicks Search.",
+    );
+    expect(translate("en", "welcome.hookFlipGo")).toBe(
+      "The arrow clicks Flip.",
+    );
+    expect(translate("en", "welcome.hookSave")).toBe("Then save the card.");
+  });
 });

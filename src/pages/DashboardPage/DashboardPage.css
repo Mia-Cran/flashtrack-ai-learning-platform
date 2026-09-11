@@ -89,6 +89,27 @@
   color: #993556;
 }
 
+.dashboard__tour {
+  border: none;
+  background: none;
+  padding: 4px;
+  color: #5b574d;
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dashboard__tour:hover {
+  color: #993556;
+}
+
+.dashboard__tour:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .dashboard__quote {
   display: flex;
   align-items: flex-start;

@@ -15,6 +15,8 @@ import GamesPage from "./pages/GamesPage/GamesPage";
 import SpotPage from "./pages/SpotPage/SpotPage";
 import HearPage from "./pages/HearPage/HearPage";
 import Header from "./components/Header/Header";
+import AppTour from "./components/AppTour/AppTour";
+import { getTourSteps } from "./components/AppTour/tourSteps";
 import LanguagePickerModal from "./components/LanguagePickerModal/LanguagePickerModal";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "./utils/api";
@@ -31,6 +33,7 @@ function App() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [learnerProfile, setLearnerProfile] = useState(null);
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [tourStepIndex, setTourStepIndex] = useState(null);
 
   const language = normalizeLanguage(learnerProfile?.preferredLanguage);
   const sectionsCollapsedByDefault =
@@ -41,6 +44,9 @@ function App() {
     learnerProfile?.accessibilityPreferences?.reduceMotion ?? false;
   const explanationStyle =
     learnerProfile?.learningPreferences?.explanationStyle ?? "analogies";
+  const tourSteps = getTourSteps(isLoggedIn);
+  const tourHighlightId =
+    tourStepIndex === null ? null : tourSteps[tourStepIndex]?.id ?? null;
 
   useEffect(() => {
     document.documentElement.lang = language === "es" ? "es" : "en";
@@ -198,6 +204,25 @@ function App() {
     setUserName("");
     setLearnerProfile(null);
     setShowLanguagePicker(false);
+    setTourStepIndex(null);
+  }
+
+  function handleStartTour() {
+    setTourStepIndex(0);
+  }
+
+  function handleSkipTour() {
+    setTourStepIndex(null);
+  }
+
+  function handleNextTour() {
+    setTourStepIndex((current) => {
+      if (current === null || current >= tourSteps.length - 1) {
+        return null;
+      }
+
+      return current + 1;
+    });
   }
 
   function handleSaveTopic(topic) {
@@ -358,7 +383,16 @@ function App() {
         isLoggedIn={isLoggedIn}
         onSignout={handleSignout}
         isSearchLoading={isSearchLoading}
+        tourHighlightId={tourHighlightId}
       />
+      {tourStepIndex !== null && (
+        <AppTour
+          steps={tourSteps}
+          stepIndex={tourStepIndex}
+          onNext={handleNextTour}
+          onSkip={handleSkipTour}
+        />
+      )}
       <Routes>
         <Route
           path="/"
@@ -369,6 +403,7 @@ function App() {
               isLoggedIn={isLoggedIn}
               userName={userName}
               savedTopics={savedTopics}
+              onStartTour={handleStartTour}
             />
           }
         />
@@ -381,6 +416,7 @@ function App() {
               savedTopics={savedTopics}
               learnerProfile={learnerProfile}
               onUpdateLearnerProfile={handleUpdateLearnerProfile}
+              onStartTour={handleStartTour}
             />
           }
         />

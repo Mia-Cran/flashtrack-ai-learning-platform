@@ -146,6 +146,7 @@ function DashboardPage({
   savedTopics = [],
   learnerProfile,
   onUpdateLearnerProfile = () => Promise.resolve(),
+  onStartTour,
 }) {
   const [quote, setQuote] = useState("");
   const [isQuoteLoading, setIsQuoteLoading] = useState(true);
@@ -394,6 +395,15 @@ function DashboardPage({
           <p className="dashboard__language-error" role="alert">
             {languageError}
           </p>
+        )}
+        {onStartTour && (
+          <button
+            type="button"
+            className="dashboard__tour"
+            onClick={onStartTour}
+          >
+            {t("dashboard.takeTour")}
+          </button>
         )}
       </section>
 

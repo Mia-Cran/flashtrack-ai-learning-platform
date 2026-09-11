@@ -10,6 +10,7 @@ import {
 import SigninForm from "../../components/AuthForms/SigninForm";
 import SignupForm from "../../components/AuthForms/SignupForm";
 import { getSavedAt } from "../../utils/topicTimestamps";
+import WelcomeHook from "../../components/WelcomeHook/WelcomeHook";
 import { useT } from "../../i18n";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -39,6 +40,7 @@ function WelcomePage({
   isLoggedIn,
   userName,
   savedTopics = [],
+  onStartTour,
 }) {
   const navigate = useNavigate();
   const t = useT();
@@ -50,12 +52,14 @@ function WelcomePage({
 
   const isReturning = isLoggedIn && savedTopics.length > 0;
   const savedThisWeek = isReturning ? countSavedThisWeek(savedTopics) : 0;
+  const showHook = !isReturning;
 
   return (
-    <section className="app__intro">
-      <div className="welcome__card">
+    <section className={`app__intro${showHook ? " app__intro--hook" : ""}`}>
+      <div className={`welcome__card${showHook ? " welcome__card--hook" : ""}`}>
         {activeForm === null ? (
           <>
+            {!showHook && (
             <div
               className={`welcome__icon-wrap welcome__icon-wrap--${
                 isReturning ? "pink" : "green"
@@ -77,6 +81,7 @@ function WelcomePage({
                 />
               )}
             </div>
+            )}
 
             <h1 className="welcome__heading">
               {isReturning
@@ -87,6 +92,8 @@ function WelcomePage({
             <p className="welcome__subtext">
               {isReturning ? t("welcome.subtextBack") : t("welcome.subtextNew")}
             </p>
+
+            {showHook && <WelcomeHook />}
 
             {isReturning && (
               <span className="welcome__streak-badge">
@@ -103,6 +110,16 @@ function WelcomePage({
               {isReturning ? t("welcome.ctaBack") : t("welcome.ctaNew")}
               <IconArrowRight size={18} stroke={2} aria-hidden="true" />
             </button>
+
+            {onStartTour && (
+              <button
+                type="button"
+                className="welcome__tour"
+                onClick={onStartTour}
+              >
+                {t("welcome.takeTour")}
+              </button>
+            )}
 
             {!isReturning && (
               <div className="welcome__badges">

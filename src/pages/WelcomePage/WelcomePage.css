@@ -13,6 +13,11 @@
   box-shadow: 0 10px 30px rgba(28, 27, 25, 0.08);
 }
 
+.welcome__card--hook {
+  max-width: 560px;
+  padding: 36px 28px 44px;
+}
+
 .welcome__icon-wrap {
   display: flex;
   align-items: center;
@@ -157,6 +162,29 @@
 
 .welcome__signin-link {
   margin-top: 8px;
+}
+
+.welcome__tour {
+  display: inline-block;
+  margin-top: 4px;
+  border: none;
+  background: none;
+  padding: 8px 4px;
+  color: #5b574d;
+  font: inherit;
+  font-size: 15px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.welcome__tour:hover {
+  color: #993556;
+}
+
+.welcome__tour:focus-visible {
+  outline: 3px solid #1c1b19;
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .app__auth-link {
