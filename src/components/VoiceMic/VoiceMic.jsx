@@ -165,7 +165,8 @@ function VoiceMic({ disabled = false }) {
         data-tour="voice"
         onClick={handleClick}
       >
-        <IconMicrophone size={22} stroke={2} aria-hidden="true" />
+        <IconMicrophone size={26} stroke={2} aria-hidden="true" />
+        <span className="voice-mic__name">{t("voice.listen")}</span>
       </button>
       <Link className="voice-mic__help" to="/voice">
         {t("voice.whatCanISay")}

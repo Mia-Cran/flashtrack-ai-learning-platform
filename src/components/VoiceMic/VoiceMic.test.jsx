@@ -58,7 +58,7 @@ describe("VoiceMic", () => {
     const user = userEvent.setup();
     renderMic();
 
-    await user.click(screen.getByRole("button", { name: "Voice" }));
+    await user.click(screen.getByRole("button", { name: "Nova" }));
 
     expect(screen.getByRole("button", { name: "Stop listening" })).toBeInTheDocument();
     expect(screen.getByText("Listening…")).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe("VoiceMic", () => {
     const user = userEvent.setup();
     renderMic();
 
-    await user.click(screen.getByRole("button", { name: "Voice" }));
+    await user.click(screen.getByRole("button", { name: "Nova" }));
     act(() => {
       FakeRecognition.instance.onresult({
         results: [[{ transcript: "search photosynthesis" }]],
@@ -94,7 +94,7 @@ describe("VoiceMic", () => {
     const user = userEvent.setup();
     renderMic();
 
-    await user.click(screen.getByRole("button", { name: "Voice" }));
+    await user.click(screen.getByRole("button", { name: "Nova" }));
     act(() => {
       FakeRecognition.instance.onresult({
         results: [[{ transcript: "hello" }]],
@@ -102,16 +102,18 @@ describe("VoiceMic", () => {
     });
 
     expect(navigate).not.toHaveBeenCalled();
-    expect(
-      screen.getByText("Didn't catch that. Try home, search, saved, or games."),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Didn't catch that. Try Hey Nova, take me to the Search page.",
+        ),
+      ).toBeInTheDocument();
   });
 
   it("takes 'where are my topics' to Saved Topics", async () => {
     const user = userEvent.setup();
     renderMic();
 
-    await user.click(screen.getByRole("button", { name: "Voice" }));
+    await user.click(screen.getByRole("button", { name: "Nova" }));
     act(() => {
       FakeRecognition.instance.onresult({
         results: [[{ transcript: "where are my topics" }]],

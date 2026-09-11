@@ -53,9 +53,9 @@ describe("Header", () => {
     );
   });
 
-  it("shows a Voice button", () => {
+  it("shows a Nova button", () => {
     renderHeader({ isLoggedIn: false });
 
-    expect(screen.getByRole("button", { name: "Voice" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Nova" })).toBeInTheDocument();
   });
 });

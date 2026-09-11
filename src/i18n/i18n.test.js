@@ -50,8 +50,9 @@ describe("i18n", () => {
     expect(translate("en", "about.p4")).not.toMatch(/adapts to you/i);
     expect(translate("en", "legal.who")).toMatch(/15 and older/);
     expect(translate("es", "legal.title")).toBe("Legal");
-    expect(translate("en", "voice.listen")).toBe("Voice");
+    expect(translate("en", "voice.listen")).toBe("Nova");
     expect(translate("es", "voice.listening")).toBe("Escuchando…");
-    expect(translate("en", "voicePage.title")).toBe("Voice");
+    expect(translate("en", "voicePage.title")).toBe("Nova");
+    expect(translate("en", "welcome.subtextNew")).toMatch(/Hey Nova/);
   });
 });

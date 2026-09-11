@@ -1,10 +1,14 @@
 # FlashTrack — AI Learning Platform
 
-FlashTrack helps you learn with AI study cards. Search a term, flip the card, hear the word out loud, save it to your account, and quiz yourself — either on one topic or in a mixed review across the cards you’ve studied. For learners 15 and older.
+FlashTrack helps you learn with AI study cards. Search a topic, flip the card, hear the word, save it, quiz yourself, or play a short game. English and Spanish. For learners 15 and older.
+
+**Voice is the last planned feature on this web app.** Her name is Nova. Tap the mic in the corner and talk to her. Want to know what to say? Tap **What can I say?** right next to the mic. She opens the page. She does not tap buttons for you. Works in Chrome.
+
+Live site: https://flashtrack-ai-learning-platform.vercel.app
 
 Project video: https://www.loom.com/share/f26ab3845b6343eaa4e1c6ee966c2527
 
-> **Live site status:** The frontend deploys from Vercel, but the backend is not online yet. Until you finish the [Deploying](#deploying-ten-minutes-two-paste-steps) steps, testers should run the app locally (below). Do not share your OpenAI API key with testers — they use their own key in `backend/.env`.
+> The public site is live (frontend on Vercel, API on Render). The first visit after Render has been idle can take about 30 seconds. Do not share your OpenAI API key — testers who run locally use their own key in `backend/.env`.
 
 ## How it's built
 
@@ -25,17 +29,20 @@ Browser (React)  --HTTP/JSON-->  Express API  -->  MongoDB
 
 ## Features
 
-- **Search** any term and get an AI study card (simple definition, beginner explanation, technical definition, analogy, code example, common mistake)
-- **Flip cards** — term on the front; learning sections on the back (collapsible, respects Settings preferences)
-- **Hear it** — browser text-to-speech for the term and open sections (pronunciation help)
-- **Accounts** with signup and login (passwords are bcrypt-hashed; sessions use a JWT that expires in 7 days)
+- **Search** a topic and get an AI study card (simple definition, beginner explanation, technical definition, analogy, code example where it fits, common mistake)
+- **Flip cards** — term on the front; learning sections on the back (collapsible, respects Settings)
+- **Hear it** — browser text-to-speech for the term and open sections
+- **Nova (Voice)** — tap the corner mic and say where to go, or search a topic. Phrase list: **What can I say?** next to the mic (Chrome)
+- **English and Spanish** — whole app plus new cards; pick at signup or in Settings
+- **Accounts** with signup and login (15+ checkbox, bcrypt passwords, JWT that expires in 7 days)
 - **Saved topics** stored in MongoDB per user
 - **Regenerate** a saved card at a different difficulty
-- **Quizzes by topic** — after **5+** real saved cards (not throwaway “test” saves), take a multiple-choice quiz for any one flashcard
-- **Review quiz** — mixed MC quiz across recent cards (up to 10); topics you miss unlock a focused practice quiz
-- **Match game** — after **4+** real saved cards (not throwaway “test” saves), pair terms with their short definitions. No timer.
-- **Learner profile** (Settings): preferred explanation style, question type, pacing, and which card sections open by default
-- **Subjects** browsing (23 seeded subjects), a daily quote, and a feedback form
+- **Quizzes by topic** — after **5+** real saved cards, a quiz for one flashcard
+- **Review quiz** — mixed quiz across recent cards (up to 10); missed topics unlock focused practice
+- **Games** — after **4+** real saved cards: Match, Spot the mistake, Hear & pick. No timer
+- **Learner profile** (Settings): explanation style, question type, pacing, language, which card sections open by default
+- **Subjects** browsing (23 seeded subjects), a daily quote, a silent welcome tour, and a feedback form
+- **Legal** page at `/legal`
 - Rate limiting on AI-backed endpoints to keep OpenAI costs predictable
 
 ## Running it locally
@@ -78,7 +85,7 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (normally http://localhost:5173).
+Open the URL Vite prints (normally http://localhost:5173). Use **Chrome** if you want to try Nova.
 
 ### Trying it without MongoDB Atlas
 
@@ -91,16 +98,19 @@ Sign up, browse subjects, save topics, leave feedback. Put `OPENAI_API_KEY` in `
 
 ### Suggested path for a first-time tester
 
-1. Sign up / sign in  
-2. Search a few terms, flip the card, try **Hear it**  
-3. Save at least **5** topics  
-4. Open **Games** in the header (or Dashboard → **Play Match** / **Play Spot the mistake** / **Play Hear & pick**) after 4 saved cards  
-5. Save a fifth card, then **Start review quiz** (mixed) or **Take Quiz** on one topic  
-6. If you miss topics on the review quiz, use **Practice this topic**
+1. Sign up / sign in (check that you are 15 or older)
+2. Search a few topics, flip the card, try **Hear it**
+3. Tap **Nova** in the corner, then **What can I say?** if you want the phrase list (Chrome)
+4. Save at least **5** topics
+5. Open **Games** (Match, Spot the mistake, Hear & pick) after 4 saved cards
+6. Save a fifth card, then **Start review quiz** or **Take Quiz** on one topic
+7. If you miss topics on the review quiz, use **Practice this topic**
 
 ## Sharing the app with a tester
 
-Give them the GitHub repo and the local run steps above. They need Node 20+ and (for AI features) their own OpenAI key.
+Send the live site: https://flashtrack-ai-learning-platform.vercel.app
+
+For local runs, give them the GitHub repo and the steps above. They need Node 20+ and (for AI features) their own OpenAI key.
 
 ```text
 Repo: https://github.com/Mia-Cran/flashtrack-ai-learning-platform
@@ -114,13 +124,12 @@ npm install && npm run dev
 # open http://localhost:5173
 ```
 
-For a clickable public link, finish [Deploying](#deploying-ten-minutes-two-paste-steps) first, then send the Vercel URL.
+## Deploying (already live — steps if you fork or rebuild)
 
-## Deploying (ten minutes, two paste steps)
+Frontend: Vercel (`flashtrack-ai-learning-platform`), auto-deploys from `main`.  
+Backend: Render (`https://flashtrack-api.onrender.com`). `CLIENT_URL` should be the Vercel URL. `VITE_API_BASE_URL` on Vercel should be the Render URL.
 
-The front end can live on Vercel. The live site cannot sign up, search, or quiz until the backend is online.
-
-**Step 1 — put the backend online (free).**
+**If you need to stand it up again**
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Mia-Cran/flashtrack-ai-learning-platform)
 
@@ -131,11 +140,9 @@ Click the button (sign in to Render with GitHub if asked). It reads `render.yaml
 | `MONGODB_URI` | your MongoDB Atlas string (`mongodb+srv://...`) |
 | `JWT_SECRET` | the same long random string you use locally |
 | `OPENAI_API_KEY` | your OpenAI key (`sk-...`), or leave blank to start with AI off |
-| `CLIENT_URL` | your Vercel site address, e.g. `https://flashtrack.vercel.app` — no slash at the end |
+| `CLIENT_URL` | your Vercel site address — no slash at the end |
 
-Click **Apply**. Copy the backend URL Render shows (e.g. `https://flashtrack-api.onrender.com`).
-
-**Step 2 — tell Vercel where the backend is.**
+Click **Apply**. Copy the backend URL Render shows.
 
 In Vercel: project → **Settings** → **Environment Variables** → **Add**: name `VITE_API_BASE_URL`, value = the Render address (no trailing slash), environment **Production**. Save, then **Deployments** → ⋯ on the latest → **Redeploy**.
 
@@ -173,9 +180,11 @@ All responses are JSON. Routes marked 🔒 need an `Authorization: Bearer <token
 
 ```
 src/                 React app
-  pages/             Welcome, Search, Dashboard, Saved, Quiz, ReviewQuiz, Settings, ...
-  components/        StudyCard (flip + hear), Header, auth forms, ...
+  pages/             Welcome, Search, Dashboard, Saved, Quiz, ReviewQuiz, Games, Settings, Voice, Legal, ...
+  components/        StudyCard (flip + hear), Header, VoiceMic (Nova), auth forms, ...
+  i18n/              English + Spanish copy
   utils/api.js       the backend URL (single source of truth)
+  utils/voiceCommands.js  Nova phrase parser
   **/*.test.jsx      frontend tests live next to the thing they test
 .github/workflows/   CI: lint + both test suites + build
 backend/
@@ -191,6 +200,8 @@ backend/
 ```
 
 ## Keeping it going (the maintainer's guide)
+
+This web app’s planned feature list is done. Next work is wrap/docs, or small add-ons people actually ask for — not a new version.
 
 Everything below runs offline. No OpenAI key, no Atlas: backend tests use in-memory MongoDB and canned OpenAI answers.
 
@@ -220,6 +231,8 @@ CI runs the same three on every push and PR.
 | Per-topic quiz generation | `backend/utils/quizGeneration.js` |
 | Mixed review quiz generation | `backend/utils/reviewQuizGeneration.js` |
 | Flip card / Hear it UI | `src/components/StudyCard/` |
+| Nova phrases / parser | `src/utils/voiceCommands.js`, `src/pages/VoicePage/` |
+| English / Spanish copy | `src/i18n/translations.js` |
 | Dashboard quiz unlock + CTAs | `src/pages/DashboardPage/` |
 | OpenAI model | `OPENAI_MODEL` in `backend/.env` (default `gpt-5.5`) |
 | Rate limit on AI endpoints | `backend/middleware/rateLimit.js` |

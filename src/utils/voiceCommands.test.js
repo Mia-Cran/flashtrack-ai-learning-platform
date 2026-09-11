@@ -65,6 +65,30 @@ describe("parseVoiceCommand", () => {
     });
   });
 
+  it("lets you address Nova by name", () => {
+    expect(parseVoiceCommand("hey nova take me to the search page")).toEqual({
+      type: "navigate",
+      path: "/search",
+      cueKey: "voice.goingSearch",
+    });
+    expect(parseVoiceCommand("hey nova, where is the home page?")).toEqual({
+      type: "navigate",
+      path: "/home",
+      cueKey: "voice.goingHome",
+    });
+    expect(parseVoiceCommand("nova search photosynthesis")).toEqual({
+      type: "search",
+      term: "photosynthesis",
+    });
+    expect(parseVoiceCommand("oye nova llévame a la página de juegos")).toEqual({
+      type: "navigate",
+      path: "/games",
+      cueKey: "voice.goingGames",
+    });
+    expect(parseVoiceCommand("take me to nova").path).toBe("/voice");
+    expect(parseVoiceCommand("hey nova")).toBeNull();
+  });
+
   it("sends a topic to Search", () => {
     expect(parseVoiceCommand("search photosynthesis")).toEqual({
       type: "search",

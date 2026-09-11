@@ -1,8 +1,20 @@
-// Voice is tap-to-talk navigation, not a chatbot and not a stand-in for
-// buttons. The mic listens once and opens the page they named. Hear it
-// on cards is separate (playback in speech.js).
+// Nova is tap-to-talk navigation, not a chatbot and not a stand-in for
+// buttons. The mic listens once and opens the page they named. "Hey Nova"
+// is her name, not a required wake word — tapping the mic already starts
+// listening. Hear it on cards is separate (playback in speech.js).
 //
 // Phrases listed on /voice are the ones we promise. Tests check every one.
+
+const ASSISTANT_PREFIXES = [
+  "hey nova",
+  "hi nova",
+  "hello nova",
+  "okay nova",
+  "ok nova",
+  "oye nova",
+  "hola nova",
+  "nova",
+].sort((a, b) => b.length - a.length);
 
 const POLITE_PREFIXES = [
   "where is the",
@@ -155,7 +167,7 @@ const DESTINATIONS = [
     cueKey: "voice.goingFeedback",
   },
   {
-    match: /^(voice|phrases|voz|frases)$/,
+    match: /^(voice|phrases|voz|frases|nova)$/,
     path: "/voice",
     cueKey: "voice.goingVoice",
   },
@@ -186,14 +198,14 @@ export const VOICE_PHRASE_GROUPS = VOICE_PAGES.map((page) => ({
   path: page.path,
   phrases: {
     en: [
-      `Take me to the ${page.nameEn} page`,
-      `Where is the ${page.nameEn} page?`,
-      `${page.nameEn} page`,
+      `Hey Nova, take me to the ${page.nameEn} page`,
+      `Hey Nova, where is the ${page.nameEn} page?`,
+      `Hey Nova, ${page.nameEn} page`,
     ],
     es: [
-      `Llévame a la página de ${page.nameEs}`,
-      `¿Dónde está la página de ${page.nameEs}?`,
-      `página de ${page.nameEs}`,
+      `Oye Nova, llévame a la página de ${page.nameEs}`,
+      `Oye Nova, ¿dónde está la página de ${page.nameEs}?`,
+      `Oye Nova, página de ${page.nameEs}`,
     ],
   },
 }));
@@ -303,7 +315,8 @@ function unstickGluedPage(text) {
 }
 
 export function parseVoiceCommand(raw) {
-  let text = stripListFromStart(normalizeVoiceText(raw), POLITE_PREFIXES);
+  let text = stripListFromStart(normalizeVoiceText(raw), ASSISTANT_PREFIXES);
+  text = stripListFromStart(text, POLITE_PREFIXES);
   text = stripListFromStart(text, LEADING_ARTICLES);
   if (!text) {
     return null;
