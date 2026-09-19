@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>B's Southern Creations</title>
+  <meta name="description" content="Handmade southern creations — custom gifts, florals, and boutique pieces made with care." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Great+Vibes&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="B's Southern Creations home">
+      <img src="assets/mark.svg" alt="" width="36" height="36" />
+      <span>B's Southern Creations</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#creations">Creations</a>
+      <a href="#custom">Custom</a>
+      <a href="#contact" class="nav-cta">Say hello</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-atmosphere" aria-hidden="true">
+        <div class="bloom bloom-a"></div>
+        <div class="bloom bloom-b"></div>
+        <div class="bloom bloom-c"></div>
+        <div class="petal-drift"></div>
+      </div>
+
+      <div class="hero-inner">
+        <img
+          class="hero-logo"
+          src="assets/logo.svg"
+          alt="B's Southern Creations logo"
+          width="520"
+          height="300"
+        />
+        <h1 class="hero-headline">Made with southern heart.</h1>
+        <p class="hero-lede">
+          Handmade gifts, florals, and boutique pieces — crafted to feel personal, pretty, and one of a kind.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#contact">Request a custom piece</a>
+          <a class="btn btn-ghost" href="#creations">See what we make</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section creations" id="creations">
+      <div class="section-inner">
+        <p class="eyebrow">What we create</p>
+        <h2>Little treasures with a homemade soul.</h2>
+        <p class="section-lede">
+          From soft florals to keepsake gifts, every piece is made to brighten a table, a shelf, or someone’s day.
+        </p>
+
+        <ul class="creation-list">
+          <li>
+            <h3>Floral arrangements</h3>
+            <p>Fresh and dried designs for parties, porches, and quiet corners that need a little color.</p>
+          </li>
+          <li>
+            <h3>Custom gifts</h3>
+            <p>Thoughtful handmade pieces for birthdays, thank-yous, baby showers, and “just because.”</p>
+          </li>
+          <li>
+            <h3>Boutique accents</h3>
+            <p>Home touches and event details that feel collected, not catalogued.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section custom" id="custom">
+      <div class="section-inner custom-panel">
+        <div class="custom-copy">
+          <p class="eyebrow">Made for you</p>
+          <h2>Tell us the occasion. We’ll bring the color.</h2>
+          <p>
+            Share a palette, a date, and who it’s for. We’ll shape something that fits your story —
+            soft pastels, garden greens, or a full southern rainbow.
+          </p>
+          <a class="btn btn-primary" href="#contact">Start a custom order</a>
+        </div>
+        <figure class="custom-visual" aria-hidden="true">
+          <img src="assets/mark.svg" alt="" width="220" height="220" />
+        </figure>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact">
+      <div class="section-inner contact-inner">
+        <p class="eyebrow">Let’s make something</p>
+        <h2>Say hello.</h2>
+        <p class="section-lede">
+          Ready for a custom creation or have a question? Send a note — we’d love to hear what you’re dreaming up.
+        </p>
+
+        <form class="contact-form" action="#" method="post">
+          <label>
+            Name
+            <input type="text" name="name" autocomplete="name" required />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" autocomplete="email" required />
+          </label>
+          <label>
+            What are you looking for?
+            <textarea name="message" rows="4" required placeholder="Occasion, colors, timeline…"></textarea>
+          </label>
+          <button class="btn btn-primary" type="submit">Send message</button>
+          <p class="form-note" hidden data-form-note>Thanks! This demo form is ready to connect to your email or inbox.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <img src="assets/mark.svg" alt="" width="40" height="40" />
+    <p>B's Southern Creations</p>
+    <p class="fine">Handmade with care · Est. southern roots</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
