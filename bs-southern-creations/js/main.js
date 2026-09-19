@@ -10,7 +10,7 @@
     });
   }
 
-  const items = document.querySelectorAll(".creation-list li");
+  const items = document.querySelectorAll(".creation-list li, .product");
   if (!items.length || !("IntersectionObserver" in window)) {
     items.forEach((item) => item.classList.add("is-in"));
     return;
@@ -24,11 +24,11 @@
         observer.unobserve(entry.target);
       });
     },
-    { threshold: 0.2 }
+    { threshold: 0.15 }
   );
 
   items.forEach((item, index) => {
-    item.style.transitionDelay = `${index * 90}ms`;
+    item.style.transitionDelay = `${(index % 4) * 90}ms`;
     observer.observe(item);
   });
 })();
