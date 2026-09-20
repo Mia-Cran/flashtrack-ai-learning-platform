@@ -286,7 +286,17 @@ a {
   font-style: italic;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  color: var(--ink);
+  background: linear-gradient(
+    100deg,
+    #5a8fd4 0%,
+    #6f9f84 28%,
+    #9a84b8 58%,
+    #c97b8a 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-lede {
