@@ -288,10 +288,10 @@ a {
   letter-spacing: -0.01em;
   background: linear-gradient(
     100deg,
-    #3d6f9e 0%,
-    #4f7d64 35%,
-    #7a5f9a 70%,
-    #a85d6e 100%
+    #5a8fc0 0%,
+    #6f9a7e 35%,
+    #9a7ab8 70%,
+    #c48494 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
