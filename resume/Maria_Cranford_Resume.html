@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maria Cranford — Resume</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a2421;
+      --muted: #4a5c56;
+      --line: #c9d5cf;
+      --accent: #0f6b5c;
+      --accent-soft: #e6f2ef;
+      --paper: #f7faf8;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #d7ebe4 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #e8f0ea 0%, transparent 50%),
+        linear-gradient(180deg, #eef4f1 0%, var(--paper) 40%, #e9f0ec 100%);
+      color: var(--ink);
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    .page {
+      width: min(820px, 94vw);
+      margin: 2.5rem auto;
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 3rem 3.25rem;
+      box-shadow: 0 18px 50px rgba(26, 36, 33, 0.08);
+    }
+
+    header {
+      display: grid;
+      gap: 0.75rem;
+      padding-bottom: 1.35rem;
+      border-bottom: 2px solid var(--accent);
+      margin-bottom: 1.75rem;
+    }
+
+    .name {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+      color: var(--ink);
+      line-height: 1.05;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 1rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .contact a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+
+    .contact a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    section { margin-bottom: 1.55rem; }
+
+    h2 {
+      margin: 0 0 0.7rem;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .summary {
+      margin: 0;
+      color: var(--ink);
+      font-size: 1.02rem;
+    }
+
+    .role {
+      margin-bottom: 1.15rem;
+    }
+
+    .role:last-child { margin-bottom: 0; }
+
+    .role-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.25rem 1rem;
+      align-items: baseline;
+    }
+
+    .role-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .role-org {
+      margin: 0.1rem 0 0.45rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .role-dates {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.15rem;
+    }
+
+    li { margin-bottom: 0.35rem; }
+
+    .skills {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .skill-row {
+      display: grid;
+      grid-template-columns: 8.5rem 1fr;
+      gap: 0.75rem;
+    }
+
+    .skill-label {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .skill-list { color: var(--muted); }
+
+    .actions {
+      width: min(820px, 94vw);
+      margin: 0 auto 2rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .actions button,
+    .actions a {
+      appearance: none;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 600;
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .actions a.secondary,
+    .actions button.secondary {
+      background: transparent;
+      color: var(--accent);
+    }
+
+    @media print {
+      body { background: white; }
+      .page {
+        width: 100%;
+        margin: 0;
+        border: none;
+        box-shadow: none;
+        padding: 0.4in 0.55in;
+      }
+      .actions { display: none; }
+      a { color: inherit; text-decoration: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 1.5rem 1.25rem; margin: 1rem auto; }
+      .skill-row { grid-template-columns: 1fr; gap: 0.15rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="actions">
+    <button type="button" onclick="window.print()">Save / Print as PDF</button>
+    <a class="secondary" href="./Maria_Cranford_Resume.md">Open Markdown version</a>
+  </div>
+
+  <main class="page">
+    <header>
+      <h1 class="name">Maria Cranford</h1>
+      <p class="title">Software Engineer · Founder of Adapt AI</p>
+      <div class="contact">
+        <span>Macon, Georgia</span>
+        <a href="mailto:palmermaria1991@gmail.com">palmermaria1991@gmail.com</a>
+        <a href="https://www.linkedin.com/in/maria-cranford-ab25ab277">LinkedIn</a>
+        <a href="https://github.com/Mia-Cran">GitHub</a>
+        <a href="https://software-engineering-study-tracker.vercel.app/">FlashTrack</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>Summary</h2>
+      <p class="summary">
+        Software engineer and founder building Adapt AI / FlashTrack — an AI learning platform
+        that adapts to how people learn. Full-stack builder with React, Node.js, Express,
+        MongoDB, and OpenAI. Former licensed real estate broker who brings client communication,
+        ownership, and follow-through into product work.
+      </p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+
+      <article class="role">
+        <div class="role-head">
+          <h3 class="role-title">Founder &amp; Software Engineer</h3>
+          <span class="role-dates">2025 – Present</span>
+        </div>
+        <p class="role-org">Adapt AI · FlashTrack (AI Learning Platform)</p>
+        <ul>
+          <li>Built FlashTrack end-to-end: React frontend, Express API, MongoDB, JWT auth, and OpenAI-powered study cards and quizzes.</li>
+          <li>Designed learner-focused AI prompts so concepts are explained simply, then deepened with technical detail, analogies, and common mistakes.</li>
+          <li>Expanded the product from a software-engineering study tracker into a multi-subject platform with saved topics, regeneration, and quiz review.</li>
+          <li>Shipped authentication, protected routes, rate limiting, CI tests, and deployment wiring (Vercel frontend; Render-ready backend).</li>
+          <li>Builds in public and iterates from real user feedback on clarity, accessibility, and teaching quality.</li>
+        </ul>
+      </article>
+
+      <article class="role">
+        <div class="role-head">
+          <h3 class="role-title">Real Estate Agent Broker</h3>
+          <span class="role-dates">Prior career</span>
+        </div>
+        <p class="role-org">Home For You Realty / Cranford Realty Group, LLC</p>
+        <ul>
+          <li>Licensed real estate broker serving clients through the full transaction lifecycle.</li>
+          <li>Built trust through clear communication, compliance awareness, and relationship-driven service.</li>
+          <li>Brought leadership, lead generation, and client advocacy skills that now inform product and founder work.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <article class="role">
+        <div class="role-head">
+          <h3 class="role-title">FlashTrack — AI Learning Platform</h3>
+          <span class="role-dates">Capstone → Product</span>
+        </div>
+        <p class="role-org">React · Node.js · Express · MongoDB · JWT · OpenAI · Vite</p>
+        <ul>
+          <li>Started as a TripleTen final project (Wikipedia API + localStorage) and evolved into a full-stack AI study platform.</li>
+          <li>Users search any term, get an AI study card, save it to their account, and quiz themselves later.</li>
+          <li>Live frontend: software-engineering-study-tracker.vercel.app · Source: github.com/Mia-Cran</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <article class="role">
+        <div class="role-head">
+          <h3 class="role-title">Certificate, Computer Software Engineering</h3>
+          <span class="role-dates">Completed 2026</span>
+        </div>
+        <p class="role-org">TripleTen</p>
+        <ul>
+          <li>Completed an intensive software engineering program covering JavaScript, React, APIs, routing, state, reusable components, deployment, and debugging.</li>
+          <li>Final project became the foundation for FlashTrack / Adapt AI.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <div class="skills">
+        <div class="skill-row">
+          <div class="skill-label">Frontend</div>
+          <div class="skill-list">JavaScript, React, HTML, CSS, Vite, responsive UI</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label">Backend</div>
+          <div class="skill-list">Node.js, Express, REST APIs, JWT auth, MongoDB / Mongoose</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label">AI / Product</div>
+          <div class="skill-list">OpenAI API, prompt design, adaptive learning features</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label">Practices</div>
+          <div class="skill-list">Git, testing, CI, deployment, building in public</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

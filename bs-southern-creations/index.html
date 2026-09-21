@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>B's Southern Creations</title>
+  <meta name="description" content="Handmade southern creations — cozy blankets, scarves, hats, and custom knit gifts made with care." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Great+Vibes&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="assets/favicon.png" type="image/png" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="B's Southern Creations home">
+      <img src="assets/mark.png" alt="" width="40" height="40" />
+      <span>B's Southern Creations</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#shop">Shop</a>
+      <div class="nav-dropdown">
+        <button
+          type="button"
+          class="nav-dropdown-toggle"
+          aria-expanded="false"
+          aria-controls="what-we-make-menu"
+          id="what-we-make-btn"
+        >
+          What we make
+          <span class="nav-caret" aria-hidden="true"></span>
+        </button>
+        <ul class="nav-dropdown-menu" id="what-we-make-menu" hidden>
+          <li><a href="#product-blankets">Blankets &amp; throws</a></li>
+          <li><a href="#product-scarves">Scarves</a></li>
+          <li><a href="#product-hats">Hats &amp; beanies</a></li>
+          <li><a href="#product-sets">Sets &amp; extras</a></li>
+        </ul>
+      </div>
+      <a href="#custom">Custom</a>
+      <a href="#contact" class="nav-cta">Say hello</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-atmosphere" aria-hidden="true">
+        <div class="bloom bloom-a"></div>
+        <div class="bloom bloom-b"></div>
+        <div class="bloom bloom-c"></div>
+        <div class="petal-drift"></div>
+      </div>
+
+      <div class="hero-inner">
+        <img
+          class="hero-logo"
+          src="assets/logo.png"
+          alt="B's Southern Creations logo"
+          width="520"
+          height="480"
+        />
+        <h1 class="hero-headline">Handmade warmth, southern heart.</h1>
+        <p class="hero-lede">
+          Cozy blankets, scarves, hats, and custom knit pieces — stitched one stitch at a time.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#shop">Browse the goods</a>
+          <a class="btn btn-ghost" href="#contact">Request a custom piece</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shop" id="shop">
+      <div class="section-inner section-inner-wide">
+        <p class="eyebrow">The shop</p>
+        <h2>Soft pieces you’ll want to live in.</h2>
+        <p class="section-lede">
+          Every blanket, scarf, and hat is handmade — meant to feel like a hug from home.
+        </p>
+
+        <div class="product-grid">
+          <figure class="product" id="product-blankets">
+            <img src="assets/products/blanket.jpg" alt="Handmade chunky knit throw blanket in soft pastel yarn" width="800" height="600" loading="lazy" />
+            <figcaption>
+              <h3>Blankets &amp; throws</h3>
+              <p>Chunky, cozy, and made for couch nights and nursery nooks.</p>
+            </figcaption>
+          </figure>
+          <figure class="product" id="product-scarves">
+            <img src="assets/products/scarf.jpg" alt="Handmade pastel knit scarf draped on linen" width="800" height="600" loading="lazy" />
+            <figcaption>
+              <h3>Scarves</h3>
+              <p>Soft wraps in southern pastel colors for everyday warmth.</p>
+            </figcaption>
+          </figure>
+          <figure class="product" id="product-hats">
+            <img src="assets/products/hat.jpg" alt="Handmade knit beanies in blue, pink, and sage" width="800" height="600" loading="lazy" />
+            <figcaption>
+              <h3>Hats &amp; beanies</h3>
+              <p>Ribbed, roomy, and ready for crisp mornings.</p>
+            </figcaption>
+          </figure>
+          <figure class="product" id="product-sets">
+            <img src="assets/products/set.jpg" alt="Handmade knit mittens and scarf set with pastel yarn" width="800" height="600" loading="lazy" />
+            <figcaption>
+              <h3>Sets &amp; extras</h3>
+              <p>Mitts, matching sets, and little gifts that feel personal.</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section creations" id="creations">
+      <div class="section-inner">
+        <p class="eyebrow">What we make</p>
+        <h2>Little treasures with a homemade soul.</h2>
+        <p class="section-lede">
+          From baby blankets to winter scarves, every piece is crafted to feel soft, useful, and one of a kind.
+        </p>
+
+        <ul class="creation-list">
+          <li>
+            <h3>Blankets &amp; throws</h3>
+            <p>Lap blankets, baby blankets, and couch throws in soft yarns and custom colors.</p>
+          </li>
+          <li>
+            <h3>Scarves &amp; wraps</h3>
+            <p>Everyday scarves and gift-ready wraps — warm without the bulk.</p>
+          </li>
+          <li>
+            <h3>Hats, beanies &amp; more</h3>
+            <p>Beanies, mittens, and matching sets for family, friends, and market days.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section custom" id="custom">
+      <div class="section-inner custom-panel">
+        <div class="custom-copy">
+          <p class="eyebrow">Made for you</p>
+          <h2>Tell us the colors. We’ll bring the cozy.</h2>
+          <p>
+            Share who it’s for, your favorite colors, and the size you need.
+            We’ll knit something that feels like it was always meant for them —
+            soft pastels, garden greens, or a full southern rainbow.
+          </p>
+          <a class="btn btn-primary" href="#contact">Start a custom order</a>
+        </div>
+        <figure class="custom-visual">
+          <img src="assets/products/scarf.jpg" alt="Handmade pastel scarf detail" width="480" height="360" />
+        </figure>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact">
+      <div class="section-inner contact-inner">
+        <p class="eyebrow">Let’s make something</p>
+        <h2>Say hello.</h2>
+        <p class="section-lede">
+          Want a custom blanket, scarf, or hat? Send a note with colors, size, and timeline —
+          we’d love to stitch something for you.
+        </p>
+
+        <form class="contact-form" action="#" method="post">
+          <label>
+            Name
+            <input type="text" name="name" autocomplete="name" required />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" autocomplete="email" required />
+          </label>
+          <label>
+            What are you looking for?
+            <textarea name="message" rows="4" required placeholder="Blanket, scarf, hat… colors, size, timeline…"></textarea>
+          </label>
+          <button class="btn btn-primary" type="submit">Send message</button>
+          <p class="form-note" hidden data-form-note>Thanks! This demo form is ready to connect to your email or inbox.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <img src="assets/mark.png" alt="" width="48" height="48" />
+    <p>B's Southern Creations</p>
+    <p class="fine">Handmade with care · Blankets, scarves, hats &amp; more</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
